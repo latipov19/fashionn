@@ -13,7 +13,7 @@ type Connection = { db: Db; close: () => Promise<void> };
  * PGlite allows one process and one client, and Next can load this module more than once,
  * so the single connection lives on globalThis.
  */
-const holder = globalThis as typeof globalThis & { __lierneDb?: Promise<Connection> };
+const holder = globalThis as typeof globalThis & { __vybeverseDb?: Promise<Connection> };
 
 const migrationsFolder = () => path.join(process.cwd(), "drizzle");
 
@@ -75,18 +75,18 @@ async function open(): Promise<Connection> {
 
 /** Connects, migrates and seeds on first use. Later calls share the same client. */
 export function getDb(): Promise<Db> {
-  if (!holder.__lierneDb) {
-    holder.__lierneDb = open().catch((error) => {
-      holder.__lierneDb = undefined;
+  if (!holder.__vybeverseDb) {
+    holder.__vybeverseDb = open().catch((error) => {
+      holder.__vybeverseDb = undefined;
       throw error;
     });
   }
-  return holder.__lierneDb.then((connection) => connection.db);
+  return holder.__vybeverseDb.then((connection) => connection.db);
 }
 
 /** Closes the connection. The next getDb() opens a new one. */
 export async function closeDb(): Promise<void> {
-  const pending = holder.__lierneDb;
-  holder.__lierneDb = undefined;
+  const pending = holder.__vybeverseDb;
+  holder.__vybeverseDb = undefined;
   if (pending) await (await pending).close();
 }

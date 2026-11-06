@@ -5,10 +5,10 @@ import type { MediaRecord } from "@/content/types";
 import type { CartLine } from "@/lib/validation";
 import { cartLineSchema } from "@/lib/validation";
 import { getDb } from "./db/client";
-import { colourways, pieces, variants } from "./db/schema";
+import { productColors, products, variants } from "./db/schema";
 import { loadMediaForOwners, primaryMedia } from "./media";
 
-export const CART_COOKIE = "lierne_cart";
+export const CART_COOKIE = "vv_cart";
 const THIRTY_DAYS = 30 * 24 * 60 * 60;
 
 /**
@@ -65,26 +65,25 @@ export async function writeCartCookie(lines: readonly CartLine[]): Promise<void>
 
 export type CartViewLine = {
   variantId: string;
-  pieceSlug: string;
-  pieceName: string;
-  peg: string;
-  colourwayName: string;
+  productHandle: string;
+  productName: string;
+  colorName: string;
   size: string;
   /** Quantity that can actually be bought now. Zero means the line is unavailable. */
   quantity: number;
   /** Quantity asked for in the cookie. */
   requestedQuantity: number;
   stock: number;
-  unitPriceCents: number;
-  lineTotalCents: number;
+  unitPriceUzs: number;
+  lineTotalUzs: number;
   image: MediaRecord | null;
 };
 
 export type CartView = {
   lines: CartViewLine[];
-  /** Total pieces, for the header count. */
+  /** Total products, for the header count. */
   count: number;
-  subtotalCents: number;
+  subtotalUzs: number;
   /** True when any line was reduced or is no longer available. */
   changed: boolean;
 };
@@ -94,15 +93,14 @@ export type PurchasableVariant = {
   stock: number;
   sku: string;
   size: string;
-  priceCents: number;
-  pieceId: string;
-  pieceSlug: string;
-  pieceName: string;
-  peg: string;
-  colourwayId: string;
-  colourwaySlug: string;
-  colourwayName: string;
-  /** False when unpublished, or the colourway or size was removed. */
+  priceUzs: number;
+  productId: string;
+  productHandle: string;
+  productName: string;
+  colorId: string;
+  colorSlug: string;
+  colorName: string;
+  /** False when unpublished, or the color or size was removed. */
   purchasable: boolean;
 };
 
@@ -113,27 +111,26 @@ export async function loadVariants(variantIds: readonly string[], db: Selectable
   const result = new Map<string, PurchasableVariant>();
   if (variantIds.length === 0) return result;
   const rows = await db
-    .select({ variant: variants, piece: pieces, colourway: colourways })
+    .select({ variant: variants, product: products, color: productColors })
     .from(variants)
-    .innerJoin(pieces, eq(pieces.id, variants.pieceId))
-    .innerJoin(colourways, eq(colourways.id, variants.colourwayId))
+    .innerJoin(products, eq(products.id, variants.productId))
+    .innerJoin(productColors, eq(productColors.id, variants.colorId))
     .where(inArray(variants.id, [...variantIds]));
 
-  for (const { variant, piece, colourway } of rows) {
+  for (const { variant, product, color } of rows) {
     result.set(variant.id, {
       variantId: variant.id,
       stock: variant.stock,
       sku: variant.sku,
       size: variant.size,
-      priceCents: piece.priceCents,
-      pieceId: piece.id,
-      pieceSlug: piece.slug,
-      pieceName: piece.name,
-      peg: piece.peg,
-      colourwayId: colourway.id,
-      colourwaySlug: colourway.slug,
-      colourwayName: colourway.name,
-      purchasable: piece.published && colourway.active && piece.sizes.includes(variant.size),
+      priceUzs: product.priceUzs,
+      productId: product.id,
+      productHandle: product.handle,
+      productName: product.name,
+      colorId: color.id,
+      colorSlug: color.slug,
+      colorName: color.name,
+      purchasable: product.published && color.active && product.sizes.includes(variant.size),
     });
   }
   return result;
@@ -154,7 +151,7 @@ export async function getCart(): Promise<CartView> {
   });
 
   const media = await loadMediaForOwners(
-    known.map(({ fact }) => ({ pieceSlug: fact.pieceSlug, colourwaySlug: fact.colourwaySlug, colourwayId: fact.colourwayId })),
+    known.map(({ fact }) => ({ productHandle: fact.productHandle, colorSlug: fact.colorSlug, colorId: fact.colorId })),
     db,
   );
 
@@ -163,24 +160,23 @@ export async function getCart(): Promise<CartView> {
     const quantity = Math.min(line.quantity, available);
     return {
       variantId: fact.variantId,
-      pieceSlug: fact.pieceSlug,
-      pieceName: fact.pieceName,
-      peg: fact.peg,
-      colourwayName: fact.colourwayName,
+      productHandle: fact.productHandle,
+      productName: fact.productName,
+      colorName: fact.colorName,
       size: fact.size,
       quantity,
       requestedQuantity: line.quantity,
       stock: available,
-      unitPriceCents: fact.priceCents,
-      lineTotalCents: fact.priceCents * quantity,
-      image: primaryMedia(media.get(fact.colourwayId) ?? []),
+      unitPriceUzs: fact.priceUzs,
+      lineTotalUzs: fact.priceUzs * quantity,
+      image: primaryMedia(media.get(fact.colorId) ?? []),
     };
   });
 
   return {
     lines,
     count: lines.reduce((sum, line) => sum + line.quantity, 0),
-    subtotalCents: lines.reduce((sum, line) => sum + line.lineTotalCents, 0),
+    subtotalUzs: lines.reduce((sum, line) => sum + line.lineTotalUzs, 0),
     changed: known.length !== cookieLines.length || lines.some((line) => line.quantity !== line.requestedQuantity),
   };
 }

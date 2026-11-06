@@ -1,51 +1,37 @@
-/** Prices are integer cents everywhere. Formatting happens only at the edge. */
+/**
+ * Money is an integer number of whole soʻm everywhere. Tiyin are not used: a provider that
+ * needs them converts inside its own adapter. Formatting is by hand, not Intl, so server and
+ * client always print the same string, and the separator is a no-break space.
+ */
+const NBSP = " ";
 
-const whole = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-});
-
-const exact = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-/** `92000` becomes `$920`, and `92050` becomes `$920.50`. */
-export function formatCents(cents: number): string {
-  return (cents % 100 === 0 ? whole : exact).format(cents / 100);
+export function formatUzs(amount: number): string {
+  const sign = amount < 0 ? "-" : "";
+  const digits = String(Math.abs(Math.trunc(amount))).replace(/\B(?=(\d{3})+(?!\d))/g, NBSP);
+  return `${sign}${digits}${NBSP}soʻm`;
 }
 
-export function usdToCents(usd: number): number {
-  return Math.round(usd * 100);
-}
-
-/** Parses an admin-typed price such as `920` or `920.50`. Returns null when it is not a price. */
-export function parsePriceToCents(input: string): number | null {
-  const match = /^\s*\$?\s*(\d{1,7})(?:\.(\d{1,2}))?\s*$/.exec(input);
-  if (!match) return null;
-  const dollars = Number(match[1]);
-  const cents = Number((match[2] ?? "").padEnd(2, "0"));
-  return dollars * 100 + cents;
+/** Reads an admin-typed price such as `590 000`. Returns null when it is not a whole amount. */
+export function parseUzs(input: string): number | null {
+  const compact = input.replace(/[\s ]/g, "").replace(/soʻm$/i, "");
+  if (!/^\d{1,10}$/.test(compact)) return null;
+  const value = Number(compact);
+  return Number.isSafeInteger(value) ? value : null;
 }
 
 export type Totals = {
-  subtotalCents: number;
-  shippingCents: number;
-  taxCents: number;
-  totalCents: number;
+  subtotalUzs: number;
+  deliveryUzs: number;
+  totalUzs: number;
 };
 
-/** Tax is a whole number of cents, rounded half up, from basis points of the subtotal. */
-export function calculateTotals(
-  lines: readonly { unitPriceCents: number; quantity: number }[],
-  shippingCents: number,
-  taxBasisPoints: number,
-): Totals {
-  const subtotalCents = lines.reduce((sum, line) => sum + line.unitPriceCents * line.quantity, 0);
-  const taxCents = Math.round((subtotalCents * taxBasisPoints) / 10_000);
-  return { subtotalCents, shippingCents, taxCents, totalCents: subtotalCents + shippingCents + taxCents };
+export function calculateTotals(lines: readonly { unitPriceUzs: number; quantity: number }[], deliveryUzs: number): Totals {
+  const subtotalUzs = lines.reduce((sum, line) => sum + line.unitPriceUzs * line.quantity, 0);
+  return { subtotalUzs, deliveryUzs, totalUzs: subtotalUzs + deliveryUzs };
+}
+
+/** Whole percent off, or null when there is no real discount to show. */
+export function discountPercent(priceUzs: number, compareAtUzs: number | null): number | null {
+  if (!compareAtUzs || compareAtUzs <= priceUzs) return null;
+  return Math.round(((compareAtUzs - priceUzs) / compareAtUzs) * 100);
 }

@@ -1,5 +1,5 @@
 {
-  "id": "671b56d8-f5e8-4d75-ad3d-1750903a62f6",
+  "id": "358b692e-1429-412e-909b-8dccb1b1eddb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -149,191 +149,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.cloths": {
-      "name": "cloths",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "label": {
-          "name": "label",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "weave": {
-          "name": "weave",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "composition": {
-          "name": "composition",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "gsm": {
-          "name": "gsm",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "warp_per_cm": {
-          "name": "warp_per_cm",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "weft_per_cm": {
-          "name": "weft_per_cm",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "bend": {
-          "name": "bend",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "roughness": {
-          "name": "roughness",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sheen": {
-          "name": "sheen",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "fuzz": {
-          "name": "fuzz",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "wrap": {
-          "name": "wrap",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.colourways": {
-      "name": "colourways",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "piece_id": {
-          "name": "piece_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "hex": {
-          "name": "hex",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "lining": {
-          "name": "lining",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "position": {
-          "name": "position",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "active": {
-          "name": "active",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        }
-      },
-      "indexes": {
-        "colourways_piece_slug_key": {
-          "name": "colourways_piece_slug_key",
-          "columns": [
-            {
-              "expression": "piece_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "slug",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "colourways_piece_id_pieces_id_fk": {
-          "name": "colourways_piece_id_pieces_id_fk",
-          "tableFrom": "colourways",
-          "tableTo": "pieces",
-          "columnsFrom": [
-            "piece_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.media_overrides": {
       "name": "media_overrides",
       "schema": "",
@@ -344,8 +159,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "colourway_id": {
-          "name": "colourway_id",
+        "color_id": {
+          "name": "color_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -365,11 +180,11 @@
         }
       },
       "indexes": {
-        "media_overrides_colourway_idx": {
-          "name": "media_overrides_colourway_idx",
+        "media_overrides_color_idx": {
+          "name": "media_overrides_color_idx",
           "columns": [
             {
-              "expression": "colourway_id",
+              "expression": "color_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -382,12 +197,12 @@
         }
       },
       "foreignKeys": {
-        "media_overrides_colourway_id_colourways_id_fk": {
-          "name": "media_overrides_colourway_id_colourways_id_fk",
+        "media_overrides_color_id_product_colors_id_fk": {
+          "name": "media_overrides_color_id_product_colors_id_fk",
           "tableFrom": "media_overrides",
-          "tableTo": "colourways",
+          "tableTo": "product_colors",
           "columnsFrom": [
-            "colourway_id"
+            "color_id"
           ],
           "columnsTo": [
             "id"
@@ -474,26 +289,20 @@
           "primaryKey": false,
           "notNull": true
         },
-        "piece_slug": {
-          "name": "piece_slug",
+        "product_handle": {
+          "name": "product_handle",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "piece_name": {
-          "name": "piece_name",
+        "product_name": {
+          "name": "product_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "peg": {
-          "name": "peg",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "colourway_name": {
-          "name": "colourway_name",
+        "color_name": {
+          "name": "color_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -510,8 +319,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "unit_price_cents": {
-          "name": "unit_price_cents",
+        "unit_price_uzs": {
+          "name": "unit_price_uzs",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -522,9 +331,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "line_total_cents": {
-          "name": "line_total_cents",
-          "type": "integer",
+        "line_total_uzs": {
+          "name": "line_total_uzs",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true
         }
@@ -630,16 +439,22 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "'placed'"
+          "default": "'pending'"
         },
-        "email": {
-          "name": "email",
+        "customer_name": {
+          "name": "customer_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "phone": {
           "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -650,8 +465,14 @@
           "primaryKey": false,
           "notNull": true
         },
-        "shipping_method": {
-          "name": "shipping_method",
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "delivery_zone": {
+          "name": "delivery_zone",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -661,29 +482,23 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "'USD'"
+          "default": "'UZS'"
         },
-        "subtotal_cents": {
-          "name": "subtotal_cents",
-          "type": "integer",
+        "subtotal_uzs": {
+          "name": "subtotal_uzs",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true
         },
-        "shipping_cents": {
-          "name": "shipping_cents",
-          "type": "integer",
+        "delivery_uzs": {
+          "name": "delivery_uzs",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true
         },
-        "tax_cents": {
-          "name": "tax_cents",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "total_cents": {
-          "name": "total_cents",
-          "type": "integer",
+        "total_uzs": {
+          "name": "total_uzs",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true
         },
@@ -810,17 +625,17 @@
       "checkConstraints": {
         "orders_status_valid": {
           "name": "orders_status_valid",
-          "value": "\"orders\".\"status\" in ('placed', 'packed', 'shipped', 'delivered', 'cancelled')"
+          "value": "\"orders\".\"status\" in ('pending', 'confirmed', 'packed', 'shipped', 'delivered', 'canceled', 'returned')"
         },
         "orders_total_adds_up": {
           "name": "orders_total_adds_up",
-          "value": "\"orders\".\"total_cents\" = \"orders\".\"subtotal_cents\" + \"orders\".\"shipping_cents\" + \"orders\".\"tax_cents\""
+          "value": "\"orders\".\"total_uzs\" = \"orders\".\"subtotal_uzs\" + \"orders\".\"delivery_uzs\""
         }
       },
       "isRLSEnabled": false
     },
-    "public.pieces": {
-      "name": "pieces",
+    "public.product_colors": {
+      "name": "product_colors",
       "schema": "",
       "columns": {
         "id": {
@@ -830,14 +645,14 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "slug": {
-          "name": "slug",
-          "type": "text",
+        "product_id": {
+          "name": "product_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "peg": {
-          "name": "peg",
+        "slug": {
+          "name": "slug",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -848,117 +663,37 @@
           "primaryKey": false,
           "notNull": true
         },
-        "category": {
-          "name": "category",
+        "hex": {
+          "name": "hex",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "room": {
-          "name": "room",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "hour": {
-          "name": "hour",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "frame_class": {
-          "name": "frame_class",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "hang": {
-          "name": "hang",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "price_cents": {
-          "name": "price_cents",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sizes": {
-          "name": "sizes",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "cloth_id": {
-          "name": "cloth_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "cut": {
-          "name": "cut",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "gather_pct": {
-          "name": "gather_pct",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "seed": {
-          "name": "seed",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "details": {
-          "name": "details",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "published": {
-          "name": "published",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "sort_order": {
-          "name": "sort_order",
+        "position": {
+          "name": "position",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "default": 0
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
+        "active": {
+          "name": "active",
+          "type": "boolean",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "default": true
         }
       },
       "indexes": {
-        "pieces_slug_key": {
-          "name": "pieces_slug_key",
+        "product_colors_product_slug_key": {
+          "name": "product_colors_product_slug_key",
           "columns": [
+            {
+              "expression": "product_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
             {
               "expression": "slug",
               "isExpression": false,
@@ -970,68 +705,27 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "pieces_peg_key": {
-          "name": "pieces_peg_key",
-          "columns": [
-            {
-              "expression": "peg",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "pieces_published_sort_idx": {
-          "name": "pieces_published_sort_idx",
-          "columns": [
-            {
-              "expression": "published",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "sort_order",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
-        "pieces_cloth_id_cloths_id_fk": {
-          "name": "pieces_cloth_id_cloths_id_fk",
-          "tableFrom": "pieces",
-          "tableTo": "cloths",
+        "product_colors_product_id_products_id_fk": {
+          "name": "product_colors_product_id_products_id_fk",
+          "tableFrom": "product_colors",
+          "tableTo": "products",
           "columnsFrom": [
-            "cloth_id"
+            "product_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {
-        "pieces_price_nonnegative": {
-          "name": "pieces_price_nonnegative",
-          "value": "\"pieces\".\"price_cents\" >= 0"
-        }
-      },
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.product_media": {
@@ -1045,14 +739,14 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "piece_id": {
-          "name": "piece_id",
+        "product_id": {
+          "name": "product_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "colourway_id": {
-          "name": "colourway_id",
+        "color_id": {
+          "name": "color_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -1063,12 +757,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'photo'"
-        },
-        "hour": {
-          "name": "hour",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "url": {
           "name": "url",
@@ -1135,11 +823,11 @@
         }
       },
       "indexes": {
-        "product_media_colourway_idx": {
-          "name": "product_media_colourway_idx",
+        "product_media_color_idx": {
+          "name": "product_media_color_idx",
           "columns": [
             {
-              "expression": "colourway_id",
+              "expression": "color_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1152,12 +840,12 @@
         }
       },
       "foreignKeys": {
-        "product_media_piece_id_pieces_id_fk": {
-          "name": "product_media_piece_id_pieces_id_fk",
+        "product_media_product_id_products_id_fk": {
+          "name": "product_media_product_id_products_id_fk",
           "tableFrom": "product_media",
-          "tableTo": "pieces",
+          "tableTo": "products",
           "columnsFrom": [
-            "piece_id"
+            "product_id"
           ],
           "columnsTo": [
             "id"
@@ -1165,12 +853,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "product_media_colourway_id_colourways_id_fk": {
-          "name": "product_media_colourway_id_colourways_id_fk",
+        "product_media_color_id_product_colors_id_fk": {
+          "name": "product_media_color_id_product_colors_id_fk",
           "tableFrom": "product_media",
-          "tableTo": "colourways",
+          "tableTo": "product_colors",
           "columnsFrom": [
-            "colourway_id"
+            "color_id"
           ],
           "columnsTo": [
             "id"
@@ -1185,6 +873,255 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.product_worlds": {
+      "name": "product_worlds",
+      "schema": "",
+      "columns": {
+        "product_id": {
+          "name": "product_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "world": {
+          "name": "world",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "product_worlds_world_idx": {
+          "name": "product_worlds_world_idx",
+          "columns": [
+            {
+              "expression": "world",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "position",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "product_worlds_product_id_products_id_fk": {
+          "name": "product_worlds_product_id_products_id_fk",
+          "tableFrom": "product_worlds",
+          "tableTo": "products",
+          "columnsFrom": [
+            "product_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "product_worlds_product_id_world_pk": {
+          "name": "product_worlds_product_id_world_pk",
+          "columns": [
+            "product_id",
+            "world"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.products": {
+      "name": "products",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "handle": {
+          "name": "handle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot": {
+          "name": "slot",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price_uzs": {
+          "name": "price_uzs",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "compare_at_uzs": {
+          "name": "compare_at_uzs",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sizes": {
+          "name": "sizes",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fabric": {
+          "name": "fabric",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fit": {
+          "name": "fit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "care": {
+          "name": "care",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "size_chart": {
+          "name": "size_chart",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_demo": {
+          "name": "is_demo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "published": {
+          "name": "published",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "products_handle_key": {
+          "name": "products_handle_key",
+          "columns": [
+            {
+              "expression": "handle",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "products_published_sort_idx": {
+          "name": "products_published_sort_idx",
+          "columns": [
+            {
+              "expression": "published",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sort_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "products_price_nonnegative": {
+          "name": "products_price_nonnegative",
+          "value": "\"products\".\"price_uzs\" >= 0"
+        },
+        "products_compare_at_above_price": {
+          "name": "products_compare_at_above_price",
+          "value": "\"products\".\"compare_at_uzs\" is null or \"products\".\"compare_at_uzs\" > \"products\".\"price_uzs\""
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.variants": {
       "name": "variants",
       "schema": "",
@@ -1196,14 +1133,14 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "piece_id": {
-          "name": "piece_id",
+        "product_id": {
+          "name": "product_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "colourway_id": {
-          "name": "colourway_id",
+        "color_id": {
+          "name": "color_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -1229,11 +1166,11 @@
         }
       },
       "indexes": {
-        "variants_colourway_size_key": {
-          "name": "variants_colourway_size_key",
+        "variants_color_size_key": {
+          "name": "variants_color_size_key",
           "columns": [
             {
-              "expression": "colourway_id",
+              "expression": "color_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1265,11 +1202,11 @@
           "method": "btree",
           "with": {}
         },
-        "variants_piece_idx": {
-          "name": "variants_piece_idx",
+        "variants_product_idx": {
+          "name": "variants_product_idx",
           "columns": [
             {
-              "expression": "piece_id",
+              "expression": "product_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1282,12 +1219,12 @@
         }
       },
       "foreignKeys": {
-        "variants_piece_id_pieces_id_fk": {
-          "name": "variants_piece_id_pieces_id_fk",
+        "variants_product_id_products_id_fk": {
+          "name": "variants_product_id_products_id_fk",
           "tableFrom": "variants",
-          "tableTo": "pieces",
+          "tableTo": "products",
           "columnsFrom": [
-            "piece_id"
+            "product_id"
           ],
           "columnsTo": [
             "id"
@@ -1295,12 +1232,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "variants_colourway_id_colourways_id_fk": {
-          "name": "variants_colourway_id_colourways_id_fk",
+        "variants_color_id_product_colors_id_fk": {
+          "name": "variants_color_id_product_colors_id_fk",
           "tableFrom": "variants",
-          "tableTo": "colourways",
+          "tableTo": "product_colors",
           "columnsFrom": [
-            "colourway_id"
+            "color_id"
           ],
           "columnsTo": [
             "id"

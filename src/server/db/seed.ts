@@ -1,68 +1,46 @@
 import { eq, sql } from "drizzle-orm";
-import { cloths as clothContent } from "../../content/cloths";
-import { commerce } from "../../content/commerce";
-import { pieces as pieceContent } from "../../content/pieces";
-import { roomMeta } from "../../content/rooms";
-import { separation } from "../../lib/colour";
-import { usdToCents } from "../../lib/money";
+import { demoCatalog, demoStock } from "../../content/catalog.demo";
 import { hashPassword } from "../password";
 import type { Db } from "./client";
-import { adminUsers, cloths, colourways, pieces, variants } from "./schema";
+import { adminUsers, productColors, products, productWorlds, variants } from "./schema";
 
-export function makeSku(pieceSlug: string, colourwaySlug: string, size: string): string {
-  return `${pieceSlug}-${colourwaySlug}-${size}`.toUpperCase().replace(/[^A-Z0-9]+/g, "-");
+export function makeSku(productHandle: string, colorSlug: string, size: string): string {
+  return `${productHandle}-${colorSlug}-${size}`.toUpperCase().replace(/[^A-Z0-9]+/g, "-");
 }
 
-/** Brief 9.6: the seed script enforces colourway-to-wall separation. */
-function assertSeparation() {
-  for (const piece of pieceContent) {
-    for (const colourway of piece.colourways) {
-      const result = separation(colourway.hex, roomMeta[piece.room].pigment);
-      if (!result.passes) {
-        throw new Error(
-          `${piece.name} in ${colourway.name} is too close to its wall: ` +
-            `delta E ${result.deltaE.toFixed(1)}, delta L ${result.deltaL.toFixed(1)}`,
-        );
-      }
-    }
-  }
-}
-
-/** Inserts the whole catalog in one transaction, so a failed seed leaves nothing behind. */
+/** Inserts the whole demo catalog in one transaction, so a failed seed leaves nothing behind. */
 export async function seedCatalog(db: Db): Promise<void> {
-  assertSeparation();
   await db.transaction(async (tx) => {
-    await tx.insert(cloths).values(clothContent).onConflictDoNothing();
+    const worldPositions = new Map<string, number>();
 
-    for (const [index, piece] of pieceContent.entries()) {
-      const { colourways: colours, priceUsd, ...fields } = piece;
+    for (const [index, product] of demoCatalog.entries()) {
+      const { colors, worlds, silhouette: _silhouette, ...fields } = product;
       const [row] = await tx
-        .insert(pieces)
-        .values({ ...fields, priceCents: usdToCents(priceUsd), sortOrder: index })
-        .returning({ id: pieces.id });
-      if (!row) throw new Error(`Could not seed ${piece.slug}`);
+        .insert(products)
+        .values({ ...fields, isDemo: true, sortOrder: index })
+        .returning({ id: products.id });
+      if (!row) throw new Error(`Could not seed ${product.handle}`);
 
-      for (const [position, colour] of colours.entries()) {
-        const [colourRow] = await tx
-          .insert(colourways)
-          .values({
-            pieceId: row.id,
-            slug: colour.id,
-            name: colour.name,
-            hex: colour.hex,
-            lining: colour.lining,
-            position,
-          })
-          .returning({ id: colourways.id });
-        if (!colourRow) throw new Error(`Could not seed ${piece.slug}/${colour.id}`);
+      for (const world of worlds) {
+        const position = worldPositions.get(world) ?? 0;
+        worldPositions.set(world, position + 1);
+        await tx.insert(productWorlds).values({ productId: row.id, world, position });
+      }
+
+      for (const [position, color] of colors.entries()) {
+        const [colorRow] = await tx
+          .insert(productColors)
+          .values({ productId: row.id, slug: color.slug, name: color.name, hex: color.hex, position })
+          .returning({ id: productColors.id });
+        if (!colorRow) throw new Error(`Could not seed ${product.handle}/${color.slug}`);
 
         await tx.insert(variants).values(
-          piece.sizes.map((size) => ({
-            pieceId: row.id,
-            colourwayId: colourRow.id,
+          product.sizes.map((size) => ({
+            productId: row.id,
+            colorId: colorRow.id,
             size,
-            stock: commerce.seedStockPerVariant,
-            sku: makeSku(piece.slug, colour.id, size),
+            stock: demoStock(product.handle, color.slug, size),
+            sku: makeSku(product.handle, color.slug, size),
           })),
         );
       }
@@ -84,9 +62,9 @@ export async function ensureAdminUser(db: Db): Promise<boolean> {
   return true;
 }
 
-/** Runs on every boot. An empty `pieces` table seeds itself. */
+/** Runs on every boot. An empty `products` table seeds itself. */
 export async function ensureSeeded(db: Db): Promise<void> {
-  const [row] = await db.select({ count: sql<number>`count(*)::int` }).from(pieces);
+  const [row] = await db.select({ count: sql<number>`count(*)::int` }).from(products);
   if (!row || row.count === 0) await seedCatalog(db);
   await ensureAdminUser(db);
 }

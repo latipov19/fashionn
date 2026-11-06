@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { copy } from "@/content/copy";
 import type { CheckoutState } from "@/lib/checkout-state";
 import { CHECKOUT_FIELDS } from "@/lib/checkout-state";
-import type { CartLine } from "@/lib/validation";
+import type { CartLine, PlaceOrderInput } from "@/lib/validation";
 import { readCartCookie, writeCartCookie } from "../cart";
 import { placeOrder } from "../orders";
 import { checkoutLimiter } from "../rate-limit";
@@ -33,18 +33,13 @@ export async function placeOrderAction(_previous: CheckoutState, formData: FormD
   let token: string;
   try {
     const result = await placeOrder({
-      email: values.email ?? "",
-      phone: values.phone,
-      address: {
-        fullName: values.fullName ?? "",
-        line1: values.line1 ?? "",
-        line2: values.line2,
-        city: values.city ?? "",
-        region: values.region ?? "",
-        postalCode: values.postalCode ?? "",
-        country: values.country ?? "",
-      },
-      shippingMethod: values.shippingMethod ?? "",
+      customerName: values.customerName ?? "",
+      phone: values.phone ?? "",
+      email: values.email,
+      region: (values.region ?? "") as PlaceOrderInput["region"],
+      city: values.city ?? "",
+      addressLine: values.addressLine ?? "",
+      notes: values.notes,
       idempotencyKey: typeof key === "string" ? key : "",
       lines,
     });

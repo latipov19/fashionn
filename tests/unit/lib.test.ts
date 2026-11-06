@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { pieces } from "@/content/pieces";
+import { products } from "@/content/catalog.demo";
 import { copy, stockLabel } from "@/content/copy";
 import { generateCutSheet, cutForSize, middleSizeIndex, sizeStep } from "@/lib/cut-sheet";
 import { bladeWidth, crossingAzimuth, HOUR_TABLE, litTop, solveWindowZ, sunDirection } from "@/lib/hours";
 import { calculateTotals, formatCents, parsePriceToCents, usdToCents } from "@/lib/money";
-import { checkoutSchema, updatePieceSchema } from "@/lib/validation";
+import { checkoutSchema, updateProductSchema } from "@/lib/validation";
 
-const piece = (slug: string) => {
-  const found = pieces.find((candidate) => candidate.slug === slug);
+const product = (slug: string) => {
+  const found = products.find((candidate) => candidate.slug === slug);
   if (!found) throw new Error(slug);
   return found;
 };
@@ -31,13 +31,13 @@ describe("money", () => {
   });
 
   it("adds totals in integer cents", () => {
-    expect(calculateTotals([{ unitPriceCents: 1999, quantity: 3 }], 1800, 0)).toEqual({
-      subtotalCents: 5997,
-      shippingCents: 1800,
+    expect(calculateTotals([{ unitPriceUzs: 1999, quantity: 3 }], 1800, 0)).toEqual({
+      subtotalUzs: 5997,
+      deliveryUzs: 1800,
       taxCents: 0,
-      totalCents: 7797,
+      totalUzs: 7797,
     });
-    expect(calculateTotals([{ unitPriceCents: 1000, quantity: 1 }], 0, 825).taxCents).toBe(83);
+    expect(calculateTotals([{ unitPriceUzs: 1000, quantity: 1 }], 0, 825).taxCents).toBe(83);
   });
 });
 
@@ -85,35 +85,35 @@ describe("cut sheet sizing", () => {
   });
 
   it("leaves the middle size at spec", () => {
-    const coat = piece("lintel-coat");
+    const coat = product("quiet-uzun-palto");
     expect(cutForSize(coat.cut, coat.sizes, "M")).toEqual(coat.cut);
   });
 
   it("applies 4, 1.5 and 3 cm per step in both directions", () => {
-    const coat = piece("lintel-coat");
+    const coat = product("quiet-uzun-palto");
     expect(cutForSize(coat.cut, coat.sizes, "XL")).toMatchObject({ bodyWidthCm: 74, lengthCm: 121, spanCm: 148 });
     expect(cutForSize(coat.cut, coat.sizes, "S")).toMatchObject({ bodyWidthCm: 62, lengthCm: 116.5, spanCm: 139 });
     expect(cutForSize(coat.cut, coat.sizes, "M").sleeveDepthCm).toBe(34);
   });
 
   it("steps trousers by listed waist size", () => {
-    const trouser = piece("arcade-trouser");
+    const trouser = product("arcade-trouser");
     expect(sizeStep(trouser.sizes, "36")).toBe(2);
     expect(cutForSize(trouser.cut, trouser.sizes, "36")).toMatchObject({ bodyWidthCm: 50, lengthCm: 107, spanCm: 64 });
     expect(cutForSize(trouser.cut, trouser.sizes, "28")).toMatchObject({ bodyWidthCm: 34, lengthCm: 101, spanCm: 52 });
   });
 
-  it("does not change one-size pieces or unknown sizes", () => {
-    const scarf = piece("cornice-scarf");
+  it("does not change one-size products or unknown sizes", () => {
+    const scarf = product("cornice-scarf");
     expect(cutForSize(scarf.cut, scarf.sizes, "One size")).toEqual(scarf.cut);
-    const coat = piece("lintel-coat");
+    const coat = product("quiet-uzun-palto");
     expect(cutForSize(coat.cut, coat.sizes, "XXL")).toEqual(coat.cut);
   });
 });
 
 describe("cut sheet drawing", () => {
-  it("draws every seed piece at every size", () => {
-    for (const item of pieces) {
+  it("draws every seed product at every size", () => {
+    for (const item of products) {
       for (const size of item.sizes) {
         const sheet = generateCutSheet(item, size);
         expect(sheet.svg).toMatch(/^<svg class="cut-sheet"/);
@@ -127,7 +127,7 @@ describe("cut sheet drawing", () => {
   });
 
   it("builds the measurement table from the sized cut", () => {
-    const sheet = generateCutSheet(piece("lintel-coat"), "L");
+    const sheet = generateCutSheet(product("quiet-uzun-palto"), "L");
     expect(sheet.measurements).toEqual([
       { key: "length", label: "Length", value: "119.5 cm" },
       { key: "body", label: "Body width", value: "70 cm" },
@@ -140,16 +140,16 @@ describe("cut sheet drawing", () => {
   });
 
   it("changes the drawing when the size changes", () => {
-    const coat = piece("lintel-coat");
+    const coat = product("quiet-uzun-palto");
     expect(generateCutSheet(coat, "S").svg).not.toBe(generateCutSheet(coat, "XL").svg);
   });
 
   it("labels trouser waist in inches", () => {
-    expect(generateCutSheet(piece("arcade-trouser"), "32").measurements[0]).toEqual({ key: "waistSize", label: "Waist size", value: "32 in" });
+    expect(generateCutSheet(product("arcade-trouser"), "32").measurements[0]).toEqual({ key: "waistSize", label: "Waist size", value: "32 in" });
   });
 
   it("escapes names in the accessible label", () => {
-    const svg = generateCutSheet({ ...piece("cornice-scarf"), name: `<script>"x"` }, "One size").svg;
+    const svg = generateCutSheet({ ...product("cornice-scarf"), name: `<script>"x"` }, "One size").svg;
     expect(svg).not.toContain("<script>");
   });
 });
@@ -167,8 +167,8 @@ describe("copy", () => {
     for (const word of ["luxury", "timeless", "curated", "elevate", "iconic", "essential", "journey", "crafted", "effortless"]) {
       expect(text).not.toContain(word);
     }
-    const pieceText = JSON.stringify(pieces).toLowerCase();
-    expect(pieceText).not.toContain("luxury");
+    const productText = JSON.stringify(products).toLowerCase();
+    expect(productText).not.toContain("luxury");
   });
 });
 
@@ -194,7 +194,7 @@ describe("validation", () => {
   });
 
   it("does not allow slug changes through update", () => {
-    const parsed = updatePieceSchema.parse({ id: "00000000-0000-4000-8000-000000000000", slug: "new", name: "A" });
+    const parsed = updateProductSchema.parse({ id: "00000000-0000-4000-8000-000000000000", slug: "new", name: "A" });
     expect(parsed).not.toHaveProperty("slug");
   });
 });

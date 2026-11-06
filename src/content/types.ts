@@ -1,103 +1,68 @@
-/** Content types from brief section 13.1, plus the media manifest shape from 9.4. */
+/** Shared content types. Commerce rows live in src/server/db/schema.ts. */
 
-export const ROOMS = ["I", "II", "III"] as const;
-export type Room = (typeof ROOMS)[number];
+export const WORLD_SLUGS = ["dark-mode", "soft-signal", "chrome-future", "raw-energy"] as const;
+export type WorldSlug = (typeof WORLD_SLUGS)[number];
 
-export const HOURS = ["morning", "noon", "evening"] as const;
-export type Hour = (typeof HOURS)[number];
+/** Which part of an outfit a product fills. The Outfit Lab builds on this. */
+export const SLOTS = ["top", "bottom", "outerwear", "shoes", "accessory"] as const;
+export type Slot = (typeof SLOTS)[number];
 
-export const FRAME_CLASSES = ["wide", "mid", "small"] as const;
-export type FrameClass = (typeof FRAME_CLASSES)[number];
+/** Demo imagery only: which flat the renderer in tools/demo-media draws. */
+export const SILHOUETTES = [
+  "tee",
+  "hoodie",
+  "shirt",
+  "bomber",
+  "coat",
+  "shell",
+  "trouser",
+  "cargo",
+  "skirt",
+  "sneaker",
+  "boot",
+  "tote",
+  "sling",
+  "cap",
+] as const;
+export type Silhouette = (typeof SILHOUETTES)[number];
 
-export const WEAVES = ["plain", "twill22", "herringbone", "hopsack", "satin5"] as const;
-export type Weave = (typeof WEAVES)[number];
+export type SizeChart = { columns: string[]; rows: string[][] };
 
-export const HANG_MODES = ["sleeveBar", "shoulderRod", "waistBar", "overBar"] as const;
-export type HangMode = (typeof HANG_MODES)[number];
+export type ColorSeed = { slug: string; name: string; hex: string };
 
-export const TEMPLATES = ["tee", "vest", "trouser", "skirt", "rect"] as const;
-export type Template = (typeof TEMPLATES)[number];
-
-export type Cloth = {
-  id: string;
-  label: string;
-  weave: Weave;
-  composition: string;
-  gsm: number;
-  warpPerCm: number;
-  weftPerCm: number;
-  bend: number; // 0 to 1
-  roughness: number; // 0 to 1
-  sheen: number; // 0 to 1
-  fuzz: number; // 0 to 1
-  wrap: number; // 0.1 to 0.4
-};
-
-export const SEAM_PATHS = ["shoulder", "sleeve", "side", "centreBack", "centreFront", "yoke", "inseam"] as const;
-export type SeamPath = (typeof SEAM_PATHS)[number];
-
-export const COLLAR_STYLES = ["band", "camp", "shawl", "funnel"] as const;
-export type CollarStyle = (typeof COLLAR_STYLES)[number];
-
-export type Detail =
-  | { kind: "seam"; path: SeamPath }
-  | { kind: "hem"; cm: number }
-  | { kind: "placket"; widthCm: number; lengthCm?: number }
-  | { kind: "collar"; style: CollarStyle }
-  | { kind: "button"; count: number; diaMm: number; hex: string }
-  | { kind: "pocket"; style: "patch" | "welt"; xCm: number; yCm: number; wCm: number; hCm: number }
-  | { kind: "waistband"; heightCm: number }
-  | { kind: "fly" }
-  | { kind: "tie"; lengthCm: number }
-  | { kind: "fringe"; cm: number };
-
-export type Cut = {
-  template: Template;
-  lengthCm: number;
-  bodyWidthCm: number;
-  spanCm: number;
-  sleeveDepthCm: number;
-  neckWidthCm: number;
-  neckDropCm: number;
-};
-
-export type Colourway = { id: string; name: string; hex: string; lining: string };
-
-export type Piece = {
-  slug: string;
-  peg: string;
+export type ProductSeed = {
+  handle: string;
   name: string;
   category: string;
-  room: Room;
-  hour: Hour;
-  frameClass: FrameClass;
-  hang: HangMode;
-  priceUsd: number;
+  slot: Slot;
+  worlds: WorldSlug[];
+  /** The price a shopper pays, in whole soʻm. */
+  priceUzs: number;
+  /** The earlier price, shown struck through. Null when there is no sale. */
+  compareAtUzs: number | null;
   sizes: string[];
-  colourways: Colourway[];
-  clothId: string;
+  colors: ColorSeed[];
   description: string;
-  cut: Cut;
-  gatherPct: number;
-  seed: number;
-  details: Detail[];
+  fabric: string;
+  fit: string;
+  care: string;
+  sizeChart: SizeChart;
+  silhouette: Silhouette;
 };
 
-export const MEDIA_ROLES = ["room", "cloth", "photo"] as const;
+export const MEDIA_ROLES = ["flat", "detail", "photo"] as const;
 export type MediaRole = (typeof MEDIA_ROLES)[number];
 export type MediaSource = "generated" | "upload";
 
 export type MediaSrc = { url: string; width: number };
 
-/** One entry in src/content/media.generated.json. The pipeline writes these. */
+/** One entry in src/content/media.generated.json. tools/demo-media writes these. */
 export type GeneratedMediaEntry = {
-  /** Stable key, for example `lintel-coat/chalk/room/morning`. */
+  /** Stable key, for example `noir-hoodie/graphite/flat`. */
   id: string;
-  pieceSlug: string;
-  /** The colourway id from the content module, for example `chalk`. */
-  colourwayId: string;
-  role: "room" | "cloth";
-  hour?: Hour;
+  productHandle: string;
+  colorSlug: string;
+  role: "flat" | "detail";
   url: string;
   width: number;
   height: number;
@@ -107,13 +72,12 @@ export type GeneratedMediaEntry = {
   alt: string;
 };
 
-export type GeneratedManifest = { version: 1; items: GeneratedMediaEntry[] };
+export type GeneratedManifest = { version: 2; items: GeneratedMediaEntry[] };
 
 /** What the site renders. Generated and uploaded media share this shape. */
 export type MediaRecord = {
   id: string;
   role: MediaRole;
-  hour: Hour | null;
   source: MediaSource;
   url: string;
   width: number;

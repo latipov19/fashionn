@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
  * security boundary: every admin page and action checks the session itself on the server.
  */
 export function proxy(request: NextRequest) {
-  if (request.cookies.has("lierne_admin")) return NextResponse.next();
+  if (request.cookies.has("vv_admin")) return NextResponse.next();
   return NextResponse.redirect(new URL("/admin/login", request.url));
 }
 

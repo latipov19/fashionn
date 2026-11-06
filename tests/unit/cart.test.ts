@@ -9,7 +9,7 @@ import { placeOrderAction } from "@/server/actions/checkout";
 import { initialCheckoutState } from "@/lib/checkout-state";
 import { CART_COOKIE, getCart, parseCartCookie, serializeCart } from "@/server/cart";
 import { closeDb, getDb } from "@/server/db/client";
-import { pieces } from "@/server/db/schema";
+import { products } from "@/server/db/schema";
 import { resetRateLimits } from "@/server/rate-limit";
 import { forceStock, jar, orderCount, stockOf, uniqueKey, variantOf } from "./helpers";
 
@@ -58,7 +58,7 @@ describe("cart cookie tampering", () => {
   });
 
   it("ignores extra fields such as a price", () => {
-    expect(parseCartCookie(JSON.stringify([[id, 2, { priceCents: 1 }]]))).toEqual([{ variantId: id, quantity: 2 }]);
+    expect(parseCartCookie(JSON.stringify([[id, 2, { priceUzs: 1 }]]))).toEqual([{ variantId: id, quantity: 2 }]);
   });
 
   it("merges duplicates, caps the quantity and caps lines at 20", () => {
@@ -77,12 +77,12 @@ describe("cart cookie tampering", () => {
   });
 
   it("prices a tampered cart from the database, dropping unknown variants", async () => {
-    const coat = await variantOf("lintel-coat", "slate", "S");
+    const coat = await variantOf("quiet-uzun-palto", "slate", "S");
     setCookie(JSON.stringify([[coat.id, 2, 1], [randomUUID(), 3]]));
     const cart = await getCart();
     expect(cart.lines).toHaveLength(1);
-    expect(cart.lines[0]).toMatchObject({ unitPriceCents: 92_000, lineTotalCents: 184_000, pieceName: "Lintel Coat", colourwayName: "Slate", size: "S" });
-    expect(cart.subtotalCents).toBe(184_000);
+    expect(cart.lines[0]).toMatchObject({ unitPriceUzs: 92_000, lineTotalUzs: 184_000, productName: "Lintel Coat", colorName: "Slate", size: "S" });
+    expect(cart.subtotalUzs).toBe(184_000);
     expect(cart.count).toBe(2);
     expect(cart.changed).toBe(true);
   });
@@ -94,18 +94,18 @@ describe("cart view", () => {
     await forceStock(variant.id, 1);
     setCookie(serializeCart([{ variantId: variant.id, quantity: 3 }]));
     const cart = await getCart();
-    expect(cart.lines[0]).toMatchObject({ quantity: 1, requestedQuantity: 3, stock: 1, lineTotalCents: 68_000 });
+    expect(cart.lines[0]).toMatchObject({ quantity: 1, requestedQuantity: 3, stock: 1, lineTotalUzs: 68_000 });
     expect(cart.changed).toBe(true);
   });
 
-  it("treats an unpublished piece as unavailable", async () => {
+  it("treats an unpublished product as unavailable", async () => {
     const variant = await variantOf("transom-cape", "fir", "One size");
     const db = await getDb();
-    await db.update(pieces).set({ published: false }).where(eq(pieces.slug, "transom-cape"));
+    await db.update(products).set({ published: false }).where(eq(products.slug, "transom-cape"));
     setCookie(serializeCart([{ variantId: variant.id, quantity: 1 }]));
     const cart = await getCart();
-    expect(cart.lines[0]).toMatchObject({ quantity: 0, stock: 0, lineTotalCents: 0 });
-    await db.update(pieces).set({ published: true }).where(eq(pieces.slug, "transom-cape"));
+    expect(cart.lines[0]).toMatchObject({ quantity: 0, stock: 0, lineTotalUzs: 0 });
+    await db.update(products).set({ published: true }).where(eq(products.slug, "transom-cape"));
   });
 });
 
@@ -177,7 +177,7 @@ describe("checkout action", () => {
     setCookie(serializeCart([{ variantId: variant.id, quantity: 1 }]));
     const data = form(details(uniqueKey()));
     data.set("lines", JSON.stringify([{ variantId: randomUUID(), quantity: 5 }]));
-    data.set("totalCents", "1");
+    data.set("totalUzs", "1");
 
     await expect(placeOrderAction(initialCheckoutState, data)).rejects.toMatchObject({ url: expect.stringMatching(/^\/order\/[\w-]{43}$/) });
     expect(jar().has(CART_COOKIE)).toBe(false);

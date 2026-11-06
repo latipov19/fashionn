@@ -1,12 +1,14 @@
 /**
  * Payment seam. The order transaction calls `authorize` after stock is reserved. A failed
- * result rolls the whole order back. Stripe slots in here later.
+ * result rolls the whole order back. Click and Payme slot in here once merchant accounts exist.
+ * A provider that bills in tiyin converts `amountUzs` itself, and it must verify signed
+ * callbacks, check amount and currency on the server, and treat retries as duplicates.
  */
 export type PaymentRequest = {
   idempotencyKey: string;
-  amountCents: number;
+  amountUzs: number;
   currency: string;
-  email: string;
+  phone: string;
 };
 
 export type PaymentResult =

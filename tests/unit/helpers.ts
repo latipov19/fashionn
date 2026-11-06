@@ -3,7 +3,7 @@ import { and, eq, sql } from "drizzle-orm";
 import type { PlaceOrderInput } from "@/lib/validation";
 import { login } from "@/server/auth";
 import { getDb } from "@/server/db/client";
-import { colourways, orders, pieces, variants } from "@/server/db/schema";
+import { colors, orders, products, variants } from "@/server/db/schema";
 import { resetRateLimits } from "@/server/rate-limit";
 import type { Jar } from "./setup";
 
@@ -22,15 +22,15 @@ export async function signIn() {
   if (!result.ok) throw new Error("Test sign-in failed");
 }
 
-/** The variant for a piece, colourway and size. */
+/** The variant for a product, color and size. */
 export async function variantOf(slug: string, colour: string, size: string) {
   const db = await getDb();
   const [row] = await db
     .select({ id: variants.id, stock: variants.stock })
     .from(variants)
-    .innerJoin(pieces, eq(pieces.id, variants.pieceId))
-    .innerJoin(colourways, eq(colourways.id, variants.colourwayId))
-    .where(and(eq(pieces.slug, slug), eq(colourways.slug, colour), eq(variants.size, size)))
+    .innerJoin(products, eq(products.id, variants.productId))
+    .innerJoin(colors, eq(colors.id, variants.colorId))
+    .where(and(eq(products.slug, slug), eq(colors.slug, colour), eq(variants.size, size)))
     .limit(1);
   if (!row) throw new Error(`No variant ${slug}/${colour}/${size}`);
   return row;

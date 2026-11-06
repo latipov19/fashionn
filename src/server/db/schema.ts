@@ -1,124 +1,118 @@
 import { sql } from "drizzle-orm";
 import {
+  bigint,
   boolean,
   check,
-  doublePrecision,
   index,
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import type { Cut, Detail, Hour, FrameClass, HangMode, MediaRole, MediaSrc, Room } from "../../content/types";
+import type { MediaRole, MediaSrc, SizeChart, Slot, WorldSlug } from "../../content/types";
 
-/** Status list for pay on delivery (MVP.md section 2). */
-export const ORDER_STATUSES = ["placed", "packed", "shipped", "delivered", "cancelled"] as const;
+export const ORDER_STATUSES = ["pending", "confirmed", "packed", "shipped", "delivered", "canceled", "returned"] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
-export type ShippingAddress = {
-  fullName: string;
-  line1: string;
-  line2: string | null;
-  city: string;
+export type DeliveryAddress = {
+  /** A region id from src/content/commerce.ts. */
   region: string;
-  postalCode: string;
-  country: string;
+  city: string;
+  line: string;
 };
+
+/** Money is whole soʻm. Order totals use bigint, because 200 units can pass 2.1 billion. */
+const money = (name: string) => bigint(name, { mode: "number" }).notNull();
 
 const createdAt = () => timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
 const updatedAt = () => timestamp("updated_at", { withTimezone: true }).notNull().defaultNow();
 
-export const cloths = pgTable("cloths", {
-  id: text("id").primaryKey(),
-  label: text("label").notNull(),
-  weave: text("weave").notNull(),
-  composition: text("composition").notNull(),
-  gsm: integer("gsm").notNull(),
-  warpPerCm: integer("warp_per_cm").notNull(),
-  weftPerCm: integer("weft_per_cm").notNull(),
-  bend: doublePrecision("bend").notNull(),
-  roughness: doublePrecision("roughness").notNull(),
-  sheen: doublePrecision("sheen").notNull(),
-  fuzz: doublePrecision("fuzz").notNull(),
-  wrap: doublePrecision("wrap").notNull(),
-});
-
-export const pieces = pgTable(
-  "pieces",
+export const products = pgTable(
+  "products",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    slug: text("slug").notNull(),
-    peg: text("peg").notNull(),
+    handle: text("handle").notNull(),
     name: text("name").notNull(),
     category: text("category").notNull(),
-    room: text("room").$type<Room>().notNull(),
-    hour: text("hour").$type<Hour>().notNull(),
-    frameClass: text("frame_class").$type<FrameClass>().notNull(),
-    hang: text("hang").$type<HangMode>().notNull(),
-    priceCents: integer("price_cents").notNull(),
+    slot: text("slot").$type<Slot>().notNull(),
+    priceUzs: integer("price_uzs").notNull(),
+    /** The earlier price. Null when there is no sale. */
+    compareAtUzs: integer("compare_at_uzs"),
     /** Ordered list of size labels. Variants hold the stock. */
     sizes: jsonb("sizes").$type<string[]>().notNull(),
-    clothId: text("cloth_id")
-      .notNull()
-      .references(() => cloths.id),
     description: text("description").notNull(),
-    cut: jsonb("cut").$type<Cut>().notNull(),
-    gatherPct: doublePrecision("gather_pct").notNull(),
-    seed: integer("seed").notNull(),
-    details: jsonb("details").$type<Detail[]>().notNull(),
+    fabric: text("fabric").notNull(),
+    fit: text("fit").notNull(),
+    care: text("care").notNull(),
+    sizeChart: jsonb("size_chart").$type<SizeChart>().notNull(),
+    /** True for seeded samples. Demo products carry a tag and never emit structured data. */
+    isDemo: boolean("is_demo").notNull().default(false),
     published: boolean("published").notNull().default(true),
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
   (t) => [
-    uniqueIndex("pieces_slug_key").on(t.slug),
-    uniqueIndex("pieces_peg_key").on(t.peg),
-    index("pieces_published_sort_idx").on(t.published, t.sortOrder),
-    check("pieces_price_nonnegative", sql`${t.priceCents} >= 0`),
+    uniqueIndex("products_handle_key").on(t.handle),
+    index("products_published_sort_idx").on(t.published, t.sortOrder),
+    check("products_price_nonnegative", sql`${t.priceUzs} >= 0`),
+    check("products_compare_at_above_price", sql`${t.compareAtUzs} is null or ${t.compareAtUzs} > ${t.priceUzs}`),
   ],
 );
 
-export const colourways = pgTable(
-  "colourways",
+/** A world is art direction in code. Which products belong to it is merchandising, so it is data. */
+export const productWorlds = pgTable(
+  "product_worlds",
+  {
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    world: text("world").$type<WorldSlug>().notNull(),
+    position: integer("position").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.productId, t.world] }), index("product_worlds_world_idx").on(t.world, t.position)],
+);
+
+export const productColors = pgTable(
+  "product_colors",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    pieceId: uuid("piece_id")
+    productId: uuid("product_id")
       .notNull()
-      .references(() => pieces.id, { onDelete: "cascade" }),
-    /** The content id, for example `chalk`. Generated media is keyed by it. */
+      .references(() => products.id, { onDelete: "cascade" }),
+    /** Generated media is keyed by this slug. */
     slug: text("slug").notNull(),
     name: text("name").notNull(),
     hex: text("hex").notNull(),
-    lining: text("lining").notNull(),
     position: integer("position").notNull().default(0),
-    /** Removed colourways stay for past orders but cannot be bought. */
+    /** Removed colours stay for past orders but cannot be bought. */
     active: boolean("active").notNull().default(true),
   },
-  (t) => [uniqueIndex("colourways_piece_slug_key").on(t.pieceId, t.slug)],
+  (t) => [uniqueIndex("product_colors_product_slug_key").on(t.productId, t.slug)],
 );
 
 export const variants = pgTable(
   "variants",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    pieceId: uuid("piece_id")
+    productId: uuid("product_id")
       .notNull()
-      .references(() => pieces.id, { onDelete: "cascade" }),
-    colourwayId: uuid("colourway_id")
+      .references(() => products.id, { onDelete: "cascade" }),
+    colorId: uuid("color_id")
       .notNull()
-      .references(() => colourways.id, { onDelete: "cascade" }),
+      .references(() => productColors.id, { onDelete: "cascade" }),
     size: text("size").notNull(),
     stock: integer("stock").notNull().default(0),
     sku: text("sku").notNull(),
   },
   (t) => [
-    uniqueIndex("variants_colourway_size_key").on(t.colourwayId, t.size),
+    uniqueIndex("variants_color_size_key").on(t.colorId, t.size),
     uniqueIndex("variants_sku_key").on(t.sku),
-    index("variants_piece_idx").on(t.pieceId),
+    index("variants_product_idx").on(t.productId),
     check("variants_stock_nonnegative", sql`${t.stock} >= 0`),
   ],
 );
@@ -128,14 +122,13 @@ export const productMedia = pgTable(
   "product_media",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    pieceId: uuid("piece_id")
+    productId: uuid("product_id")
       .notNull()
-      .references(() => pieces.id, { onDelete: "cascade" }),
-    colourwayId: uuid("colourway_id")
+      .references(() => products.id, { onDelete: "cascade" }),
+    colorId: uuid("color_id")
       .notNull()
-      .references(() => colourways.id, { onDelete: "cascade" }),
+      .references(() => productColors.id, { onDelete: "cascade" }),
     role: text("role").$type<MediaRole>().notNull().default("photo"),
-    hour: text("hour").$type<Hour>(),
     url: text("url").notNull(),
     width: integer("width").notNull(),
     height: integer("height").notNull(),
@@ -147,7 +140,7 @@ export const productMedia = pgTable(
     hidden: boolean("hidden").notNull().default(false),
     createdAt: createdAt(),
   },
-  (t) => [index("product_media_colourway_idx").on(t.colourwayId)],
+  (t) => [index("product_media_color_idx").on(t.colorId)],
 );
 
 /**
@@ -158,38 +151,39 @@ export const mediaOverrides = pgTable(
   "media_overrides",
   {
     mediaKey: text("media_key").primaryKey(),
-    colourwayId: uuid("colourway_id")
+    colorId: uuid("color_id")
       .notNull()
-      .references(() => colourways.id, { onDelete: "cascade" }),
+      .references(() => productColors.id, { onDelete: "cascade" }),
     hidden: boolean("hidden").notNull().default(false),
     position: integer("position"),
   },
-  (t) => [index("media_overrides_colourway_idx").on(t.colourwayId)],
+  (t) => [index("media_overrides_color_idx").on(t.colorId)],
 );
 
 export const orders = pgTable(
   "orders",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    /** Shown as L-000124. */
+    /** Shown as VV-000124. */
     seq: integer("seq").notNull().generatedAlwaysAsIdentity(),
     /** Random, at least 32 bytes. The only way to reach the confirmation page. */
     token: text("token").notNull(),
     idempotencyKey: text("idempotency_key").notNull(),
-    status: text("status").$type<OrderStatus>().notNull().default("placed"),
-    email: text("email").notNull(),
-    phone: text("phone"),
-    address: jsonb("address").$type<ShippingAddress>().notNull(),
-    shippingMethod: text("shipping_method").notNull(),
-    currency: text("currency").notNull().default("USD"),
-    subtotalCents: integer("subtotal_cents").notNull(),
-    shippingCents: integer("shipping_cents").notNull(),
-    taxCents: integer("tax_cents").notNull(),
-    totalCents: integer("total_cents").notNull(),
+    status: text("status").$type<OrderStatus>().notNull().default("pending"),
+    customerName: text("customer_name").notNull(),
+    phone: text("phone").notNull(),
+    email: text("email"),
+    address: jsonb("address").$type<DeliveryAddress>().notNull(),
+    notes: text("notes"),
+    deliveryZone: text("delivery_zone").notNull(),
+    currency: text("currency").notNull().default("UZS"),
+    subtotalUzs: money("subtotal_uzs"),
+    deliveryUzs: money("delivery_uzs"),
+    totalUzs: money("total_uzs"),
     paymentProvider: text("payment_provider").notNull(),
     paymentStatus: text("payment_status").notNull(),
     paymentReference: text("payment_reference"),
-    /** Set once, in the same transaction as the restore. Cancelling never restores twice. */
+    /** Set once, in the same transaction as the restore. Stock never comes back twice. */
     stockRestoredAt: timestamp("stock_restored_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -200,8 +194,11 @@ export const orders = pgTable(
     uniqueIndex("orders_seq_key").on(t.seq),
     index("orders_created_idx").on(t.createdAt),
     index("orders_status_idx").on(t.status),
-    check("orders_status_valid", sql`${t.status} in ('placed', 'packed', 'shipped', 'delivered', 'cancelled')`),
-    check("orders_total_adds_up", sql`${t.totalCents} = ${t.subtotalCents} + ${t.shippingCents} + ${t.taxCents}`),
+    check(
+      "orders_status_valid",
+      sql`${t.status} in ('pending', 'confirmed', 'packed', 'shipped', 'delivered', 'canceled', 'returned')`,
+    ),
+    check("orders_total_adds_up", sql`${t.totalUzs} = ${t.subtotalUzs} + ${t.deliveryUzs}`),
   ],
 );
 
@@ -215,15 +212,14 @@ export const orderItems = pgTable(
     variantId: uuid("variant_id")
       .notNull()
       .references(() => variants.id, { onDelete: "restrict" }),
-    pieceSlug: text("piece_slug").notNull(),
-    pieceName: text("piece_name").notNull(),
-    peg: text("peg").notNull(),
-    colourwayName: text("colourway_name").notNull(),
+    productHandle: text("product_handle").notNull(),
+    productName: text("product_name").notNull(),
+    colorName: text("color_name").notNull(),
     size: text("size").notNull(),
     sku: text("sku").notNull(),
-    unitPriceCents: integer("unit_price_cents").notNull(),
+    unitPriceUzs: integer("unit_price_uzs").notNull(),
     quantity: integer("quantity").notNull(),
-    lineTotalCents: integer("line_total_cents").notNull(),
+    lineTotalUzs: money("line_total_uzs"),
   },
   (t) => [index("order_items_order_idx").on(t.orderId), check("order_items_quantity_positive", sql`${t.quantity} > 0`)],
 );

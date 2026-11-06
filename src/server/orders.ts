@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
-import { commerce, shippingMethodById } from "@/content/commerce";
+import { commerce, deliveryForRegion } from "@/content/commerce";
 import { copy } from "@/content/copy";
 import { calculateTotals } from "@/lib/money";
 import type { PlaceOrderInput } from "@/lib/validation";
@@ -9,7 +9,7 @@ import { requireAdmin } from "./auth";
 import { loadVariants } from "./cart";
 import type { Executor, Tx } from "./db/client";
 import { getDb } from "./db/client";
-import type { OrderStatus, ShippingAddress } from "./db/schema";
+import type { DeliveryAddress, OrderStatus } from "./db/schema";
 import { orderItems, orders, variants } from "./db/schema";
 import { payOnDelivery } from "./payment/pay-on-delivery";
 import type { PaymentProvider } from "./payment/provider";
@@ -17,32 +17,32 @@ import type { PaymentProvider } from "./payment/provider";
 export type OrderLine = {
   id: string;
   variantId: string;
-  pieceSlug: string;
-  pieceName: string;
-  peg: string;
-  colourwayName: string;
+  productHandle: string;
+  productName: string;
+  colorName: string;
   size: string;
   sku: string;
-  unitPriceCents: number;
+  unitPriceUzs: number;
   quantity: number;
-  lineTotalCents: number;
+  lineTotalUzs: number;
 };
 
 export type Order = {
   id: string;
-  /** For display, for example L-000124. */
+  /** For display, for example VV-000124. */
   number: string;
   token: string;
   status: OrderStatus;
-  email: string;
-  phone: string | null;
-  address: ShippingAddress;
-  shippingMethod: string;
+  customerName: string;
+  phone: string;
+  email: string | null;
+  address: DeliveryAddress;
+  notes: string | null;
+  deliveryZone: string;
   currency: string;
-  subtotalCents: number;
-  shippingCents: number;
-  taxCents: number;
-  totalCents: number;
+  subtotalUzs: number;
+  deliveryUzs: number;
+  totalUzs: number;
   paymentProvider: string;
   paymentStatus: string;
   createdAt: Date;
@@ -51,7 +51,7 @@ export type Order = {
 
 export type OrderSummary = Omit<Order, "lines" | "token"> & { itemCount: number };
 
-export const formatOrderNumber = (seq: number) => `L-${String(seq).padStart(6, "0")}`;
+export const formatOrderNumber = (seq: number) => `VV-${String(seq).padStart(6, "0")}`;
 
 export type StockShortfall = { variantId: string; requested: number; available: number };
 
@@ -74,36 +74,36 @@ function toOrder(row: OrderRow, items: ItemRow[]): Order {
     number: formatOrderNumber(row.seq),
     token: row.token,
     status: row.status,
-    email: row.email,
+    customerName: row.customerName,
     phone: row.phone,
+    email: row.email,
     address: row.address,
-    shippingMethod: row.shippingMethod,
+    notes: row.notes,
+    deliveryZone: row.deliveryZone,
     currency: row.currency,
-    subtotalCents: row.subtotalCents,
-    shippingCents: row.shippingCents,
-    taxCents: row.taxCents,
-    totalCents: row.totalCents,
+    subtotalUzs: row.subtotalUzs,
+    deliveryUzs: row.deliveryUzs,
+    totalUzs: row.totalUzs,
     paymentProvider: row.paymentProvider,
     paymentStatus: row.paymentStatus,
     createdAt: row.createdAt,
     lines: items.map((item) => ({
       id: item.id,
       variantId: item.variantId,
-      pieceSlug: item.pieceSlug,
-      pieceName: item.pieceName,
-      peg: item.peg,
-      colourwayName: item.colourwayName,
+      productHandle: item.productHandle,
+      productName: item.productName,
+      colorName: item.colorName,
       size: item.size,
       sku: item.sku,
-      unitPriceCents: item.unitPriceCents,
+      unitPriceUzs: item.unitPriceUzs,
       quantity: item.quantity,
-      lineTotalCents: item.lineTotalCents,
+      lineTotalUzs: item.lineTotalUzs,
     })),
   };
 }
 
 async function hydrateOrder(row: OrderRow, db: Executor): Promise<Order> {
-  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, row.id)).orderBy(asc(orderItems.peg));
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, row.id)).orderBy(asc(orderItems.productName));
   return toOrder(row, items);
 }
 
@@ -135,9 +135,10 @@ async function shortfallsFor(lines: ReturnType<typeof normaliseLines>, db: Execu
 
 /**
  * Places an order in one transaction. Only variant ids and quantities are read from the
- * input. Prices come from the database, and each line takes stock with a guarded update,
- * so the last unit can only be sold once. If any line fails, nothing is kept. A repeated
- * idempotency key returns the first order, even if the cart was cleared in between.
+ * input. Prices come from the database, delivery comes from the region, and each line takes
+ * stock with a guarded update, so the last unit can only be sold once. If any line fails,
+ * nothing is kept. A repeated idempotency key returns the first order, even if the cart was
+ * cleared in between.
  */
 export async function placeOrder(input: PlaceOrderInput, payment: PaymentProvider = payOnDelivery): Promise<PlaceOrderResult> {
   const parsed = placeOrderSchema.safeParse(input);
@@ -153,14 +154,9 @@ export async function placeOrder(input: PlaceOrderInput, payment: PaymentProvide
   const lines = normaliseLines(details.lines);
   if (lines.length === 0) return { ok: false, code: "empty_cart", message: copy.checkout.emptyRedirectNote };
 
-  const method = shippingMethodById(details.shippingMethod);
-  if (!method) {
-    return {
-      ok: false,
-      code: "validation",
-      message: copy.checkout.errorSummary,
-      fieldErrors: { shippingMethod: copy.forms.invalidChoice },
-    };
+  const zone = deliveryForRegion(details.region);
+  if (!zone) {
+    return { ok: false, code: "validation", message: copy.checkout.errorSummary, fieldErrors: { region: copy.forms.invalidChoice } };
   }
 
   try {
@@ -172,10 +168,10 @@ export async function placeOrder(input: PlaceOrderInput, payment: PaymentProvide
       const priced = lines.map((line) => {
         const fact = facts.get(line.variantId);
         if (!fact || !fact.purchasable) throw new StockUnavailable();
-        return { ...line, fact, unitPriceCents: fact.priceCents };
+        return { ...line, fact, unitPriceUzs: fact.priceUzs };
       });
 
-      const totals = calculateTotals(priced, method.cents, commerce.taxBasisPoints);
+      const totals = calculateTotals(priced, zone.priceUzs);
 
       // On a racing duplicate this waits for the other transaction, then inserts nothing.
       const [row] = await tx
@@ -183,10 +179,12 @@ export async function placeOrder(input: PlaceOrderInput, payment: PaymentProvide
         .values({
           token: randomBytes(32).toString("base64url"),
           idempotencyKey: details.idempotencyKey,
-          email: details.email,
+          customerName: details.customerName,
           phone: details.phone,
-          address: details.address,
-          shippingMethod: method.id,
+          email: details.email,
+          address: { region: details.region, city: details.city, line: details.addressLine },
+          notes: details.notes,
+          deliveryZone: zone.id,
           currency: commerce.currency,
           ...totals,
           paymentProvider: payment.id,
@@ -213,27 +211,26 @@ export async function placeOrder(input: PlaceOrderInput, payment: PaymentProvide
       const items = await tx
         .insert(orderItems)
         .values(
-          priced.map(({ fact, quantity, unitPriceCents, variantId }) => ({
+          priced.map(({ fact, quantity, unitPriceUzs, variantId }) => ({
             orderId: row.id,
             variantId,
-            pieceSlug: fact.pieceSlug,
-            pieceName: fact.pieceName,
-            peg: fact.peg,
-            colourwayName: fact.colourwayName,
+            productHandle: fact.productHandle,
+            productName: fact.productName,
+            colorName: fact.colorName,
             size: fact.size,
             sku: fact.sku,
-            unitPriceCents,
+            unitPriceUzs,
             quantity,
-            lineTotalCents: unitPriceCents * quantity,
+            lineTotalUzs: unitPriceUzs * quantity,
           })),
         )
         .returning();
 
       const paid = await payment.authorize({
         idempotencyKey: details.idempotencyKey,
-        amountCents: totals.totalCents,
+        amountUzs: totals.totalUzs,
         currency: commerce.currency,
-        email: details.email,
+        phone: details.phone,
       });
       if (!paid.ok) throw new PaymentRefused();
 
@@ -315,13 +312,15 @@ export async function adminGetOrder(id: string): Promise<Order | null> {
   return row ? hydrateOrder(row, db) : null;
 }
 
-/** placed to packed to shipped to delivered. Cancelling is allowed until it ships. */
+/** pending to confirmed to packed to shipped to delivered. Cancel until it ships, return after. */
 const NEXT_STATUS: Record<OrderStatus, readonly OrderStatus[]> = {
-  placed: ["packed", "cancelled"],
-  packed: ["shipped", "cancelled"],
-  shipped: ["delivered"],
-  delivered: [],
-  cancelled: [],
+  pending: ["confirmed", "canceled"],
+  confirmed: ["packed", "canceled"],
+  packed: ["shipped", "canceled"],
+  shipped: ["delivered", "returned"],
+  delivered: ["returned"],
+  canceled: [],
+  returned: [],
 };
 
 export const allowedNextStatuses = (status: OrderStatus): readonly OrderStatus[] => NEXT_STATUS[status];
@@ -355,34 +354,38 @@ async function transition(orderId: string, to: OrderStatus, onChange?: (tx: Tx) 
   });
 }
 
-/** Moves an order on. Cancelling goes through cancelOrder, so stock always comes back. */
+/** The guarded stamp means stock returns exactly once, whichever way an order ends. */
+async function restoreStockOnce(tx: Tx, orderId: string): Promise<void> {
+  const stamped = await tx
+    .update(orders)
+    .set({ stockRestoredAt: new Date() })
+    .where(and(eq(orders.id, orderId), sql`${orders.stockRestoredAt} is null`))
+    .returning({ id: orders.id });
+  if (stamped.length === 0) return;
+
+  const items = await tx
+    .select({ variantId: orderItems.variantId, quantity: orderItems.quantity })
+    .from(orderItems)
+    .where(eq(orderItems.orderId, orderId))
+    .orderBy(asc(orderItems.variantId));
+  for (const item of items) {
+    await tx
+      .update(variants)
+      .set({ stock: sql`${variants.stock} + ${item.quantity}` })
+      .where(eq(variants.id, item.variantId));
+  }
+}
+
+/** Moves an order on. Cancelling and returning always bring the stock back. */
 export async function setOrderStatus(orderId: string, status: OrderStatus): Promise<StatusChangeResult> {
   await requireAdmin();
-  if (status === "cancelled") return cancelOrder(orderId);
+  if (status === "canceled") return cancelOrder(orderId);
+  if (status === "returned") return transition(orderId, "returned", (tx) => restoreStockOnce(tx, orderId));
   return transition(orderId, status);
 }
 
-/** Cancels and restores stock. The guarded stamp means stock returns exactly once. */
+/** Cancels and restores stock. */
 export async function cancelOrder(orderId: string): Promise<StatusChangeResult> {
   await requireAdmin();
-  return transition(orderId, "cancelled", async (tx) => {
-    const stamped = await tx
-      .update(orders)
-      .set({ stockRestoredAt: new Date() })
-      .where(and(eq(orders.id, orderId), sql`${orders.stockRestoredAt} is null`))
-      .returning({ id: orders.id });
-    if (stamped.length === 0) return;
-
-    const items = await tx
-      .select({ variantId: orderItems.variantId, quantity: orderItems.quantity })
-      .from(orderItems)
-      .where(eq(orderItems.orderId, orderId))
-      .orderBy(asc(orderItems.variantId));
-    for (const item of items) {
-      await tx
-        .update(variants)
-        .set({ stock: sql`${variants.stock} + ${item.quantity}` })
-        .where(eq(variants.id, item.variantId));
-    }
-  });
+  return transition(orderId, "canceled", (tx) => restoreStockOnce(tx, orderId));
 }

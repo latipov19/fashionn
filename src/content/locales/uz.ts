@@ -1,0 +1,286 @@
+/**
+ * Uzbek, Latin script. Primary locale. Uses U+02BB in oʻ and gʻ, and U+02BC for the tutuq
+ * belgisi. Everything here is draft copy until the owner confirms it. Delivery and policy
+ * lines stay marked as not yet confirmed.
+ */
+export const brand = {
+  name: "VYBEVERSE",
+  descriptor: "The Living Fashion Store",
+  positioning: "Kategoriya boʻyicha emas, vayb boʻyicha xarid qiling.",
+} as const;
+
+export const uz = {
+  meta: {
+    title: "VYBEVERSE. Vayb boʻyicha xarid qiling",
+    description: "Toʻrt xil moda olami va tez xarid. Oʻzbekiston uchun kiyim doʻkoni, demo versiya.",
+    titleTemplate: "%s | VYBEVERSE",
+  },
+
+  nav: {
+    skipToContent: "Asosiy mazmunga oʻtish",
+    main: "Asosiy menyu",
+    home: "VYBEVERSE bosh sahifasi",
+    worlds: "Olamlar",
+    shopFast: "Shop Fast",
+    cart: "Savat",
+    cartCount: (count: number) => (count === 0 ? "Savat, boʻsh" : `Savat, ${count} ta mahsulot`),
+    openMenu: "Menyuni ochish",
+    closeMenu: "Menyuni yopish",
+    search: "Qidirish",
+  },
+
+  demoNotice: "Demo katalog: mahsulot, narx va qoldiqlar namuna. Haqiqiy savdo hali boshlanmagan.",
+  demoTag: "DEMO",
+
+  home: {
+    explore: "Olamlarni kashf eting",
+    shopFast: "Shop Fast",
+    switcherLabel: "Olamni tanlang",
+    apertureLabel: (world: string) => `${world} olamidan mahsulot`,
+    openProduct: "Mahsulotni koʻrish",
+    drop: {
+      kicker: "The Current Drop",
+      title: "Hozirgi drop",
+      all: (world: string) => `${world} olamini ochish`,
+    },
+    look: {
+      kicker: "Build Your Look",
+      title: "Bitta olam, toʻliq obraz",
+      body: "Har bir obraz haqiqiy mahsulotlardan yigʻilgan. Narx ham, qoldiq ham katalogdan olinadi.",
+      total: "Obraz jami",
+    },
+    story: {
+      kicker: "Biz haqimizda",
+      title: "Doʻkon emas, kirib boriladigan makon.",
+      body: "VYBEVERSEda kiyim javon boʻyicha emas, kayfiyat boʻyicha joylashgan. Sizga mos olamni toping yoki Shop Fast orqali toʻgʻri kerakli narsaga oʻting.",
+    },
+    trust: [
+      { title: "Yetkazib berishda toʻlov", body: "Hozircha onlayn toʻlov yoʻq. Buyurtmani qabul qilganda toʻlaysiz." },
+      { title: "Oʻzbekiston boʻylab", body: "Hududlar va narxlar doʻkon egasi tasdiqlaganidan keyin aniq boʻladi." },
+      { title: "Narx va qoldiq ochiq", body: "Har bir oʻlcham uchun qoldiq koʻrinadi. Tugagan variantni sotib olib boʻlmaydi." },
+    ],
+  },
+
+  worlds: {
+    title: "Olamlar",
+    lead: "Toʻrt olam, toʻrt xil til. Har biri alohida tanlangan kolleksiya.",
+    enter: "Olamga kirish",
+    productCount: (count: number) => `${count} ta mahsulot`,
+    others: "Boshqa olamlar",
+    shopAll: "Barcha mahsulotlar",
+    empty: "Bu olamda hozircha mahsulot yoʻq.",
+  },
+
+  shop: {
+    title: "Shop Fast",
+    lead: "Animatsiyasiz, toʻgʻridan-toʻgʻri: qidiring, saralang, savatga qoʻshing.",
+    searchLabel: "Mahsulot qidirish",
+    searchPlaceholder: "Masalan: hudi, kargo, zigʻir",
+    searchSubmit: "Qidirish",
+    filtersTitle: "Filtrlar",
+    showFilters: "Filtrlarni koʻrsatish",
+    apply: "Qoʻllash",
+    clear: "Filtrlarni tozalash",
+    results: (count: number) => `${count} ta mahsulot`,
+    empty: "Bu filtrlar boʻyicha mahsulot topilmadi.",
+    emptyHint: "Filtrlarni kamaytirib koʻring yoki boshqa soʻz bilan qidiring.",
+    any: "Barchasi",
+    filters: {
+      world: "Olam",
+      category: "Turkum",
+      size: "Oʻlcham",
+      color: "Rang",
+      priceMin: "Narx, dan",
+      priceMax: "Narx, gacha",
+      sort: "Saralash",
+    },
+    sort: {
+      featured: "Tavsiya etilgan",
+      newest: "Eng yangi",
+      "price-asc": "Avval arzonlari",
+      "price-desc": "Avval qimmatlari",
+      name: "Nomi boʻyicha",
+    },
+    loading: "Mahsulotlar yuklanmoqda",
+  },
+
+  product: {
+    breadcrumb: "Yoʻl",
+    saleLabel: "Eski narx",
+    color: "Rang",
+    size: "Oʻlcham",
+    quantity: "Miqdor",
+    increase: "Miqdorni oshirish",
+    decrease: "Miqdorni kamaytirish",
+    sizeGuide: "Oʻlchamlar jadvali",
+    sizeGuideNote: "Oʻlchamlar santimetrda. Namuna qiymatlar, haqiqiy mahsulot uchun tasdiqlanmagan.",
+    closeDialog: "Yopish",
+    fabric: "Mato",
+    fit: "Bichim",
+    care: "Parvarish",
+    delivery: "Yetkazib berish va qaytarish",
+    deliveryBody: "Buyurtmani qabul qilganda toʻlaysiz. Hududlar, muddat va qaytarish shartlari doʻkon egasi tasdiqlaganidan keyin eʼlon qilinadi.",
+    worldsLabel: "Olamlar",
+    related: "Shu olamdan yana",
+    imageOf: (index: number, total: number) => `Rasm ${index}, jami ${total}`,
+    demoImage: "Rasm kod orqali yaratilgan namuna. Haqiqiy foto emas, rang va bichimni aniq koʻrsatmaydi.",
+  },
+
+  micro: {
+    addToCart: "Savatga qoʻshish",
+    adding: "Qoʻshilmoqda",
+    added: "Savatga qoʻshildi",
+    addFailed: "Qoʻshib boʻlmadi. Qayta urinib koʻring.",
+    sizePrompt: "Avval oʻlchamni tanlang",
+    inStock: "Mavjud",
+    onlyLeft: (count: number) => `${count} ta qoldi`,
+    soldOut: "Tugagan",
+    unavailableSize: (size: string) => `${size} oʻlchami tugagan`,
+    goToCart: "Savatga oʻtish",
+    checkoutError: "Buyurtmani qabul qilib boʻlmadi. Maʼlumotlarni tekshirib, qayta urinib koʻring.",
+  },
+
+  cart: {
+    title: "Savat",
+    subtotal: "Mahsulotlar",
+    deliveryNote: "Yetkazib berish narxi rasmiylashtirishda hisoblanadi",
+    checkout: "Rasmiylashtirish",
+    continue: "Xaridni davom ettirish",
+    empty: "Savatingiz boʻsh.",
+    emptyHint: "Olamlardan birini tanlang yoki Shop Fast orqali toʻgʻridan-toʻgʻri xarid qiling.",
+    remove: "Olib tashlash",
+    removeLine: (name: string) => `${name} mahsulotini olib tashlash`,
+    quantityOf: (name: string) => `${name} miqdori`,
+    full: "Savat toʻldi. Yangisini qoʻshish uchun birortasini olib tashlang.",
+    lineUnavailable: "Endi mavjud emas",
+    lineReduced: (count: number) => `Faqat ${count} ta mavjud, miqdor kamaytirildi`,
+    changed: "Qoldiq oʻzgardi. Savat yangilandi, tekshirib chiqing.",
+    couldNotUpdate: "Savatni yangilab boʻlmadi. Qayta urinib koʻring.",
+  },
+
+  checkout: {
+    title: "Rasmiylashtirish",
+    lead: "Roʻyxatdan oʻtish shart emas. Faqat yetkazib berish uchun kerakli maʼlumotlar.",
+    contact: "Aloqa",
+    address: "Yetkazib berish manzili",
+    payment: "Toʻlov",
+    paymentMethodLabel: "Yetkazib berishda toʻlov",
+    paymentNote: "Onlayn toʻlov hali yoʻq. Buyurtmani qabul qilganda toʻlaysiz.",
+    placeOrder: "Buyurtma berish",
+    placingOrder: "Buyurtma berilmoqda",
+    summary: "Buyurtmangiz",
+    subtotal: "Mahsulotlar",
+    delivery: "Yetkazib berish",
+    deliveryPending: "Hududni tanlang",
+    deliveryDemo: "Yetkazib berish narxi namuna, doʻkon egasi tasdiqlamagan.",
+    total: "Jami",
+    emptyRedirectNote: "Savat boʻsh, rasmiylashtiradigan narsa yoʻq.",
+    errorSummary: "Quyidagi maydonlarni tekshiring",
+    tooManyAttempts: "Urinishlar juda koʻp. Bir daqiqa kutib, qayta urinib koʻring.",
+    stockChanged: (available: number) =>
+      available > 0
+        ? `Bu oʻlchamdan faqat ${available} ta qoldi. Savatni yangiladik.`
+        : "Bu oʻlcham tugadi. Savatni yangiladik.",
+    backToCart: "Savatga qaytish",
+  },
+
+  order: {
+    title: "Buyurtmangiz qabul qilindi",
+    lead: "Tez orada siz bilan telefon orqali bogʻlanamiz. Ushbu raqamni saqlab qoʻying.",
+    demoNote: "Bu demo buyurtma. Mahsulot yuborilmaydi va pul olinmaydi.",
+    number: "Buyurtma raqami",
+    items: "Mahsulotlar",
+    deliveryAddress: "Yetkazib berish manzili",
+    paymentStatus: "Toʻlov",
+    payOnDelivery: "Yetkazib berishda toʻlanadi",
+    continue: "Xaridni davom ettirish",
+    status: {
+      pending: "Qabul qilindi",
+      confirmed: "Tasdiqlandi",
+      packed: "Qadoqlandi",
+      shipped: "Yoʻlda",
+      delivered: "Yetkazildi",
+      canceled: "Bekor qilindi",
+      returned: "Qaytarildi",
+    },
+  },
+
+  notFound: {
+    title: "Bu olam topilmadi.",
+    body: "Siz izlagan sahifa koʻchirilgan yoki umuman boʻlmagan.",
+    link: "Shop Fastga oʻtish",
+  },
+
+  errorPage: {
+    title: "Nimadir ishlamadi.",
+    body: "Sahifani yuklab boʻlmadi. Qayta urinib koʻring.",
+    retry: "Qayta urinish",
+    home: "Bosh sahifa",
+  },
+
+  footer: {
+    tagline: "Vayb boʻyicha xarid qiling.",
+    shop: "Xarid",
+    allWorlds: "Barcha olamlar",
+    lightMode: "Yengil rejim",
+    lightModeHint: "3D va harakat oʻchadi, sahifa tezroq ishlaydi.",
+    lightModeOn: "Yoqilgan",
+    lightModeOff: "Oʻchirilgan",
+    legal: "Ishchi nom. Brend va domen hali tasdiqlanmagan.",
+  },
+
+  forms: {
+    required: "Bu maydonni toʻldiring.",
+    email: "Email manzilni toʻgʻri kiriting, masalan: ism@example.com.",
+    phone: "Telefon raqamni kiriting, masalan: +998 90 123 45 67.",
+    tooLong: "Juda uzun.",
+    invalidChoice: "Variantlardan birini tanlang.",
+    quantity: "1 dan 10 gacha son kiriting.",
+    labels: {
+      customerName: "Ism va familiya",
+      phone: "Telefon",
+      email: "Email (ixtiyoriy)",
+      region: "Hudud",
+      city: "Shahar yoki tuman",
+      addressLine: "Manzil",
+      notes: "Izoh (ixtiyoriy)",
+    },
+    regionPlaceholder: "Hududni tanlang",
+    dismiss: "Yopish",
+  },
+
+  newsletter: {
+    tooMany: "Urinishlar juda koʻp. Bir daqiqa kutib, qayta urinib koʻring.",
+    failed: "Obuna boʻlib boʻlmadi. Qayta urinib koʻring.",
+  },
+
+  admin: {
+    title: "Boshqaruv",
+    login: {
+      heading: "Kirish",
+      email: "Email manzil",
+      password: "Parol",
+      submit: "Kirish",
+      signingIn: "Kirilmoqda",
+      failed: "Email yoki parol notoʻgʻri.",
+      tooMany: "Urinishlar juda koʻp. 15 daqiqa kutib, qayta urinib koʻring.",
+      logout: "Chiqish",
+    },
+    errors: {
+      unauthorized: "Buning uchun tizimga kiring.",
+      notFound: "Bu yozuv endi mavjud emas.",
+      validation: "Belgilangan maydonlarni tekshiring.",
+      handleTaken: "Bunday handle bilan mahsulot allaqachon bor.",
+      generic: "Saqlanmadi. Qayta urinib koʻring.",
+      fileRequired: "Rasm tanlang.",
+      fileTooLarge: "Rasm 10 MB dan katta.",
+      fileNotImage: "Bu fayl oʻqiladigan rasm emas. JPEG, PNG, WebP, AVIF yoki TIFF ishlating.",
+      fileTooSmall: "Rasm juda kichik. Kamida 480 x 600 piksel kerak.",
+      invalidStatus: (from: string, to: string) => `Buyurtma holatini ${from} dan ${to} ga oʻzgartirib boʻlmaydi.`,
+      compareAtTooLow: "Eski narx joriy narxdan yuqori boʻlishi kerak.",
+    },
+    empty: { orders: "Hali buyurtma yoʻq." },
+  },
+};
+
+export type Messages = typeof uz;

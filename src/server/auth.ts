@@ -9,7 +9,7 @@ import { adminSessions, adminUsers } from "./db/schema";
 import { burnPasswordCheck, verifyPassword } from "./password";
 import { loginAccountLimiter, loginLimiter } from "./rate-limit";
 
-export const SESSION_COOKIE = "lierne_admin";
+export const SESSION_COOKIE = "vv_admin";
 export const LOGIN_PATH = "/admin/login";
 const SESSION_DAYS = 7;
 const SESSION_MS = SESSION_DAYS * 24 * 60 * 60 * 1000;

@@ -21,26 +21,26 @@ async function mustPlace(input: PlaceOrderInput) {
 
 describe("totals", () => {
   it("ignores every price the client sends", async () => {
-    const coat = await variantOf("lintel-coat", "chalk", "M");
+    const coat = await variantOf("quiet-uzun-palto", "tosh", "M");
     const scarf = await variantOf("cornice-scarf", "saffron", "One size");
     const tampered = {
       ...checkoutInput([
-        { variantId: coat.id, quantity: 2, unitPriceCents: 1, priceCents: 1 } as never,
-        { variantId: scarf.id, quantity: 1, unitPriceCents: 1 } as never,
+        { variantId: coat.id, quantity: 2, unitPriceUzs: 1, priceUzs: 1 } as never,
+        { variantId: scarf.id, quantity: 1, unitPriceUzs: 1 } as never,
       ]),
-      subtotalCents: 1,
-      totalCents: 1,
-      shippingCents: 0,
+      subtotalUzs: 1,
+      totalUzs: 1,
+      deliveryUzs: 0,
     };
 
     const { order } = await mustPlace(tampered as PlaceOrderInput);
 
-    expect(order.subtotalCents).toBe(92_000 * 2 + 16_000);
-    expect(order.shippingCents).toBe(1800);
+    expect(order.subtotalUzs).toBe(92_000 * 2 + 16_000);
+    expect(order.deliveryUzs).toBe(1800);
     expect(order.taxCents).toBe(0);
-    expect(order.totalCents).toBe(200_000 + 1800);
-    expect(order.lines.map((line) => line.unitPriceCents).sort()).toEqual([16_000, 92_000]);
-    expect(order.status).toBe("placed");
+    expect(order.totalUzs).toBe(200_000 + 1800);
+    expect(order.lines.map((line) => line.unitPriceUzs).sort()).toEqual([16_000, 92_000]);
+    expect(order.status).toBe("pending");
     expect(order.email).toBe("shopper@example.com");
     expect(order.paymentProvider).toBe("pay_on_delivery");
     expect(order.paymentStatus).toBe("pending");
@@ -205,14 +205,14 @@ describe("status changes", () => {
     const variant = await variantOf("clerestory-overshirt", "rust", "S");
     const { order } = await mustPlace(checkoutInput([{ variantId: variant.id, quantity: 1 }]));
 
-    expect(await setOrderStatus(order.id, "shipped")).toEqual({ ok: false, code: "invalid_transition", from: "placed", to: "shipped" });
+    expect(await setOrderStatus(order.id, "shipped")).toEqual({ ok: false, code: "invalid_transition", from: "pending", to: "shipped" });
     expect(await setOrderStatus(order.id, "delivered")).toMatchObject({ ok: false, code: "invalid_transition" });
-    expect(await setOrderStatus(order.id, "placed")).toMatchObject({ ok: false, code: "invalid_transition" });
+    expect(await setOrderStatus(order.id, "pending")).toMatchObject({ ok: false, code: "invalid_transition" });
 
     await setOrderStatus(order.id, "packed");
     expect(await setOrderStatus(order.id, "packed")).toMatchObject({ ok: false, code: "invalid_transition" });
     await setOrderStatus(order.id, "shipped");
-    expect(await cancelOrder(order.id)).toEqual({ ok: false, code: "invalid_transition", from: "shipped", to: "cancelled" });
+    expect(await cancelOrder(order.id)).toEqual({ ok: false, code: "invalid_transition", from: "shipped", to: "canceled" });
     await setOrderStatus(order.id, "delivered");
     expect(await setOrderStatus(order.id, "shipped")).toMatchObject({ ok: false, code: "invalid_transition" });
 
@@ -231,12 +231,12 @@ describe("status changes", () => {
     );
     expect(await stockOf(variant.id)).toBe(variant.stock - 3);
 
-    expect(await cancelOrder(order.id)).toEqual({ ok: true, status: "cancelled" });
+    expect(await cancelOrder(order.id)).toEqual({ ok: true, status: "canceled" });
     expect(await stockOf(variant.id)).toBe(variant.stock);
     expect(await stockOf(other.id)).toBe(other.stock);
 
     expect(await cancelOrder(order.id)).toMatchObject({ ok: false, code: "invalid_transition" });
-    expect(await setOrderStatus(order.id, "cancelled")).toMatchObject({ ok: false, code: "invalid_transition" });
+    expect(await setOrderStatus(order.id, "canceled")).toMatchObject({ ok: false, code: "invalid_transition" });
     expect(await setOrderStatus(order.id, "packed")).toMatchObject({ ok: false, code: "invalid_transition" });
     expect(await stockOf(variant.id)).toBe(variant.stock);
   });
@@ -250,11 +250,11 @@ describe("status changes", () => {
     expect(await stockOf(variant.id)).toBe(variant.stock);
   });
 
-  it("keeps the price paid even if the piece is repriced later", async () => {
+  it("keeps the price paid even if the product is repriced later", async () => {
     const variant = await variantOf("mullion-shirt", "pale-blue", "M");
     const { order } = await mustPlace(checkoutInput([{ variantId: variant.id, quantity: 1 }]));
     const db = await getDb();
     const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
-    expect(items[0]).toMatchObject({ unitPriceCents: 24_000, pieceName: "Mullion Shirt", colourwayName: "Pale Blue", size: "M" });
+    expect(items[0]).toMatchObject({ unitPriceUzs: 24_000, productName: "Mullion Shirt", colorName: "Pale Blue", size: "M" });
   });
 });

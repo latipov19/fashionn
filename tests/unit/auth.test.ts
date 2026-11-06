@@ -3,9 +3,9 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { SESSION_COOKIE, UnauthorizedError, getSession, login, logout, requireAdmin, requireAdminPage } from "@/server/auth";
 import * as adminActions from "@/server/actions/admin";
 import { loginAction, logoutAction } from "@/server/actions/auth";
-import { adminGetPiece, adminListCloths, adminListPieces } from "@/server/catalog";
+import { adminGetProduct, adminListCloths, adminListProducts } from "@/server/catalog";
 import { closeDb, getDb } from "@/server/db/client";
-import { adminSessions, pieces } from "@/server/db/schema";
+import { adminSessions, products } from "@/server/db/schema";
 import { adminGetOrder, adminListOrders, cancelOrder, setOrderStatus } from "@/server/orders";
 import { hashPassword, verifyPassword } from "@/server/password";
 import { createRateLimiter, loginAccountLimiter, loginLimiter, resetRateLimits } from "@/server/rate-limit";
@@ -129,22 +129,22 @@ describe("login rate limit", () => {
 
 describe("authorization without a session", () => {
   it("every admin action refuses and changes nothing", async () => {
-    const variant = await variantOf("lintel-coat", "chalk", "S");
+    const variant = await variantOf("quiet-uzun-palto", "tosh", "S");
     const db = await getDb();
-    const [piece] = await db.select().from(pieces).where(eq(pieces.slug, "lintel-coat"));
+    const [product] = await db.select().from(products).where(eq(products.slug, "quiet-uzun-palto"));
 
-    const upload = form({ pieceId: piece!.id, colourwayId: ID, alt: "x" });
+    const upload = form({ productId: product!.id, colorId: ID, alt: "x" });
     const calls: [string, () => Promise<{ ok: boolean; code?: string }>][] = [
-      ["createPiece", () => adminActions.createPiece({} as never)],
-      ["updatePiece", () => adminActions.updatePiece({ id: piece!.id, name: "Hacked" })],
-      ["setPiecePublished", () => adminActions.setPiecePublished({ id: piece!.id, published: false })],
-      ["reorderPieces", () => adminActions.reorderPieces({ ids: [piece!.id] })],
+      ["createProduct", () => adminActions.createProduct({} as never)],
+      ["updateProduct", () => adminActions.updateProduct({ id: product!.id, name: "Hacked" })],
+      ["setProductPublished", () => adminActions.setProductPublished({ id: product!.id, published: false })],
+      ["reorderProducts", () => adminActions.reorderProducts({ ids: [product!.id] })],
       ["setStock", () => adminActions.setStock({ variantId: variant.id, stock: 999 })],
       ["setStockMany", () => adminActions.setStockMany({ items: [{ variantId: variant.id, stock: 999 }] })],
       ["uploadMedia", () => adminActions.uploadMedia(upload)],
-      ["hideMedia", () => adminActions.hideMedia({ colourwayId: ID, mediaId: ID, hidden: true })],
-      ["reorderMedia", () => adminActions.reorderMedia({ pieceId: piece!.id, colourwayId: ID, orderedIds: [ID] })],
-      ["revertToGenerated", () => adminActions.revertToGenerated({ pieceId: piece!.id, colourwayId: ID })],
+      ["hideMedia", () => adminActions.hideMedia({ colorId: ID, mediaId: ID, hidden: true })],
+      ["reorderMedia", () => adminActions.reorderMedia({ productId: product!.id, colorId: ID, orderedIds: [ID] })],
+      ["revertToGenerated", () => adminActions.revertToGenerated({ productId: product!.id, colorId: ID })],
       ["updateOrderStatus", () => adminActions.updateOrderStatus({ orderId: ID, status: "packed" })],
     ];
 
@@ -153,23 +153,23 @@ describe("authorization without a session", () => {
     }
 
     expect(await stockOf(variant.id)).toBe(variant.stock);
-    const [after] = await db.select().from(pieces).where(eq(pieces.slug, "lintel-coat"));
+    const [after] = await db.select().from(products).where(eq(products.slug, "quiet-uzun-palto"));
     expect(after).toMatchObject({ name: "Lintel Coat", published: true });
   });
 
   it("the action list above covers every exported action", () => {
     expect(Object.keys(adminActions).sort()).toEqual(
       [
-        "createPiece",
+        "createProduct",
         "hideMedia",
         "reorderMedia",
-        "reorderPieces",
+        "reorderProducts",
         "revertToGenerated",
-        "setPiecePublished",
+        "setProductPublished",
         "setStock",
         "setStockMany",
         "updateOrderStatus",
-        "updatePiece",
+        "updateProduct",
         "uploadMedia",
       ].sort(),
     );
@@ -177,8 +177,8 @@ describe("authorization without a session", () => {
 
   it("admin reads and order changes throw", async () => {
     for (const read of [
-      () => adminListPieces(),
-      () => adminGetPiece(ID),
+      () => adminListProducts(),
+      () => adminGetProduct(ID),
       () => adminListCloths(),
       () => adminListOrders(),
       () => adminGetOrder(ID),

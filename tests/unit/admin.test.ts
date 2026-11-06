@@ -2,24 +2,24 @@ import { eq } from "drizzle-orm";
 import sharp from "sharp";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { GeneratedMediaEntry } from "@/content/types";
-import type { CreatePieceInput } from "@/lib/validation";
+import type { CreateProductInput } from "@/lib/validation";
 import { MAX_UPLOAD_BYTES } from "@/lib/validation";
 import {
-  createPiece,
+  createProduct,
   hideMedia,
   reorderMedia,
-  reorderPieces,
+  reorderProducts,
   revertToGenerated,
-  setPiecePublished,
+  setProductPublished,
   setStock,
   setStockMany,
   updateOrderStatus,
-  updatePiece,
+  updateProduct,
   uploadMedia,
 } from "@/server/actions/admin";
-import { adminGetPiece, adminListCloths, adminListPieces, getPieceBySlug, listPieces } from "@/server/catalog";
+import { adminGetProduct, adminListCloths, adminListProducts, getProductByHandle, listProducts } from "@/server/catalog";
 import { closeDb, getDb } from "@/server/db/client";
-import { colourways, pieces } from "@/server/db/schema";
+import { colors, products } from "@/server/db/schema";
 import { focalCrop, getAllMediaFor, getMediaFor, hourImages, mergeMedia, needsRenderedDisclosure, primaryMedia, processUpload } from "@/server/media";
 import { placeOrder } from "@/server/orders";
 import { UPLOAD_NAME, localStorage } from "@/server/storage/local";
@@ -34,8 +34,8 @@ vi.mock("@/content/media.generated.json", () => ({
     items: [
       {
         id: "lintel-coat/chalk/room/morning",
-        pieceSlug: "lintel-coat",
-        colourwayId: "chalk",
+        productHandle: "quiet-uzun-palto",
+        colorId: "tosh",
         role: "room",
         hour: "morning",
         url: "/media/generated/a-1600.webp",
@@ -47,8 +47,8 @@ vi.mock("@/content/media.generated.json", () => ({
       },
       {
         id: "lintel-coat/chalk/room/noon",
-        pieceSlug: "lintel-coat",
-        colourwayId: "chalk",
+        productHandle: "quiet-uzun-palto",
+        colorId: "tosh",
         role: "room",
         hour: "noon",
         url: "/media/generated/b-1600.webp",
@@ -60,8 +60,8 @@ vi.mock("@/content/media.generated.json", () => ({
       },
       {
         id: "lintel-coat/chalk/cloth",
-        pieceSlug: "lintel-coat",
-        colourwayId: "chalk",
+        productHandle: "quiet-uzun-palto",
+        colorId: "tosh",
         role: "cloth",
         url: "/media/generated/c-960.webp",
         width: 960,
@@ -95,7 +95,7 @@ beforeEach(async () => {
   await signIn();
 });
 
-const newPiece: CreatePieceInput = {
+const newProduct: CreateProductInput = {
   slug: "keystone-apron",
   peg: "II.05",
   name: "Keystone Apron",
@@ -104,9 +104,9 @@ const newPiece: CreatePieceInput = {
   hour: "noon",
   frameClass: "mid",
   hang: "shoulderRod",
-  priceCents: 15_000,
+  priceUzs: 15_000,
   sizes: ["S", "M"],
-  colourways: [
+  colors: [
     { slug: "plaster", name: "Plaster", hex: "#D8CDB8", lining: "#847B6A" },
     { slug: "moss", name: "Moss", hex: "#24504B", lining: "#1A3A36" },
   ],
@@ -118,15 +118,15 @@ const newPiece: CreatePieceInput = {
 async function chalk() {
   const db = await getDb();
   const [row] = await db
-    .select({ pieceId: pieces.id, colourwayId: colourways.id })
-    .from(colourways)
-    .innerJoin(pieces, eq(pieces.id, colourways.pieceId))
-    .where(eq(colourways.slug, "chalk"));
+    .select({ productId: products.id, colorId: colors.id })
+    .from(colors)
+    .innerJoin(products, eq(products.id, colors.productId))
+    .where(eq(colors.slug, "tosh"));
   if (!row) throw new Error("No chalk");
   return row;
 }
 
-const chalkOwner = async () => ({ piece: { slug: "lintel-coat" }, colourway: { id: (await chalk()).colourwayId, slug: "chalk" } });
+const chalkOwner = async () => ({ product: { slug: "quiet-uzun-palto" }, color: { id: (await chalk()).colorId, slug: "tosh" } });
 
 function imageBuffer(width: number, height: number, format: "png" | "jpeg" = "png") {
   return sharp({ create: { width, height, channels: 3, background: "#884422" } })
@@ -141,56 +141,56 @@ function uploadForm(fields: Record<string, string>, bytes: Buffer, name = "my ph
   return data;
 }
 
-describe("pieces", () => {
-  it("creates a draft with colourways and zero-stock variants", async () => {
-    const result = await createPiece(newPiece);
+describe("products", () => {
+  it("creates a draft with colors and zero-stock variants", async () => {
+    const result = await createProduct(newProduct);
     if (!result.ok) throw new Error(result.message);
     expect(result.data.slug).toBe("keystone-apron");
     expect(result.data.warnings).toEqual([expect.stringContaining("Moss")]);
 
-    expect(await getPieceBySlug("keystone-apron")).toBeNull();
-    const piece = await adminGetPiece(result.data.id);
-    expect(piece).toMatchObject({ published: false, gatherPct: 5, details: [] });
-    expect(piece?.colourways.map((c) => c.slug)).toEqual(["plaster", "moss"]);
-    expect(piece?.colourways[0]?.variants).toHaveLength(2);
-    expect(piece?.colourways.flatMap((c) => c.variants).every((v) => v.stock === 0)).toBe(true);
-    expect(piece?.colourways[0]?.variants[0]?.sku).toBe("KEYSTONE-APRON-PLASTER-S");
+    expect(await getProductByHandle("keystone-apron")).toBeNull();
+    const product = await adminGetProduct(result.data.id);
+    expect(product).toMatchObject({ published: false, gatherPct: 5, details: [] });
+    expect(product?.colors.map((c) => c.slug)).toEqual(["plaster", "moss"]);
+    expect(product?.colors[0]?.variants).toHaveLength(2);
+    expect(product?.colors.flatMap((c) => c.variants).every((v) => v.stock === 0)).toBe(true);
+    expect(product?.colors[0]?.variants[0]?.sku).toBe("KEYSTONE-APRON-PLASTER-S");
   });
 
   it("refuses duplicates and bad input with field errors", async () => {
-    expect(await createPiece(newPiece)).toMatchObject({ ok: false, code: "conflict", fieldErrors: { slug: expect.any(String) } });
-    expect(await createPiece({ ...newPiece, slug: "another", peg: "I.01" })).toMatchObject({ ok: false, code: "conflict", fieldErrors: { peg: expect.any(String) } });
-    expect(await createPiece({ ...newPiece, slug: "Bad Slug", peg: "X.9" })).toMatchObject({ ok: false, code: "validation", fieldErrors: { slug: expect.any(String) } });
-    expect(await createPiece({ ...newPiece, slug: "x1", peg: "X.1", clothId: "no-cloth" })).toMatchObject({ ok: false, code: "validation", fieldErrors: { clothId: expect.any(String) } });
-    expect(await createPiece({ ...newPiece, slug: "x2", peg: "X.2", priceCents: 19.99 })).toMatchObject({ ok: false, code: "validation" });
+    expect(await createProduct(newProduct)).toMatchObject({ ok: false, code: "conflict", fieldErrors: { slug: expect.any(String) } });
+    expect(await createProduct({ ...newProduct, slug: "another", peg: "I.01" })).toMatchObject({ ok: false, code: "conflict", fieldErrors: { peg: expect.any(String) } });
+    expect(await createProduct({ ...newProduct, slug: "Bad Slug", peg: "X.9" })).toMatchObject({ ok: false, code: "validation", fieldErrors: { slug: expect.any(String) } });
+    expect(await createProduct({ ...newProduct, slug: "x1", peg: "X.1", clothId: "no-cloth" })).toMatchObject({ ok: false, code: "validation", fieldErrors: { clothId: expect.any(String) } });
+    expect(await createProduct({ ...newProduct, slug: "x2", peg: "X.2", priceUzs: 19.99 })).toMatchObject({ ok: false, code: "validation" });
   });
 
   it("updates only the fields sent, and keeps existing stock", async () => {
     const before = await variantOf("jamb-jacket", "putty", "M");
-    const [piece] = (await adminListPieces()).filter((item) => item.slug === "jamb-jacket");
+    const [product] = (await adminListProducts()).filter((item) => item.slug === "jamb-jacket");
 
-    const result = await updatePiece({ id: piece!.id, priceCents: 55_000, description: "Changed." });
+    const result = await updateProduct({ id: product!.id, priceUzs: 55_000, description: "Changed." });
     expect(result.ok).toBe(true);
 
-    const after = await adminGetPiece(piece!.id);
-    expect(after).toMatchObject({ priceCents: 55_000, description: "Changed.", name: "Jamb Jacket", slug: "jamb-jacket" });
+    const after = await adminGetProduct(product!.id);
+    expect(after).toMatchObject({ priceUzs: 55_000, description: "Changed.", name: "Jamb Jacket", slug: "jamb-jacket" });
     expect(await stockOf(before.id)).toBe(before.stock);
-    expect(await updatePiece({ id: "00000000-0000-4000-8000-000000000000", name: "X" })).toMatchObject({ ok: false, code: "not_found" });
+    expect(await updateProduct({ id: "00000000-0000-4000-8000-000000000000", name: "X" })).toMatchObject({ ok: false, code: "not_found" });
   });
 
-  it("adds and removes sizes and colourways without losing variants", async () => {
-    const piece = (await adminListPieces()).find((item) => item.slug === "spandrel-top")!;
-    const ivory = piece.colourways.find((c) => c.slug === "ivory")!;
-    await updatePiece({
-      id: piece.id,
+  it("adds and removes sizes and colors without losing variants", async () => {
+    const product = (await adminListProducts()).find((item) => item.slug === "spandrel-top")!;
+    const ivory = product.colors.find((c) => c.slug === "ivory")!;
+    await updateProduct({
+      id: product.id,
       sizes: ["S", "M", "L", "XL"],
-      colourways: [{ slug: "ivory", name: "Ivory", hex: ivory.hex, lining: ivory.lining }],
+      colors: [{ slug: "ivory", name: "Ivory", hex: ivory.hex, lining: ivory.lining }],
     });
 
-    const shop = await getPieceBySlug("spandrel-top");
-    expect(shop?.colourways.map((c) => c.slug)).toEqual(["ivory"]);
-    expect(shop?.colourways[0]?.variants.map((v) => v.size)).toEqual(["S", "M", "L", "XL"]);
-    expect(shop?.colourways[0]?.variants.at(-1)?.stock).toBe(0);
+    const shop = await getProductByHandle("spandrel-top");
+    expect(shop?.colors.map((c) => c.slug)).toEqual(["ivory"]);
+    expect(shop?.colors[0]?.variants.map((v) => v.size)).toEqual(["S", "M", "L", "XL"]);
+    expect(shop?.colors[0]?.variants.at(-1)?.stock).toBe(0);
 
     const ochre = await variantOf("spandrel-top", "ochre", "S");
     expect(await placeOrder(checkoutInput([{ variantId: ochre.id, quantity: 1 }]))).toMatchObject({ ok: false, code: "stock" });
@@ -199,17 +199,17 @@ describe("pieces", () => {
   });
 
   it("publishes, unpublishes and reorders", async () => {
-    const all = await adminListPieces();
+    const all = await adminListProducts();
     const first = all[0]!;
-    expect((await setPiecePublished({ id: first.id, published: false })).ok).toBe(true);
-    expect((await listPieces()).map((p) => p.id)).not.toContain(first.id);
-    await setPiecePublished({ id: first.id, published: true });
+    expect((await setProductPublished({ id: first.id, published: false })).ok).toBe(true);
+    expect((await listProducts()).map((p) => p.id)).not.toContain(first.id);
+    await setProductPublished({ id: first.id, published: true });
 
     const reversed = all.map((p) => p.id).reverse();
-    expect((await reorderPieces({ ids: reversed })).ok).toBe(true);
-    expect((await adminListPieces())[0]?.id).toBe(reversed[0]);
-    await reorderPieces({ ids: all.map((p) => p.id) });
-    expect(await setPiecePublished({ id: "x" as string, published: true })).toMatchObject({ ok: false, code: "validation" });
+    expect((await reorderProducts({ ids: reversed })).ok).toBe(true);
+    expect((await adminListProducts())[0]?.id).toBe(reversed[0]);
+    await reorderProducts({ ids: all.map((p) => p.id) });
+    expect(await setProductPublished({ id: "x" as string, published: true })).toMatchObject({ ok: false, code: "validation" });
   });
 
   it("sets stock, one or many, and refuses negatives", async () => {
@@ -248,7 +248,7 @@ describe("orders through the admin action", () => {
       code: "invalid_transition",
       message: "An order that is placed cannot become delivered.",
     });
-    expect(await updateOrderStatus({ orderId: placed.order.id, status: "cancelled" })).toEqual({ ok: true, data: { status: "cancelled" } });
+    expect(await updateOrderStatus({ orderId: placed.order.id, status: "canceled" })).toEqual({ ok: true, data: { status: "canceled" } });
     expect(await stockOf(variant.id)).toBe(variant.stock);
     expect(await updateOrderStatus({ orderId: placed.order.id, status: "bogus" as never })).toMatchObject({ ok: false, code: "validation" });
   });
@@ -256,21 +256,21 @@ describe("orders through the admin action", () => {
 
 describe("media merging", () => {
   it("merges the manifest and leads with the first generated room image", async () => {
-    const { piece, colourway } = await chalkOwner();
-    const media = await getMediaFor(piece, colourway);
+    const { product, color } = await chalkOwner();
+    const media = await getMediaFor(product, color);
     expect(media.map((item) => item.id)).toEqual(["lintel-coat/chalk/room/morning", "lintel-coat/chalk/room/noon", "lintel-coat/chalk/cloth"]);
     expect(needsRenderedDisclosure(media)).toBe(true);
     expect(Object.keys(hourImages(media))).toEqual(["morning", "noon"]);
   });
 
   it("orders uploads by position against generated items", () => {
-    const generated = [{ id: "g", pieceSlug: "p", colourwayId: "c", role: "room", url: "/g", width: 1, height: 1, srcSet: [], blur: "", alt: "G" }] satisfies GeneratedMediaEntry[];
-    const upload = { id: "u", pieceId: "p", colourwayId: "c", role: "photo", hour: null, url: "/u", width: 1, height: 1, srcSet: [], blur: "", dominant: null, alt: "U", position: 999, hidden: false, createdAt: new Date() } as const;
+    const generated = [{ id: "g", productHandle: "p", colorId: "c", role: "room", url: "/g", width: 1, height: 1, srcSet: [], blur: "", alt: "G" }] satisfies GeneratedMediaEntry[];
+    const upload = { id: "u", productId: "p", colorId: "c", role: "photo", hour: null, url: "/u", width: 1, height: 1, srcSet: [], blur: "", dominant: null, alt: "U", position: 999, hidden: false, createdAt: new Date() } as const;
     expect(mergeMedia(generated, [{ ...upload, srcSet: [] }], []).map((m) => m.id)).toEqual(["u", "g"]);
     expect(mergeMedia(generated, [{ ...upload, srcSet: [] }], [{ mediaKey: "g", hidden: false, position: 0 }]).map((m) => m.id)).toEqual(["g", "u"]);
   });
 
-  it("copes with a colourway that has no media", () => {
+  it("copes with a color that has no media", () => {
     expect(primaryMedia([])).toBeNull();
     expect(needsRenderedDisclosure([])).toBe(false);
     expect(hourImages([])).toEqual({});
@@ -305,34 +305,34 @@ describe("upload", () => {
   });
 
   it("puts a photo first, removes the disclosure and survives a revert", async () => {
-    const { pieceId, colourwayId } = await chalk();
-    const { piece, colourway } = await chalkOwner();
+    const { productId, colorId } = await chalk();
+    const { product, color } = await chalkOwner();
 
-    const result = await uploadMedia(uploadForm({ pieceId, colourwayId, alt: "Lintel Coat, photographed", focalX: "0.4", focalY: "0.6" }, await imageBuffer(1200, 1600)));
+    const result = await uploadMedia(uploadForm({ productId, colorId, alt: "Lintel Coat, photographed", focalX: "0.4", focalY: "0.6" }, await imageBuffer(1200, 1600)));
     if (!result.ok) throw new Error(result.message);
 
     expect(stored.size).toBe(3);
     expect([...stored.keys()].every((name) => UPLOAD_NAME.test(name) && !name.includes("my photo"))).toBe(true);
 
-    const media = await getMediaFor(piece, colourway);
+    const media = await getMediaFor(product, color);
     expect(media[0]).toMatchObject({ id: result.data.id, source: "upload", role: "photo", alt: "Lintel Coat, photographed", width: 1600, height: 2000 });
     expect(media[0]?.srcSet.map((src) => src.width)).toEqual([480, 960, 1600]);
     expect(needsRenderedDisclosure(media)).toBe(false);
     expect(hourImages(media)).toEqual({});
 
-    const shop = await getPieceBySlug("lintel-coat");
-    expect(primaryMedia(shop!.colourways[0]!.media)?.source).toBe("upload");
+    const shop = await getProductByHandle("quiet-uzun-palto");
+    expect(primaryMedia(shop!.colors[0]!.media)?.source).toBe("upload");
 
-    expect((await revertToGenerated({ pieceId, colourwayId })).ok).toBe(true);
-    const reverted = await getMediaFor(piece, colourway);
+    expect((await revertToGenerated({ productId, colorId })).ok).toBe(true);
+    const reverted = await getMediaFor(product, color);
     expect(reverted[0]?.source).toBe("generated");
     expect(needsRenderedDisclosure(reverted)).toBe(true);
-    expect((await getAllMediaFor(piece, colourway)).filter((item) => item.hidden).map((item) => item.id)).toEqual([result.data.id]);
+    expect((await getAllMediaFor(product, color)).filter((item) => item.hidden).map((item) => item.id)).toEqual([result.data.id]);
   });
 
   it("refuses non-images, spoofed types, tiny images and missing files, and writes nothing", async () => {
-    const { pieceId, colourwayId } = await chalk();
-    const base = { pieceId, colourwayId, alt: "x" };
+    const { productId, colorId } = await chalk();
+    const base = { productId, colorId, alt: "x" };
 
     const fake = uploadForm(base, Buffer.from("<?php echo 1; ?>"), "shell.png", "image/png");
     expect(await uploadMedia(fake)).toMatchObject({ ok: false, code: "validation", fieldErrors: { file: expect.stringContaining("not an image") } });
@@ -350,21 +350,21 @@ describe("upload", () => {
     const big = uploadForm(base, Buffer.alloc(MAX_UPLOAD_BYTES + 1));
     expect(await uploadMedia(big)).toMatchObject({ ok: false, fieldErrors: { file: expect.stringContaining("10 MB") } });
 
-    const noAlt = uploadForm({ pieceId, colourwayId, alt: " " }, await imageBuffer(1000, 1000));
+    const noAlt = uploadForm({ productId, colorId, alt: " " }, await imageBuffer(1000, 1000));
     expect(await uploadMedia(noAlt)).toMatchObject({ ok: false, code: "validation", fieldErrors: { alt: expect.any(String) } });
 
     expect(stored.size).toBe(0);
   });
 
-  it("refuses a colourway from another piece", async () => {
-    const { colourwayId } = await chalk();
-    const other = (await adminListPieces()).find((piece) => piece.slug === "nave-dress")!;
-    const form = uploadForm({ pieceId: other.id, colourwayId, alt: "x" }, await imageBuffer(1000, 1000));
+  it("refuses a color from another product", async () => {
+    const { colorId } = await chalk();
+    const other = (await adminListProducts()).find((product) => product.slug === "nave-dress")!;
+    const form = uploadForm({ productId: other.id, colorId, alt: "x" }, await imageBuffer(1000, 1000));
     expect(await uploadMedia(form)).toMatchObject({ ok: false, code: "not_found" });
   });
 
   it("removes written files when storage fails part way", async () => {
-    const { pieceId, colourwayId } = await chalk();
+    const { productId, colorId } = await chalk();
     let calls = 0;
     setStorage({
       async put(name, bytes, type) {
@@ -375,7 +375,7 @@ describe("upload", () => {
       remove: memoryStorage.remove,
     });
     const spy = vi.spyOn(console, "error").mockImplementation(() => undefined);
-    const result = await uploadMedia(uploadForm({ pieceId, colourwayId, alt: "x" }, await imageBuffer(1000, 1000)));
+    const result = await uploadMedia(uploadForm({ productId, colorId, alt: "x" }, await imageBuffer(1000, 1000)));
     spy.mockRestore();
     setStorage(memoryStorage);
     expect(result).toMatchObject({ ok: false, code: "error" });
@@ -385,37 +385,37 @@ describe("upload", () => {
 
 describe("hide and order", () => {
   it("hides and shows a generated image and an upload", async () => {
-    const { pieceId, colourwayId } = await chalk();
-    const { piece, colourway } = await chalkOwner();
-    await revertToGenerated({ pieceId, colourwayId });
+    const { productId, colorId } = await chalk();
+    const { product, color } = await chalkOwner();
+    await revertToGenerated({ productId, colorId });
 
-    expect((await hideMedia({ colourwayId, mediaId: "lintel-coat/chalk/room/morning", hidden: true })).ok).toBe(true);
-    expect((await getMediaFor(piece, colourway))[0]?.id).toBe("lintel-coat/chalk/room/noon");
-    expect(await hideMedia({ colourwayId, mediaId: "nave-dress/pearl/room/evening", hidden: true })).toMatchObject({ ok: false, code: "not_found" });
+    expect((await hideMedia({ colorId, mediaId: "lintel-coat/chalk/room/morning", hidden: true })).ok).toBe(true);
+    expect((await getMediaFor(product, color))[0]?.id).toBe("lintel-coat/chalk/room/noon");
+    expect(await hideMedia({ colorId, mediaId: "nave-dress/pearl/room/evening", hidden: true })).toMatchObject({ ok: false, code: "not_found" });
 
-    const upload = await uploadMedia(uploadForm({ pieceId, colourwayId, alt: "Photo" }, await imageBuffer(1000, 1000)));
+    const upload = await uploadMedia(uploadForm({ productId, colorId, alt: "Photo" }, await imageBuffer(1000, 1000)));
     if (!upload.ok) throw new Error(upload.message);
-    expect((await getMediaFor(piece, colourway))[0]?.id).toBe(upload.data.id);
-    expect((await hideMedia({ colourwayId, mediaId: upload.data.id, hidden: true })).ok).toBe(true);
-    expect((await getMediaFor(piece, colourway))[0]?.source).toBe("generated");
-    expect((await hideMedia({ colourwayId, mediaId: upload.data.id, hidden: false })).ok).toBe(true);
-    expect((await getMediaFor(piece, colourway))[0]?.id).toBe(upload.data.id);
+    expect((await getMediaFor(product, color))[0]?.id).toBe(upload.data.id);
+    expect((await hideMedia({ colorId, mediaId: upload.data.id, hidden: true })).ok).toBe(true);
+    expect((await getMediaFor(product, color))[0]?.source).toBe("generated");
+    expect((await hideMedia({ colorId, mediaId: upload.data.id, hidden: false })).ok).toBe(true);
+    expect((await getMediaFor(product, color))[0]?.id).toBe(upload.data.id);
   });
 
   it("reorders mixed media, and a generated image can lead again", async () => {
-    const { pieceId, colourwayId } = await chalk();
-    const { piece, colourway } = await chalkOwner();
-    await revertToGenerated({ pieceId, colourwayId });
-    const upload = await uploadMedia(uploadForm({ pieceId, colourwayId, alt: "Photo" }, await imageBuffer(1000, 1000)));
+    const { productId, colorId } = await chalk();
+    const { product, color } = await chalkOwner();
+    await revertToGenerated({ productId, colorId });
+    const upload = await uploadMedia(uploadForm({ productId, colorId, alt: "Photo" }, await imageBuffer(1000, 1000)));
     if (!upload.ok) throw new Error(upload.message);
 
-    expect((await reorderMedia({ pieceId, colourwayId, orderedIds: ["lintel-coat/chalk/room/noon"] })).ok).toBe(true);
-    const media = await getMediaFor(piece, colourway);
+    expect((await reorderMedia({ productId, colorId, orderedIds: ["lintel-coat/chalk/room/noon"] })).ok).toBe(true);
+    const media = await getMediaFor(product, color);
     expect(media[0]?.id).toBe("lintel-coat/chalk/room/noon");
     expect(media[1]?.id).toBe(upload.data.id);
     expect(needsRenderedDisclosure(media)).toBe(true);
 
-    expect(await reorderMedia({ pieceId, colourwayId, orderedIds: ["nonsense"] })).toMatchObject({ ok: false, code: "not_found" });
+    expect(await reorderMedia({ productId, colorId, orderedIds: ["nonsense"] })).toMatchObject({ ok: false, code: "not_found" });
   });
 });
 

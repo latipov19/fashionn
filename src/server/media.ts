@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { inArray } from "drizzle-orm";
 import sharp from "sharp";
 import manifestJson from "@/content/media.generated.json";
-import type { GeneratedManifest, GeneratedMediaEntry, Hour, MediaRecord } from "@/content/types";
+import type { GeneratedManifest, GeneratedMediaEntry, MediaRecord } from "@/content/types";
 import type { Executor } from "./db/client";
 import { getDb } from "./db/client";
 import { mediaOverrides, productMedia } from "./db/schema";
@@ -17,13 +17,13 @@ const ASPECT = 4 / 5;
 const MIN_CROP_WIDTH = OUTPUT_WIDTHS[0];
 const ACCEPTED_FORMATS = new Set(["jpeg", "png", "webp", "avif", "tiff", "heif"]);
 
-export type MediaOwner = { pieceSlug: string; colourwaySlug: string; colourwayId: string };
+export type MediaOwner = { productHandle: string; colorSlug: string; colorId: string };
 
 type UploadRow = typeof productMedia.$inferSelect;
 type OverrideRow = typeof mediaOverrides.$inferSelect;
 
-function generatedFor(pieceSlug: string, colourwaySlug: string, entries = manifest.items): GeneratedMediaEntry[] {
-  return entries.filter((item) => item.pieceSlug === pieceSlug && item.colourwayId === colourwaySlug);
+function generatedFor(productHandle: string, colorSlug: string, entries = manifest.items): GeneratedMediaEntry[] {
+  return entries.filter((item) => item.productHandle === productHandle && item.colorId === colorSlug);
 }
 
 /** Merges the manifest with uploads, applying hide and order. Hidden items are kept, flagged. */
@@ -39,7 +39,6 @@ export function mergeMedia(
     return {
       id: item.id,
       role: item.role,
-      hour: item.hour ?? null,
       source: "generated",
       url: item.url,
       width: item.width,
@@ -56,7 +55,6 @@ export function mergeMedia(
   const fromUploads: MediaRecord[] = uploads.map((row) => ({
     id: row.id,
     role: row.role,
-    hour: row.hour,
     source: "upload",
     url: row.url,
     width: row.width,
@@ -72,66 +70,54 @@ export function mergeMedia(
   return [...fromManifest, ...fromUploads].sort((a, b) => a.position - b.position);
 }
 
-/** Loads media for many colourways with two queries. The catalog uses this to avoid N+1. */
+/** Loads media for many productColors with two queries. The catalog uses this to avoid N+1. */
 export async function loadMediaForOwners(owners: readonly MediaOwner[], db?: Executor): Promise<Map<string, MediaRecord[]>> {
   const result = new Map<string, MediaRecord[]>();
   if (owners.length === 0) return result;
   const conn = db ?? (await getDb());
-  const ids = owners.map((owner) => owner.colourwayId);
+  const ids = owners.map((owner) => owner.colorId);
   const [uploads, overrides] = await Promise.all([
-    conn.select().from(productMedia).where(inArray(productMedia.colourwayId, ids)),
-    conn.select().from(mediaOverrides).where(inArray(mediaOverrides.colourwayId, ids)),
+    conn.select().from(productMedia).where(inArray(productMedia.colorId, ids)),
+    conn.select().from(mediaOverrides).where(inArray(mediaOverrides.colorId, ids)),
   ]);
   for (const owner of owners) {
     result.set(
-      owner.colourwayId,
+      owner.colorId,
       mergeMedia(
-        generatedFor(owner.pieceSlug, owner.colourwaySlug),
-        uploads.filter((row) => row.colourwayId === owner.colourwayId),
-        overrides.filter((row) => row.colourwayId === owner.colourwayId),
+        generatedFor(owner.productHandle, owner.colorSlug),
+        uploads.filter((row) => row.colorId === owner.colorId),
+        overrides.filter((row) => row.colorId === owner.colorId),
       ),
     );
   }
   return result;
 }
 
-/** All media for a colourway, hidden items included. For the admin media screen. */
+/** All media for a color, hidden items included. For the admin media screen. */
 export async function getAllMediaFor(
-  piece: { slug: string },
-  colourway: { id: string; slug: string },
+  product: { handle: string },
+  color: { id: string; slug: string },
   db?: Executor,
 ): Promise<MediaRecord[]> {
-  const owner = { pieceSlug: piece.slug, colourwaySlug: colourway.slug, colourwayId: colourway.id };
-  return (await loadMediaForOwners([owner], db)).get(colourway.id) ?? [];
+  const owner = { productHandle: product.handle, colorSlug: color.slug, colorId: color.id };
+  return (await loadMediaForOwners([owner], db)).get(color.id) ?? [];
 }
 
-/** Visible media for a colourway, in order. The first item wins everywhere. */
-export async function getMediaFor(piece: { slug: string }, colourway: { id: string; slug: string }): Promise<MediaRecord[]> {
-  return (await getAllMediaFor(piece, colourway)).filter((item) => !item.hidden);
+/** Visible media for a color, in order. The first item wins everywhere. */
+export async function getMediaFor(product: { handle: string }, color: { id: string; slug: string }): Promise<MediaRecord[]> {
+  return (await getAllMediaFor(product, color)).filter((item) => !item.hidden);
 }
 
 export const visibleMedia = (media: readonly MediaRecord[]) => media.filter((item) => !item.hidden);
 
-/** The image for rails and niches. Cloth studies never lead. */
+/** The lead image for cards and galleries. Detail crops never lead. */
 export function primaryMedia(media: readonly MediaRecord[]): MediaRecord | null {
-  return visibleMedia(media).find((item) => item.role !== "cloth") ?? null;
+  return visibleMedia(media).find((item) => item.role !== "detail") ?? null;
 }
 
-/** True when the Rendered disclosure must show. It goes away once an upload leads. */
-export function needsRenderedDisclosure(media: readonly MediaRecord[]): boolean {
+/** True when the lead image is a generated sample, so the page must say it is not a photo. */
+export function leadsWithGeneratedImage(media: readonly MediaRecord[]): boolean {
   return primaryMedia(media)?.source === "generated";
-}
-
-/** Images for the hour switch. Empty unless at least two hours exist in the leading source. */
-export function hourImages(media: readonly MediaRecord[]): Partial<Record<Hour, MediaRecord>> {
-  const lead = primaryMedia(media);
-  if (!lead) return {};
-  const hours: Partial<Record<Hour, MediaRecord>> = {};
-  for (const item of visibleMedia(media)) {
-    if (item.role === "cloth" || !item.hour || item.source !== lead.source) continue;
-    hours[item.hour] ??= item;
-  }
-  return Object.keys(hours).length >= 2 ? hours : {};
 }
 
 /* Upload processing */
@@ -212,12 +198,12 @@ export async function processUpload(input: Buffer, focalX: number, focalY: numbe
   };
 }
 
-/** Position that puts a new upload ahead of everything currently in the colourway. */
+/** Position that puts a new upload ahead of everything currently in the color. */
 export function firstPosition(media: readonly MediaRecord[]): number {
   return media.reduce((min, item) => Math.min(min, item.position), GENERATED_BASE_POSITION) - 1;
 }
 
-/** True when a generated manifest key belongs to the colourway. */
-export function isGeneratedFor(mediaId: string, pieceSlug: string, colourwaySlug: string): boolean {
-  return generatedFor(pieceSlug, colourwaySlug).some((item) => item.id === mediaId);
+/** True when a generated manifest key belongs to the color. */
+export function isGeneratedFor(mediaId: string, productHandle: string, colorSlug: string): boolean {
+  return generatedFor(productHandle, colorSlug).some((item) => item.id === mediaId);
 }
