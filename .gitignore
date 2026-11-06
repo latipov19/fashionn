@@ -1,0 +1,20 @@
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+next-env.d.ts
+
+# local database and uploads
+.data/
+public/uploads/
+
+# secrets
+.env
+.env.*
+!.env.example
+
+# local tooling scratch
+.tmp/

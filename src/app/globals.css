@@ -1,0 +1,597 @@
+@import "tailwindcss";
+
+/*
+ * Tokens and grounds are brief section 3, copied value for value. To restyle the site,
+ * change this block and nothing else. There is no theme toggle: sections declare a
+ * data-ground, and the semantic tokens resolve from it.
+ */
+@theme static {
+  /* Only these tokens exist. Tailwind's default palette, type scale and radii are removed. */
+  --color-*: initial;
+  --text-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --breakpoint-*: initial;
+
+  /* Surfaces */
+  --color-bone: #E4DCCD;
+  --color-bone-raised: #F0EADF;
+  --color-ink: #191613;
+  --color-oxide: #6E2C1E;
+  --color-verdigris: #24504A;
+  --color-lampblack: #161C29;
+
+  /* Text and accent */
+  --color-ink-2: #55493E;
+  --color-muted-dark: #B3A99A;
+  --color-muted-oxide: #D6C7B5;
+  --color-muted-verdigris: #D2CDBD;
+  --color-sienna: #8A3A1C;
+  --color-sienna-hover: #6F2D14;
+  --color-sun: #E7A766;
+  --color-sun-hover: #F2C08A;
+
+  /* States */
+  --color-danger: #8E1F1A;
+  --color-danger-dark: #EE9A8A;
+  --color-success: #2C5A3F;
+  --color-success-dark: #9CCBA8;
+  --color-disabled-fill: #D6CEBF;
+
+  /* Lines */
+  --color-rail-light: #7A6E60;
+  --color-rail-dark: #7D7366;
+  --color-rail-oxide: #C9A78F;
+  --color-rail-verdigris: #8FB0A6;
+  --color-rail-lampblack: #7D7F8A;
+
+  /* Fonts */
+  --font-display: var(--font-forum), "Times New Roman", serif;
+  --font-sans: var(--font-ysabeau), system-ui, "Segoe UI", sans-serif;
+
+  /* Radius: zero. The building has square corners. */
+  --radius-none: 0;
+
+  /* Motion */
+  --ease-door: cubic-bezier(.22,.8,.2,1);
+  --ease-out: cubic-bezier(.2,.7,.3,1);
+  --dur-1: 180ms;
+  --dur-2: 240ms;
+  --dur-3: 320ms;
+  --dur-4: 720ms;
+
+  /* Breakpoints: 640, 900, 1200, 1600 */
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 56.25rem;
+  --breakpoint-lg: 75rem;
+  --breakpoint-xl: 100rem;
+
+  /* Type scale, section 5 */
+  --text-display-xl: clamp(3.25rem, 8.6vw, 9.5rem);
+  --text-display-xl--line-height: .96;
+  --text-display-xl--letter-spacing: .01em;
+  --text-display-l: clamp(2.5rem, 5.4vw, 5.75rem);
+  --text-display-l--line-height: 1;
+  --text-display-l--letter-spacing: .015em;
+  --text-display-m: clamp(1.75rem, 2.8vw, 2.75rem);
+  --text-display-m--line-height: 1.1;
+  --text-display-m--letter-spacing: .02em;
+  --text-lead: 1.375rem;
+  --text-lead--line-height: 1.4;
+  --text-body: 1.125rem;
+  --text-body--line-height: 1.55;
+  --text-small: 1rem;
+  --text-small--line-height: 1.5;
+  --text-label: .875rem;
+  --text-label--line-height: 1.3;
+  --text-label--letter-spacing: .12em;
+  --text-label--font-weight: 600;
+  --text-price: 1.125rem;
+  --text-price--line-height: 1.3;
+  --text-price--font-weight: 500;
+}
+
+/* Semantic colours for Tailwind utilities, for example bg-ground, text-fg, border-line. */
+@theme inline {
+  --color-ground: var(--bg);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
+  --color-line: var(--line);
+  --color-danger-text: var(--danger-t);
+  --color-success-text: var(--success-t);
+}
+
+:root {
+  /* Spacing, 4 px base */
+  --s-1: .25rem; --s-2: .5rem; --s-3: .75rem; --s-4: 1rem; --s-5: 1.5rem;
+  --s-6: 2rem; --s-7: 3rem; --s-8: 4rem; --s-9: 6rem; --s-10: 9rem;
+
+  --gutter: clamp(1rem, 3.2vw, 3.5rem);
+  --gap: clamp(.75rem, 1.6vw, 1.5rem);
+  --max: 100rem;
+  --measure: 62ch;
+  --header-h: 3.5rem;
+
+  /* Layers */
+  --z-stage: 0; --z-wall: 10; --z-placard: 20; --z-header: 40; --z-drawer: 60; --z-toast: 70;
+
+  /* Niche: the only shadow in the system */
+  --niche-shadow: inset 0 .5rem .875rem rgb(0 0 0 / .35), inset 0 0 0 1px rgb(0 0 0 / .25);
+}
+
+[data-ground="bone"]      { --bg:#E4DCCD; --fg:#191613; --fg-2:#55493E; --link:#8A3A1C; --link-hover:#6F2D14; --line:#7A6E60; --focus:#191613; --danger-t:#8E1F1A; --success-t:#2C5A3F; --btn-bg:#8A3A1C; --btn-bg-hover:#6F2D14; --btn-fg:#F0EADF; }
+[data-ground="raised"]    { --bg:#F0EADF; --fg:#191613; --fg-2:#55493E; --link:#8A3A1C; --link-hover:#6F2D14; --line:#7A6E60; --focus:#191613; --danger-t:#8E1F1A; --success-t:#2C5A3F; --btn-bg:#8A3A1C; --btn-bg-hover:#6F2D14; --btn-fg:#F0EADF; }
+[data-ground="ink"]       { --bg:#191613; --fg:#E4DCCD; --fg-2:#B3A99A; --link:#E7A766; --link-hover:#F2C08A; --line:#7D7366; --focus:#E7A766; --danger-t:#EE9A8A; --success-t:#9CCBA8; --btn-bg:#E7A766; --btn-bg-hover:#F2C08A; --btn-fg:#191613; }
+[data-ground="lampblack"] { --bg:#161C29; --fg:#F0EADF; --fg-2:#B3A99A; --link:#E7A766; --link-hover:#F2C08A; --line:#7D7F8A; --focus:#E7A766; --btn-bg:#F0EADF; --btn-bg-hover:#E4DCCD; --btn-fg:#191613; }
+[data-ground="oxide"]     { --bg:#6E2C1E; --fg:#F0EADF; --fg-2:#D6C7B5; --link:#F0EADF; --link-hover:#E4DCCD; --line:#C9A78F; --focus:#F0EADF; --btn-bg:#F0EADF; --btn-bg-hover:#E4DCCD; --btn-fg:#191613; }
+[data-ground="verdigris"] { --bg:#24504A; --fg:#F0EADF; --fg-2:#D2CDBD; --link:#F0EADF; --link-hover:#E4DCCD; --line:#8FB0A6; --focus:#F0EADF; --btn-bg:#F0EADF; --btn-bg-hover:#E4DCCD; --btn-fg:#191613; }
+
+@media (prefers-contrast: more) {
+  [data-ground="bone"], [data-ground="raised"] { --fg-2:#191613; --link:#6F2D14; }
+  [data-ground="ink"], [data-ground="lampblack"] { --fg-2:#F0EADF; }
+  [data-ground="oxide"], [data-ground="verdigris"] { --fg-2:#F0EADF; }
+}
+
+/* Rail steel starts from these and is resampled from the renders after the spike (6.3). */
+[data-ground="oxide"], [data-ground="verdigris"] { --rail-steel: #0F0E0D; }
+[data-ground="lampblack"] { --rail-steel: #7D7F8A; }
+
+@layer base {
+  html {
+    background: var(--color-bone);
+    scroll-padding-top: var(--header-h);
+    -webkit-text-size-adjust: 100%;
+    font-synthesis: none;
+  }
+
+  body {
+    min-height: 100svh;
+    overflow-x: clip;
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  [data-ground] {
+    background-color: var(--bg);
+    color: var(--fg);
+  }
+
+  /* Every focus state in the system. Never removed. */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  /* Programmatic focus targets such as #content do not get a ring. */
+  [tabindex="-1"]:focus {
+    outline: none;
+  }
+
+  ::selection {
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  /* Type, section 5. Each class carries family, size, leading, tracking and case. */
+  .t-display-xl,
+  .t-display-l,
+  .t-display-m {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-synthesis: none;
+    text-wrap: balance;
+  }
+  .t-display-xl { font-size: var(--text-display-xl); line-height: .96; letter-spacing: .01em; text-transform: uppercase; }
+  .t-display-l { font-size: var(--text-display-l); line-height: 1; letter-spacing: .015em; text-transform: uppercase; }
+  .t-display-m { font-size: var(--text-display-m); line-height: 1.1; letter-spacing: .02em; }
+  .t-lead { font-size: var(--text-lead); line-height: 1.4; font-weight: 400; }
+  .t-body { font-size: var(--text-body); line-height: 1.55; font-weight: 400; }
+  .t-small { font-size: var(--text-small); line-height: 1.5; font-weight: 400; }
+  .t-label { font-size: var(--text-label); line-height: 1.3; letter-spacing: .12em; font-weight: 600; text-transform: uppercase; }
+  .t-price { font-size: var(--text-price); line-height: 1.3; font-weight: 500; }
+  .t-price,
+  .t-tabular { font-variant-numeric: lining-nums tabular-nums; }
+  .t-secondary { color: var(--fg-2); }
+
+  /* Grid, 6.1 and 6.2 */
+  .shell {
+    width: 100%;
+    max-width: var(--max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  .grid-12 {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--gap);
+  }
+  .section { padding-block: var(--s-8); }
+  .measure { max-width: var(--measure); }
+  @media (min-width: 56.25rem) {
+    .section { padding-block: var(--s-9); }
+  }
+
+  /* The rail and the one-scale system, 6.3. */
+  .rail-band {
+    position: relative;
+    overflow-x: clip;
+  }
+  /* The container sits inside the gutters, so 100cqw is the width the row really has. */
+  .rail-rows {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-7);
+  }
+  .rail-row {
+    --cm: calc((100cqw - 3 * var(--gap)) / 400);
+    position: relative;
+    display: flex;
+    gap: var(--gap);
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .hang-card {
+    position: relative;
+    flex: none;
+    width: calc(var(--frame-w-cm) * var(--cm));
+  }
+  .hang-card[data-frame="wide"] { --frame-w-cm: 160; }
+  .hang-card[data-frame="mid"] { --frame-w-cm: 112; }
+  .hang-card[data-frame="small"] { --frame-w-cm: 72; }
+  .rail-line {
+    position: absolute;
+    top: calc(16 * var(--cm));
+    height: 2px;
+    /* Runs the full band width. .rail-band clips the overshoot. */
+    inset-inline: -100vw;
+    background: var(--rail-steel);
+    pointer-events: none;
+  }
+
+  /* Shop on narrow screens, section 12: one scroll-snap row per room at true scale. */
+  @media (max-width: 56.2rem) {
+    .rail-rows {
+      --cm: calc(min(78vw, 32rem) / 160);
+      flex-direction: row;
+      gap: var(--gap);
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--gutter);
+    }
+    .rail-row {
+      --cm: calc(min(78vw, 32rem) / 160);
+      display: contents;
+    }
+    .rail-line { display: none; }
+    .hang-card { scroll-snap-align: start; }
+    /* The line is drawn per card here, so it travels with the scroll. */
+    .hang-card::before {
+      content: "";
+      position: absolute;
+      top: calc(16 * var(--cm));
+      inset-inline: calc(-1 * var(--gap));
+      height: 2px;
+      background: var(--rail-steel);
+      pointer-events: none;
+    }
+  }
+
+  .niche {
+    position: relative;
+    z-index: 1;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background-color: var(--niche-fill, var(--bg));
+  }
+  .niche > img,
+  .niche > svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .niche::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    box-shadow: var(--niche-shadow);
+    pointer-events: none;
+  }
+
+  /* Button, 6.4 and section 11 */
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding-inline: var(--s-5);
+    border: 1px solid transparent;
+    border-radius: 0;
+    font-family: var(--font-sans);
+    font-size: var(--text-label);
+    line-height: 1.3;
+    letter-spacing: .12em;
+    font-weight: 600;
+    text-transform: uppercase;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+  }
+  .btn-primary {
+    background-color: var(--btn-bg);
+    color: var(--btn-fg);
+  }
+  .btn-primary:hover { background-color: var(--btn-bg-hover); }
+  .btn-secondary {
+    background-color: transparent;
+    border-color: var(--fg);
+    color: var(--fg);
+  }
+  .btn-secondary:hover {
+    background-color: var(--fg);
+    color: var(--bg);
+  }
+  .btn-text {
+    min-height: 44px;
+    padding-inline: 0;
+    background: none;
+    color: var(--link);
+  }
+  .btn-text:hover { color: var(--link-hover); }
+  .btn[aria-disabled="true"] {
+    background-color: var(--color-disabled-fill);
+    border-color: transparent;
+    color: var(--color-ink-2);
+    cursor: not-allowed;
+  }
+  .btn[aria-busy="true"] { cursor: progress; }
+  .btn[aria-busy="true"]::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform-origin: left;
+    animation: btn-line var(--dur-4) var(--ease-out) infinite alternate;
+  }
+  @keyframes btn-line {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  .btn-full { width: 100%; }
+
+  /* RailLink, section 10.4: a 1 px underline in currentColor drawing from the left. */
+  .rail-link {
+    position: relative;
+    display: inline-block;
+    color: var(--link);
+    text-decoration: none;
+    transition: color var(--dur-1) var(--ease-out);
+  }
+  .rail-link:hover { color: var(--link-hover); }
+  .rail-link::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-1) var(--ease-door);
+  }
+  .rail-link:hover::after,
+  .rail-link[data-underlined="true"]::after,
+  .btn-text:hover .rail-link::after { transform: scaleX(1); }
+
+  /* Placard, 6.4: opaque, zero radius. Text never sits on an image. */
+  .placard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    padding: var(--s-4);
+  }
+
+  /* Field */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    min-width: 0;
+  }
+  .field-label {
+    font-size: var(--text-label);
+    line-height: 1.3;
+    letter-spacing: .12em;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .field-hint {
+    font-size: var(--text-small);
+    line-height: 1.5;
+    color: var(--fg-2);
+  }
+  .field-input {
+    width: 100%;
+    min-height: 48px;
+    padding: var(--s-2) var(--s-3);
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background-color: var(--color-bone-raised);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 1rem; /* At least 1rem stops iOS zoom. */
+    line-height: 1.5;
+    transition: border-color var(--dur-1) var(--ease-out);
+  }
+  [data-ground="ink"] .field-input { background-color: var(--bg); }
+  .field-input:hover { border-color: var(--fg); }
+  .field-input::placeholder {
+    color: var(--fg-2);
+    opacity: 1;
+  }
+  .field-input:disabled {
+    background-color: var(--color-disabled-fill);
+    border-color: transparent;
+    color: var(--color-ink-2);
+    cursor: not-allowed;
+  }
+  .field-input[aria-invalid="true"] {
+    border: 2px solid var(--danger-t);
+    padding: calc(var(--s-2) - 1px) calc(var(--s-3) - 1px);
+  }
+  .field-error {
+    display: flex;
+    gap: var(--s-2);
+    align-items: flex-start;
+    font-size: var(--text-small);
+    line-height: 1.5;
+    color: var(--danger-t);
+  }
+  .field-error svg {
+    flex: none;
+    margin-top: .2em;
+  }
+
+  /* Toast, section 11: raised, bottom left, role=status. */
+  .toast-region {
+    position: fixed;
+    inset-inline-start: var(--gutter);
+    inset-block-end: calc(var(--s-4) + env(safe-area-inset-bottom));
+    z-index: var(--z-toast);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    max-width: min(28rem, calc(100vw - 2 * var(--gutter)));
+    pointer-events: none;
+  }
+  .toast {
+    display: flex;
+    gap: var(--s-4);
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
+    border: 1px solid var(--line);
+    font-size: var(--text-small);
+    line-height: 1.5;
+    pointer-events: auto;
+  }
+  .toast-dismiss {
+    flex: none;
+    min-width: 44px;
+    min-height: 44px;
+    padding-inline: var(--s-2);
+    color: var(--link);
+    font-size: var(--text-label);
+    letter-spacing: .12em;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .toast-dismiss:hover { color: var(--link-hover); }
+
+  /* Skip link: the first focusable element on every page. */
+  .skip-link {
+    position: fixed;
+    top: var(--s-2);
+    left: var(--s-2);
+    z-index: var(--z-toast);
+    padding: var(--s-3) var(--s-4);
+    font-size: var(--text-small);
+    transform: translateY(-300%);
+    clip-path: inset(50%);
+  }
+  .skip-link:focus {
+    transform: none;
+    clip-path: none;
+  }
+
+  /* Marks */
+  /* Set --wordmark-h to resize. The width follows the viewBox of the outlined letters. */
+  .wordmark {
+    display: block;
+    flex: none;
+    height: var(--wordmark-h, 1.25rem);
+    width: calc(var(--wordmark-h, 1.25rem) * 2971 / 660);
+    fill: currentColor;
+  }
+  .small-mark {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+  }
+
+  /* Cut sheet. Below 640 the dimension lines give way to the table (section 12). */
+  .cut-sheet {
+    display: block;
+    width: 100%;
+    height: auto;
+    color: inherit;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+  }
+  .cut-sheet .cut-outline,
+  .cut-sheet .cut-detail,
+  .cut-sheet .cut-dims line { vector-effect: non-scaling-stroke; }
+  .cut-sheet .cut-detail { stroke-dasharray: 4 3; }
+  .cut-sheet text {
+    fill: currentColor;
+    stroke: none;
+    font-family: var(--font-sans);
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  @media (max-width: 39.99rem) {
+    .cut-sheet .cut-dims { display: none; }
+  }
+}
+
+/* Forced colours: hairlines map to system colours, and focus stays visible. */
+@media (forced-colors: active) {
+  :focus-visible { outline-color: Highlight; }
+  .btn { border-color: ButtonText; }
+  .btn[aria-disabled="true"] { border-color: GrayText; color: GrayText; }
+  .field-input { border-color: CanvasText; }
+  .field-input[aria-invalid="true"] { border-color: Mark; }
+  .toast { border-color: CanvasText; }
+  .niche::after { box-shadow: none; border: 1px solid CanvasText; }
+  .rail-line,
+  .hang-card::before,
+  .rail-link::after,
+  .btn[aria-busy="true"]::after {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+}
+
+/* Reduced motion: every UI transition becomes instant. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    transition-delay: 0ms !important;
+    animation-duration: 0ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
