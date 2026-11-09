@@ -60,6 +60,7 @@ Loyiha avval **Lierne** nomli boshqa doʻkon edi. Hozir u VYBEVERSE'ga koʻchiri
 | Dizayn tizimi | Ranglar, shrift ovozi va portal materiali faqat `src/content/worlds.ts`da belgilanadi. Shriftlar: Geologica, Sofia Sans Extra Condensed, Cormorant. |
 | Sayt qobigʻi | Demo bandi, header (menyu, qidiruv, savat soni, telefonda menyu tugmasi), footer va **Yengil rejim** tugmasi (3D va harakatni oʻchiradi, brauzerda saqlanadi). |
 | Demo rasmlar | 20 ta mahsulotning har bir rangi uchun kod orqali chizilgan kiyim eskizi (37 ta rasm, 3 oʻlchamda). Rasm burchagida DEMO yozuvi bor. |
+| AI materiallar zanjiri | Haqiqiy kiyim yoʻqligi sababli suratlar va 3D modellar AI orqali yaratiladi. Har bir fayl uchun prompt: [docs/AI-PROMPTS.md](docs/AI-PROMPTS.md), yoʻriqnoma: [docs/AI-ASSETS.md](docs/AI-ASSETS.md). Import qilingan AI surati eskizdan oldinga chiqadi. |
 | Maʼlumotlar bazasi | Birinchi soʻrovda oʻzi yaratiladi, migratsiya qilinadi va demo katalog bilan toʻldiriladi. |
 | Savdo mantigʻi (server) | Savat, buyurtma berish, qoldiqni kamaytirish, buyurtma holatlari, admin kirishi, rasm yuklash va soʻrovlarni cheklash. Bu kod `src/server/` ichida tayyor, lekin uni ishlatadigan sahifalar hali yoʻq. |
 | `/uploads/<fayl>` | Admin yuklagan rasmlarni beradi. |
@@ -172,6 +173,8 @@ Admin panel hali yozilmagan, lekin akkaunt bazada yaratib qoʻyiladi.
 | `npm run test:e2e` | Playwright (Chrome orqali) | `tests/e2e` hali yoʻq |
 | `npm run db:generate` | Sxemadan yangi migratsiya yaratadi | — |
 | `npm run db:seed` | Bazani migratsiya qiladi va toʻldiradi | Avval `npm run dev`ni toʻxtating |
+| `npm run assets:brief` | Katalogdan AI promptlarini `docs/AI-PROMPTS.md`ga yozadi va `assets/incoming` papkalarini yaratadi | Katalog oʻzgarganda ishlating |
+| `npm run assets:import` | `assets/incoming`dagi AI fayllarni siqib, saytga ulaydi | Yoʻriqnoma: `docs/AI-ASSETS.md` |
 | `npm run media:generate` | Demo kiyim eskizlarini `public/media/generated`ga chizadi va `media.generated.json`ni yangilaydi | Katalogga mahsulot yoki rang qoʻshilganda ishlating |
 
 ---
@@ -209,7 +212,10 @@ src/
     payment/            Toʻlov provayderlari (hozir faqat yetkazib berishda toʻlov)
   proxy.ts              /admin uchun yoʻnaltirish
 tools/demo-media/       Demo kiyim eskizlari generatori (saytga kirmaydi)
+tools/assets/           AI promptlari va import skripti (saytga kirmaydi)
+assets/incoming/        AI asl fayllari (faqat sizning kompyuteringizda, GitHub'ga chiqmaydi)
 public/media/generated/ Generator chizgan rasmlar
+public/media/ai/        Siqilgan AI rasmlari va 3D modellar
 drizzle/                Bazaning migratsiyalari
 tests/unit/             Vitest testlari
 docs/                   Loyiha hujjatlari
@@ -279,6 +285,8 @@ Birinchi ishga tushirishda internet kerak, chunki `next/font` Google Fonts'dan y
 | [docs/PROJECT-BRIEF.md](docs/PROJECT-BRIEF.md) | Gʻoya, olamlar, qabul qilingan qarorlar, egasi tasdiqlashi kerak boʻlgan narsalar |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Texnik tuzilish, maʼlumotlar modeli, qoidalar |
 | [docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md) | Yangi dizayn tizimi (hali qoʻllanmagan) |
+| [docs/AI-ASSETS.md](docs/AI-ASSETS.md) | AI suratlar va 3D modellarni yaratish tartibi |
+| [docs/AI-PROMPTS.md](docs/AI-PROMPTS.md) | Har bir fayl uchun tayyor prompt (avtomatik yaratiladi) |
 | [docs/IMPLEMENTATION-PLAN.md](docs/IMPLEMENTATION-PLAN.md) | Ish rejasi va bosqichlar |
 | [docs/archive/](docs/archive/) | Eski Lierne loyihasining hujjatlari |
 | [AGENTS.md](AGENTS.md) | AI yordamchilar uchun koʻrsatmalar |

@@ -21,6 +21,17 @@ Legend: [x] done and verified, [~] partly done, [ ] not started.
 - [x] Sunray Portal 3D scene and fallback (desktop and phone Chrome; real devices are Stage 4)
 - [ ] Unit, e2e and axe checks
 
+## Stage 1b: premium visuals from the owner's references
+
+References: a "Try the Look" lineup of full-body looks with an "in this look" panel, a 3D product carousel with a large wordmark behind it, and a full-bleed photographic hero.
+
+- [x] AI asset pipeline: prompts from the catalogue (`npm run assets:brief`), import and optimisation (`npm run assets:import`), AI images lead over flats
+- [ ] Pilot asset: Noir Oversize Hudi, black, packshot and GLB (owner generates)
+- [ ] Remaining AI assets: 37 packshots, 4 looks, 8 heroes, GLBs where useful (owner generates)
+- [ ] Try the Look lineup
+- [ ] 3D product carousel and GLB viewer
+- [ ] Photographic hero per world
+
 ## Stage 2: ecommerce operations
 - [ ] Guest `/checkout` and order page
 - [ ] Delivery zones editable in admin

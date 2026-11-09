@@ -18,3 +18,7 @@ public/uploads/
 
 # local tooling scratch
 .tmp/
+
+# AI asset sources: large originals stay local, the optimised outputs in public/media/ai are committed
+/assets/incoming/*
+!/assets/incoming/README.md

@@ -50,7 +50,8 @@ export type ProductSeed = {
   silhouette: Silhouette;
 };
 
-export const MEDIA_ROLES = ["flat", "detail", "photo"] as const;
+/** flat: drawn by code. render: an AI-generated packshot. photo: an owner upload. detail: a close crop. */
+export const MEDIA_ROLES = ["flat", "render", "detail", "photo"] as const;
 export type MediaRole = (typeof MEDIA_ROLES)[number];
 export type MediaSource = "generated" | "upload";
 
@@ -62,7 +63,7 @@ export type GeneratedMediaEntry = {
   id: string;
   productHandle: string;
   colorSlug: string;
-  role: "flat" | "detail";
+  role: "flat" | "render" | "detail";
   url: string;
   width: number;
   height: number;
@@ -73,6 +74,30 @@ export type GeneratedMediaEntry = {
 };
 
 export type GeneratedManifest = { version: 2; items: GeneratedMediaEntry[] };
+
+/** A 3D model of one product colour, optimised by tools/assets/import.ts. */
+export type ModelEntry = {
+  productHandle: string;
+  colorSlug: string;
+  url: string;
+  bytes: number;
+  triangles: number;
+};
+
+/** World imagery that belongs to no single product: the full-body look and the hero. */
+export type SceneImage = {
+  world: WorldSlug;
+  kind: "look" | "hero-wide" | "hero-tall";
+  url: string;
+  width: number;
+  height: number;
+  srcSet: MediaSrc[];
+  blur: string;
+  alt: string;
+};
+
+/** src/content/media.ai.json: AI-generated demo assets. Every item is a sample, never a photo. */
+export type AiManifest = { version: 1; items: GeneratedMediaEntry[]; models: ModelEntry[]; scenes: SceneImage[] };
 
 /** What the site renders. Generated and uploaded media share this shape. */
 export type MediaRecord = {

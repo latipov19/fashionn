@@ -2,17 +2,15 @@ import { ProductCard, leadImage } from "@/components/product/product-card";
 import type { Aperture } from "@/components/world/portal";
 import { HomeWorlds } from "@/components/world/home-worlds";
 import { copy } from "@/content/copy";
-import type { Slot, WorldSlug } from "@/content/types";
+import type { WorldSlug } from "@/content/types";
 import { WORLD_SLUGS } from "@/content/types";
 import { isWorldSlug, worldList, worlds } from "@/content/worlds";
+import { pickLook } from "@/lib/look";
 import { formatUzs } from "@/lib/money";
 import type { CatalogProduct } from "@/server/catalog";
 import { listAllWorldProducts } from "@/server/catalog";
 
 export const dynamic = "force-dynamic";
-
-/** The look is dressed in this order, one product per slot. */
-const LOOK_ORDER: Slot[] = ["outerwear", "top", "bottom", "shoes", "accessory"];
 
 const byWorld = <T,>(make: (slug: WorldSlug) => T) => Object.fromEntries(WORLD_SLUGS.map((slug) => [slug, make(slug)])) as Record<WorldSlug, T>;
 
@@ -44,10 +42,7 @@ function toAperture(product: CatalogProduct | undefined, slug: WorldSlug): Apert
 }
 
 function buildLook(shelf: CatalogProduct[]) {
-  const items = LOOK_ORDER.flatMap((slot) => {
-    const product = shelf.find((candidate) => candidate.slot === slot);
-    return product ? [product] : [];
-  });
+  const items = pickLook(shelf);
   if (items.length < 2) return null;
   return {
     items: items.map((product) => (

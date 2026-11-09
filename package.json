@@ -16,7 +16,9 @@
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
     "db:seed": "tsx src/server/db/seed-cli.ts",
-    "media:generate": "tsx tools/demo-media/render.ts"
+    "media:generate": "tsx tools/demo-media/render.ts",
+    "assets:brief": "tsx tools/assets/brief.ts",
+    "assets:import": "tsx tools/assets/import.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "0.5.15",
@@ -33,6 +35,9 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1",
+    "@gltf-transform/functions": "4.5.1",
     "@playwright/test": "1.65.0",
     "@tailwindcss/postcss": "4.3.4",
     "@types/node": "26.6.6",
@@ -43,6 +48,7 @@
     "drizzle-kit": "0.31.11",
     "eslint": "9.39.5",
     "eslint-config-next": "16.4.5",
+    "meshoptimizer": "1.3.0",
     "tailwindcss": "4.3.4",
     "tsx": "4.23.15",
     "typescript": "6.0.3",

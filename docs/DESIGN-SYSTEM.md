@@ -89,7 +89,12 @@ CSS handles microinteractions and colour transitions through registered custom p
 
 ## 8. Imagery rule
 
-Only owner-supplied or licensed photography goes live. Until then, products show generated flats, tagged DEMO. Flats are illustrations and never imply fit or fabric behaviour.
+Owner photography always wins. There is none yet, and the owner has no physical stock, so the store runs on demo assets, every one tagged DEMO:
+
+1. AI-generated packshots, full-body looks, world heroes and GLB models, made from the prompts in `docs/AI-PROMPTS.md` and imported with `npm run assets:import` (workflow in `docs/AI-ASSETS.md`). They lead when present.
+2. Code-drawn flats from `tools/demo-media`, the fallback for any colour without an AI image.
+
+Demo assets never imply fit or fabric behaviour, show no real person's likeness and no third-party brand. Before public launch they must come from a plan that allows commercial use. An owner photo uploaded through admin takes the lead position automatically.
 
 ## 9. Adding a real product
 
@@ -97,4 +102,4 @@ Only owner-supplied or licensed photography goes live. Until then, products show
 2. Photograph each colour on a plain ground: front, back, detail and on-body. Export JPEG or PNG with the long edge at least 2000 px.
 3. Upload per colour with descriptive alt text. The server crops to 4:5 around a focal point, strips metadata and writes three WebP widths. The photo takes the lead position automatically.
 4. Set stock per variant, turn off the demo flag and publish.
-5. Optional GLB: only owner-provided or licensed, under 3 MB with Draco or Meshopt and KTX2 textures, mapped per colour. No viewer ships until such an asset exists.
+5. Optional GLB, per colour: owner-provided, licensed, or AI-generated and tagged DEMO. The import centres it, compresses geometry with Meshopt and textures to WebP, and keeps it under 3 MB. KTX2 textures need the `toktx` tool and can replace WebP later.

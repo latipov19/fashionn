@@ -1,13 +1,17 @@
 import { randomUUID } from "node:crypto";
 import { inArray } from "drizzle-orm";
 import sharp from "sharp";
+import aiJson from "@/content/media.ai.json";
 import manifestJson from "@/content/media.generated.json";
-import type { GeneratedManifest, GeneratedMediaEntry, MediaRecord } from "@/content/types";
+import type { AiManifest, GeneratedManifest, GeneratedMediaEntry, MediaRecord } from "@/content/types";
 import type { Executor } from "./db/client";
 import { getDb } from "./db/client";
 import { mediaOverrides, productMedia } from "./db/schema";
 
-const manifest = manifestJson as unknown as GeneratedManifest;
+/** AI packshots come first, so they lead over the drawn flats for the same colour. */
+const manifest = {
+  items: [...(aiJson as unknown as AiManifest).items, ...(manifestJson as unknown as GeneratedManifest).items],
+};
 
 /** Generated items sort after this unless reordered, so a new upload lands first. */
 const GENERATED_BASE_POSITION = 1000;

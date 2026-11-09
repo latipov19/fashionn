@@ -35,7 +35,7 @@ Four worlds are curated collection filters plus art direction. They are not sepa
 | Language | Uzbek Latin primary, locale modules ready for Russian and English | Overrides the earlier English-only decision |
 | Currency | UZS, stored as integer whole soʻm | Soʻm prices have no practical fraction. Providers that use tiyin convert inside their adapter |
 | Money online | Pay on delivery only, stated plainly | No merchant account exists |
-| Imagery | Generated demo garment flats, labeled DEMO | No owner photography exists. Real uploads replace them with no code change |
+| Imagery | AI-generated demo packshots, looks, heroes and GLB models, with code-drawn flats as fallback, all labeled DEMO | The owner has no physical stock to photograph or scan (decided 2026-11-09). AI keeps one consistent shoot across the exact catalogue. Owner photos replace them with no code change |
 | Demo labeling | Site-wide notice plus a tag on each product | Prices and stock are invented for testing and must never read as real offers |
 
 ## Assumptions the owner must confirm

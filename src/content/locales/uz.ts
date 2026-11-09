@@ -123,7 +123,7 @@ export const uz = {
     worldsLabel: "Olamlar",
     related: "Shu olamdan yana",
     imageOf: (index: number, total: number) => `Rasm ${index}, jami ${total}`,
-    demoImage: "Rasm kod orqali yaratilgan namuna. Haqiqiy foto emas, rang va bichimni aniq koʻrsatmaydi.",
+    demoImage: "Namuna rasm: kod yoki AI orqali yaratilgan, haqiqiy foto emas. Rang va bichimni aniq koʻrsatmaydi.",
   },
 
   micro: {
