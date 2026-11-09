@@ -114,7 +114,7 @@ npm run dev
 
 Brauzerda oching: **http://localhost:3100**
 
-Birinchi ochilish 20–30 soniya olishi mumkin. Bu vaqtda Next sahifani kompilyatsiya qiladi, baza yaratiladi va demo mahsulotlar yoziladi. Keyingi ochilishlar bir soniyadan kam vaqt oladi.
+Birinchi ochilish 10–30 soniya olishi mumkin. Bu vaqtda Next sahifani kompilyatsiya qiladi, baza yaratiladi va demo mahsulotlar yoziladi. Keyingi ochilishlar bir soniyadan kam vaqt oladi.
 
 Serverni toʻxtatish uchun terminalda `Ctrl + C` bosing.
 
