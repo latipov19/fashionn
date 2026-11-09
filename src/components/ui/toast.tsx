@@ -44,7 +44,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {/* The live region stays mounted so screen readers announce what is added to it. */}
       <div className="toast-region" role="status" aria-live="polite">
         {toasts.map((toast) => (
-          <div key={toast.id} className="toast" data-ground="raised">
+          <div key={toast.id} className="toast">
             <span>{toast.message}</span>
             <button type="button" className="toast-dismiss" onClick={() => dismiss(toast.id)}>
               {copy.forms.dismiss}

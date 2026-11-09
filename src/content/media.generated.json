@@ -1,4 +1,967 @@
 {
-  "version": 1,
-  "items": []
+  "version": 2,
+  "items": [
+    {
+      "id": "noir-oversize-hudi/qora/flat",
+      "productHandle": "noir-oversize-hudi",
+      "colorSlug": "qora",
+      "role": "flat",
+      "url": "/media/generated/noir-oversize-hudi-qora-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/noir-oversize-hudi-qora-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/noir-oversize-hudi-qora-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/noir-oversize-hudi-qora-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRooAAABXRUJQVlA4IH4AAABQBACdASoQABQAPu1kqU2ppaOiMAgBMB2JZwAD5JogC/FYRNaNd8TpGMYAAP7tVAq0AAIl9EvU+3TrsP/hQ9NcChFBURuXplEQn0EwDtIesbgjM7J7a5nw8+g6eGaCEb+D9wbblifQUXif+hhkhdg/lu7BPdNZAb5nLe4IAAA=",
+      "dominant": "#17171A",
+      "alt": "Noir Oversize Hudi, qora: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "noir-oversize-hudi/grafit/flat",
+      "productHandle": "noir-oversize-hudi",
+      "colorSlug": "grafit",
+      "role": "flat",
+      "url": "/media/generated/noir-oversize-hudi-grafit-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/noir-oversize-hudi-grafit-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/noir-oversize-hudi-grafit-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/noir-oversize-hudi-grafit-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRoQAAABXRUJQVlA4IHgAAAAQBACdASoQABQAPu1iqk2ppaQiMAgBMB2JZwAAXwqtZNxNFsSgolUr4AD+7WAO1kaw6jIDzJ8jvfU//KRlJCi4ypN/borOENXS4lcG6KMEstWcX2RYLCTWkgJg+ZbAYIUTsva3P/VVhomIj6xfQdCL/mPwgX0swAA=",
+      "dominant": "#3C3E44",
+      "alt": "Noir Oversize Hudi, grafit: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "blackout-bomber/qora/flat",
+      "productHandle": "blackout-bomber",
+      "colorSlug": "qora",
+      "role": "flat",
+      "url": "/media/generated/blackout-bomber-qora-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/blackout-bomber-qora-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/blackout-bomber-qora-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/blackout-bomber-qora-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRoIAAABXRUJQVlA4IHYAAADQAwCdASoQABQAPu1iqU2ppaQiMAgBMB2JZwDImB4lQLWV4gHuAagA/uqQB9zr0n+5xZmhXZFYS3CVka6AZLwJsjnsnHwFNpsGG8PaJFTmktvEfje0n1DucQVKUyympq//nFmSHdhHUF3cP1pEkb1IHF1pKgAA",
+      "dominant": "#17171A",
+      "alt": "Blackout Bomber, qora: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "shadow-kargo/qora/flat",
+      "productHandle": "shadow-kargo",
+      "colorSlug": "qora",
+      "role": "flat",
+      "url": "/media/generated/shadow-kargo-qora-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/shadow-kargo-qora-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/shadow-kargo-qora-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/shadow-kargo-qora-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAADwAwCdASoQABQAPu1iqU2ppaOiMAgBMB2JaQDImCLvMhuF2uMu9rAAAP7tSyvdSIuZNEr8sihu058JXWVEFQ3bOzOhU+mQ5MsX+kb5vv5rz9lN3ygOfzOGK2rOC0IrZHvygAAA",
+      "dominant": "#17171A",
+      "alt": "Shadow Kargo Shim, qora: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "shadow-kargo/grafit/flat",
+      "productHandle": "shadow-kargo",
+      "colorSlug": "grafit",
+      "role": "flat",
+      "url": "/media/generated/shadow-kargo-grafit-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/shadow-kargo-grafit-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/shadow-kargo-grafit-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/shadow-kargo-grafit-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAADQAwCdASoQABQAPu1iqk2ppaQiMAgBMB2JaQAAXwoegsuJRyWD1qwA/u1cg+hyFZXytHZoYWQ9BaqK1WU+g48xqNwu1irKiQM4XWo5taAn4ukPrUVm8pvcEAA=",
+      "dominant": "#3C3E44",
+      "alt": "Shadow Kargo Shim, grafit: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "cut-line-futbolka/qora/flat",
+      "productHandle": "cut-line-futbolka",
+      "colorSlug": "qora",
+      "role": "flat",
+      "url": "/media/generated/cut-line-futbolka-qora-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/cut-line-futbolka-qora-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/cut-line-futbolka-qora-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/cut-line-futbolka-qora-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAADQAwCdASoQABQAPu1kqU2ppaQiMAgBMB2JaQDImB6yfvZvJSug+SAA/urDt/i96CssyL+883kSalshBc91/9SiRCuB/Znj1727JVvdRA83+Ap0pEgf/i727tcs7Knc4GsZAAAA",
+      "dominant": "#17171A",
+      "alt": "Cut Line Futbolka, qora: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "cut-line-futbolka/sut/flat",
+      "productHandle": "cut-line-futbolka",
+      "colorSlug": "sut",
+      "role": "flat",
+      "url": "/media/generated/cut-line-futbolka-sut-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/cut-line-futbolka-sut-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/cut-line-futbolka-sut-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/cut-line-futbolka-sut-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAABQAwCdASoQABQAPu1iqk2ppaQiMAgBMB2JZwDE2CHfjoKEMAD+3qw6ntxlM+6RsW3hkzzfpk6QAA==",
+      "dominant": "#EFE9DD",
+      "alt": "Cut Line Futbolka, sut: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "night-runner/qora/flat",
+      "productHandle": "night-runner",
+      "colorSlug": "qora",
+      "role": "flat",
+      "url": "/media/generated/night-runner-qora-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/night-runner-qora-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/night-runner-qora-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/night-runner-qora-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAACQAwCdASoQABQAPu1iqU2ppaOjMAgBMB2JaQDE2CHgAIwC5i0AAP7tPJHREQgUdtayeGxv8kMPLo/SiBx8Mtwj9RiT05DKVMQ67YQL2EkQjCpSAAA=",
+      "dominant": "#17171A",
+      "alt": "Night Runner Krossovka, qora: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "still-zigir-koylak/sut/flat",
+      "productHandle": "still-zigir-koylak",
+      "colorSlug": "sut",
+      "role": "flat",
+      "url": "/media/generated/still-zigir-koylak-sut-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/still-zigir-koylak-sut-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/still-zigir-koylak-sut-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/still-zigir-koylak-sut-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADwAwCdASoQABQAPu1iqU2ppaOiMAgBMB2JZwDE2CHhgYaky7t4TDAAAP7erCusxjhXPijDfnKknKSCe4lWbJ0gAAA=",
+      "dominant": "#EFE9DD",
+      "alt": "Still Zigʻir Koʻylak, sut: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "still-zigir-koylak/tosh/flat",
+      "productHandle": "still-zigir-koylak",
+      "colorSlug": "tosh",
+      "role": "flat",
+      "url": "/media/generated/still-zigir-koylak-tosh-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/still-zigir-koylak-tosh-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/still-zigir-koylak-tosh-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/still-zigir-koylak-tosh-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAAAQBACdASoQABQAPu1oqk6ppiQiMAgBMB2JZQC06B4lQPWb3hkz1WEVAAD+7WD3RVz5lTr56jAqFeya/RuGHFe8nWEtqaoKfXDb/c07Nl854AAA",
+      "dominant": "#BFB3A0",
+      "alt": "Still Zigʻir Koʻylak, tosh: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "calm-keng-shim/qum/flat",
+      "productHandle": "calm-keng-shim",
+      "colorSlug": "qum",
+      "role": "flat",
+      "url": "/media/generated/calm-keng-shim-qum-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/calm-keng-shim-qum-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/calm-keng-shim-qum-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/calm-keng-shim-qum-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAACQAwCdASoQABQAPu1iqU2ppaQiMAgBMB2JZWZAU0AU/75tRAqAAP7s67tN5RqeVUXZ9j2KIedBMG/VRBR+oAAA",
+      "dominant": "#D3C5AC",
+      "alt": "Calm Keng Shim, qum: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "calm-keng-shim/sut/flat",
+      "productHandle": "calm-keng-shim",
+      "colorSlug": "sut",
+      "role": "flat",
+      "url": "/media/generated/calm-keng-shim-sut-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/calm-keng-shim-sut-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/calm-keng-shim-sut-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/calm-keng-shim-sut-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAAAwAwCdASoQABQAPu1kqk4ppaQiMAgBMB2JZwDE2DKJzRgAAP7uwf36B9SPnRFySeFziDl3ELuJI8U90J86AA==",
+      "dominant": "#EFE9DD",
+      "alt": "Calm Keng Shim, sut: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "quiet-uzun-palto/tosh/flat",
+      "productHandle": "quiet-uzun-palto",
+      "colorSlug": "tosh",
+      "role": "flat",
+      "url": "/media/generated/quiet-uzun-palto-tosh-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/quiet-uzun-palto-tosh-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/quiet-uzun-palto-tosh-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/quiet-uzun-palto-tosh-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAACwAwCdASoQABQAPu1mq04ppaQiMAgBMB2JZQC7AB4lQIkJHYD8GAD+7WD3RVz4jdLt1mUfdLMcqv+WyH4ITAtKVdemsMFwIhs8AA==",
+      "dominant": "#BFB3A0",
+      "alt": "Quiet Uzun Palto, tosh: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "quiet-uzun-palto/qum/flat",
+      "productHandle": "quiet-uzun-palto",
+      "colorSlug": "qum",
+      "role": "flat",
+      "url": "/media/generated/quiet-uzun-palto-qum-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/quiet-uzun-palto-qum-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/quiet-uzun-palto-qum-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/quiet-uzun-palto-qum-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAADQAwCdASoQABQAPu1iqU2ppaOiMAgBMB2JZQCdACHhx2SwT5eChIQA/t6Yrrl00IacYuEsqyeTMGS6srKIDeaUR0jUAA==",
+      "dominant": "#D3C5AC",
+      "alt": "Quiet Uzun Palto, qum: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "drift-midi-yubka/sut/flat",
+      "productHandle": "drift-midi-yubka",
+      "colorSlug": "sut",
+      "role": "flat",
+      "url": "/media/generated/drift-midi-yubka-sut-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/drift-midi-yubka-sut-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/drift-midi-yubka-sut-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/drift-midi-yubka-sut-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAAAwAwCdASoQABQAPu1kqk4ppaQiMAgBMB2JZwDE2DKKsp6QAP7ulelZvJGiz7WJTg/MO+BMoVk/gAAA",
+      "dominant": "#EFE9DD",
+      "alt": "Drift Midi Yubka, sut: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "drift-midi-yubka/tosh/flat",
+      "productHandle": "drift-midi-yubka",
+      "colorSlug": "tosh",
+      "role": "flat",
+      "url": "/media/generated/drift-midi-yubka-tosh-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/drift-midi-yubka-tosh-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/drift-midi-yubka-tosh-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/drift-midi-yubka-tosh-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAACwAwCdASoQABQAPu1oqk6ppiQiMAgBMB2JZwAAXGUK0Tr956s14AD+7V6w6u6+hqRA51vpoXEP4OLfF3qrgszsdWBM4T72ACdV6oKwAAA=",
+      "dominant": "#BFB3A0",
+      "alt": "Drift Midi Yubka, tosh: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "signal-tote/sut/flat",
+      "productHandle": "signal-tote",
+      "colorSlug": "sut",
+      "role": "flat",
+      "url": "/media/generated/signal-tote-sut-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/signal-tote-sut-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/signal-tote-sut-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/signal-tote-sut-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAADwAgCdASoQABQAPu1iqU2ppaOiMAgBMB2JZwDE2DKUAAD+7pYgk2YkDOTP8IuaRWz/oZM7zGMXAAAA",
+      "dominant": "#EFE9DD",
+      "alt": "Signal Tote Sumka, sut: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "signal-tote/qum/flat",
+      "productHandle": "signal-tote",
+      "colorSlug": "qum",
+      "role": "flat",
+      "url": "/media/generated/signal-tote-qum-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/signal-tote-qum-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/signal-tote-qum-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/signal-tote-qum-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAAAwAwCdASoQABQAPu1iqU2ppaOiMAgBMB2JZQC7AC0aLm8AAP7tMxBVxgHYzTNvoOgoHK4B7sEp6mq5YsnS8QAA",
+      "dominant": "#D3C5AC",
+      "alt": "Signal Tote Sumka, qum: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "mono-shell-kurtka/komir/flat",
+      "productHandle": "mono-shell-kurtka",
+      "colorSlug": "komir",
+      "role": "flat",
+      "url": "/media/generated/mono-shell-kurtka-komir-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/mono-shell-kurtka-komir-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/mono-shell-kurtka-komir-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/mono-shell-kurtka-komir-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRogAAABXRUJQVlA4IHwAAADwAwCdASoQABQAPu1iqU2ppaOiMAgBMB2JZwAAXya89dDrTENmD2/wAP7tXX2f7TYvvQRdlYw2+6ZyXqGNznqZ1RMbztedNRaFoEnWIfUXO4WCPivqb/n3FoT5iTM0l176yf//ndtBcp3nhFXyzSwIMthmgc3+L73BAAAA",
+      "dominant": "#2C2E33",
+      "alt": "Mono Shell Kurtka, koʻmir: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "mono-shell-kurtka/kumush/flat",
+      "productHandle": "mono-shell-kurtka",
+      "colorSlug": "kumush",
+      "role": "flat",
+      "url": "/media/generated/mono-shell-kurtka-kumush-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/mono-shell-kurtka-kumush-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/mono-shell-kurtka-kumush-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/mono-shell-kurtka-kumush-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADwAwCdASoQABQAPu1iqk2ppaQiMAgBMB2JZwAAV/+1rr0HRW1b1qxAAP7tX9pYRZhO7hAJHbJD7w/UlAKQg+zLh1GigqkA+bZ8q7xcAAA=",
+      "dominant": "#AEB3BA",
+      "alt": "Mono Shell Kurtka, kumush: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "vector-texnik-shim/komir/flat",
+      "productHandle": "vector-texnik-shim",
+      "colorSlug": "komir",
+      "role": "flat",
+      "url": "/media/generated/vector-texnik-shim-komir-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/vector-texnik-shim-komir-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/vector-texnik-shim-komir-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/vector-texnik-shim-komir-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAADQAwCdASoQABQAPu1mq04ppaQiMAgBMB2JZwAAXvVcerPlauuV+XAA/u1Sf9KsRtOW4757w5kAF1sd48OImCieg3s3eUw2UwfxeUeUP0LpfZDCjREPdW77UIX5FrSmGVor/0Q+ndgAAA==",
+      "dominant": "#2C2E33",
+      "alt": "Vector Texnik Shim, koʻmir: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "vector-texnik-shim/kumush/flat",
+      "productHandle": "vector-texnik-shim",
+      "colorSlug": "kumush",
+      "role": "flat",
+      "url": "/media/generated/vector-texnik-shim-kumush-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/vector-texnik-shim-kumush-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/vector-texnik-shim-kumush-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/vector-texnik-shim-kumush-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAAAwAgCdASoQABQAA4BaJZwAApLgWjTVK/a+wAD+9N+CgSviGBFtcap3aTrpvjZ6PF3wbbv6yzVbYAAA",
+      "dominant": "#AEB3BA",
+      "alt": "Vector Texnik Shim, kumush: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "grid-termo-futbolka/komir/flat",
+      "productHandle": "grid-termo-futbolka",
+      "colorSlug": "komir",
+      "role": "flat",
+      "url": "/media/generated/grid-termo-futbolka-komir-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/grid-termo-futbolka-komir-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/grid-termo-futbolka-komir-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/grid-termo-futbolka-komir-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAADwAwCdASoQABQAPu1iqU2ppaOiMAgBMB2JZwDImCB1QmsMaNkjguWAAP7qo56ct8M4qCwrRm/MFaEiUiYQ/90wiSA5b3bUwm0+7nCTuoH+W/5+60rQrF8DrcWFJfwA",
+      "dominant": "#2C2E33",
+      "alt": "Grid Termo Futbolka, koʻmir: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "grid-termo-futbolka/kumush/flat",
+      "productHandle": "grid-termo-futbolka",
+      "colorSlug": "kumush",
+      "role": "flat",
+      "url": "/media/generated/grid-termo-futbolka-kumush-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/grid-termo-futbolka-kumush-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/grid-termo-futbolka-kumush-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/grid-termo-futbolka-kumush-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAACwAwCdASoQABQAPu1iqU2ppaOiMAgBMB2JZwAAW4zpz9sOYj3RAAD+6o8j78lxst629jFKyeZPaG7CCMgft/XAAAA=",
+      "dominant": "#AEB3BA",
+      "alt": "Grid Termo Futbolka, kumush: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "orbit-sling/kumush/flat",
+      "productHandle": "orbit-sling",
+      "colorSlug": "kumush",
+      "role": "flat",
+      "url": "/media/generated/orbit-sling-kumush-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/orbit-sling-kumush-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/orbit-sling-kumush-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/orbit-sling-kumush-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAABwAwCdASoQABQAPu1iqU2ppaOjMAgBMB2JaQDE2CB/hcygoIAA/u1hAmbpmlz4B0UecBSVKCtDV3TybQJT/+GtAOIabIAA",
+      "dominant": "#AEB3BA",
+      "alt": "Orbit Sling Sumka, kumush: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "orbit-sling/komir/flat",
+      "productHandle": "orbit-sling",
+      "colorSlug": "komir",
+      "role": "flat",
+      "url": "/media/generated/orbit-sling-komir-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/orbit-sling-komir-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/orbit-sling-komir-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/orbit-sling-komir-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAABwAwCdASoQABQAPu1iqU2ppaOjMAgBMB2JaQDE2B091K8O4AAA/u1f39rFSkZUuL8i62X0NlMFrTJib/vk1vM12LPy+8H+NTlhPxwAPXP4ra2R6y5ZmmsHXYAAAA==",
+      "dominant": "#2C2E33",
+      "alt": "Orbit Sling Sumka, koʻmir: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "alloy-krossovka/kumush/flat",
+      "productHandle": "alloy-krossovka",
+      "colorSlug": "kumush",
+      "role": "flat",
+      "url": "/media/generated/alloy-krossovka-kumush-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/alloy-krossovka-kumush-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/alloy-krossovka-kumush-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/alloy-krossovka-kumush-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAACQAwCdASoQABQAPu1iqU2ppaOjMAgBMB2JaQDA3CHfPtXRjR4AAP7tNwkXciEDCmc47TtNMH5z8cRs0UIAAA==",
+      "dominant": "#AEB3BA",
+      "alt": "Alloy Krossovka, kumush: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "field-ish-kurtka/zaytun/flat",
+      "productHandle": "field-ish-kurtka",
+      "colorSlug": "zaytun",
+      "role": "flat",
+      "url": "/media/generated/field-ish-kurtka-zaytun-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/field-ish-kurtka-zaytun-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/field-ish-kurtka-zaytun-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/field-ish-kurtka-zaytun-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAADQAwCdASoQABQAPu1kqU4ppaOiMAgBMB2JYwAAUYBlMIU2VDver5gA/uqHZz4feTTI64XimNfAHLckZ04BGbPUXByHZE9Vrgk/1/BnqgheI6q8xA1ugUfwBwWgW2965IqLjvLzBXYcAA==",
+      "dominant": "#5C6243",
+      "alt": "Field Ish Kurtka, zaytun: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "field-ish-kurtka/loy/flat",
+      "productHandle": "field-ish-kurtka",
+      "colorSlug": "loy",
+      "role": "flat",
+      "url": "/media/generated/field-ish-kurtka-loy-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/field-ish-kurtka-loy-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/field-ish-kurtka-loy-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/field-ish-kurtka-loy-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAACQAwCdASoQABQAPu1kqk4ppaQiMAgBMB2JQBOgA7JvTfF/Y6rAAP7qkj8dLFy4qz2+AmQZ0Co0zEmIaee32xPqyVcG8tcvSIGpdXLeX2ossSl5L9wr5glP8GFHomH2UG1tSmnAAAA=",
+      "dominant": "#8C7A58",
+      "alt": "Field Ish Kurtka, loy: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "rivet-kargo/zaytun/flat",
+      "productHandle": "rivet-kargo",
+      "colorSlug": "zaytun",
+      "role": "flat",
+      "url": "/media/generated/rivet-kargo-zaytun-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/rivet-kargo-zaytun-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/rivet-kargo-zaytun-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/rivet-kargo-zaytun-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAwCdASoQABQAPu1iqU2ppaOiMAgBMB2JZQC7ACLvMhtKOvkfqfkAAP7tYPi2ozHnASFRGRv2VGkYudDLHhFn5gSnJp7RYBilr68AA54WNBDlO4SjAAAA",
+      "dominant": "#5C6243",
+      "alt": "Rivet Kargo Shim, zaytun: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "rivet-kargo/loy/flat",
+      "productHandle": "rivet-kargo",
+      "colorSlug": "loy",
+      "role": "flat",
+      "url": "/media/generated/rivet-kargo-loy-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/rivet-kargo-loy-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/rivet-kargo-loy-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/rivet-kargo-loy-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAADQAwCdASoQABQAPu1iqU2ppaOiMAgBMB2JYwCdAB4bXj4kpa7RvCAA/u1LKZAIGLexWvndFspSCdPju5P/hhy08YdSRvXILhsYJ93fDVLIAAAA",
+      "dominant": "#8C7A58",
+      "alt": "Rivet Kargo Shim, loy: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "static-hudi/zaytun/flat",
+      "productHandle": "static-hudi",
+      "colorSlug": "zaytun",
+      "role": "flat",
+      "url": "/media/generated/static-hudi-zaytun-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/static-hudi-zaytun-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/static-hudi-zaytun-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/static-hudi-zaytun-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAAAQBACdASoQABQAPu1iqk4ppaQiMAgBMB2JZQAAVMHRp6kD+jD4whmNmAD+7UxWBxOBiFklMXD8PpWHvOuXIk1lo9jDuiUpPoDJ/sp9JdGTf30727FSe+t7k/zSNBfuzkFM2rmKAuVOsAAA",
+      "dominant": "#5C6243",
+      "alt": "Static Yuvilgan Hudi, zaytun: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "static-hudi/kul/flat",
+      "productHandle": "static-hudi",
+      "colorSlug": "kul",
+      "role": "flat",
+      "url": "/media/generated/static-hudi-kul-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/static-hudi-kul-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/static-hudi-kul-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/static-hudi-kul-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAAAQBACdASoQABQAPu1kqU2ppaOiMAgBMB2JZwDDNB9TcYRghprqJ4M5oAD+7VQKUIpOHHBsGLVjMWON2sDET7kuR0rqBNTcG4Rvje92niaKzpJHYGS/d5YnSW0LUoflyFh/pAAA",
+      "dominant": "#77776D",
+      "alt": "Static Yuvilgan Hudi, kul: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "pulse-kepka/zaytun/flat",
+      "productHandle": "pulse-kepka",
+      "colorSlug": "zaytun",
+      "role": "flat",
+      "url": "/media/generated/pulse-kepka-zaytun-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/pulse-kepka-zaytun-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/pulse-kepka-zaytun-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/pulse-kepka-zaytun-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAACwAwCdASoQABQAPu1iqU2ppaOjMAgBMB2JZwDCgCHgCoaWAKgagAD+7TdsXN20A5V0q27e6yVdqTHlipBODgb+2/8MG5bgIZCZdsAA",
+      "dominant": "#5C6243",
+      "alt": "Pulse Kepka, zaytun: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "pulse-kepka/loy/flat",
+      "productHandle": "pulse-kepka",
+      "colorSlug": "loy",
+      "role": "flat",
+      "url": "/media/generated/pulse-kepka-loy-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/pulse-kepka-loy-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/pulse-kepka-loy-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/pulse-kepka-loy-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAACQAwCdASoQABQAPu1iqU2ppaOjMAgBMB2JZQC7ACHf4DtbU/qAAP7tN2pvP9CQ0PrlNaAEmPKUEh2oCuYBqNbVJDITbQPfyAA=",
+      "dominant": "#8C7A58",
+      "alt": "Pulse Kepka, loy: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "grit-botinka/loy/flat",
+      "productHandle": "grit-botinka",
+      "colorSlug": "loy",
+      "role": "flat",
+      "url": "/media/generated/grit-botinka-loy-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/grit-botinka-loy-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/grit-botinka-loy-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/grit-botinka-loy-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAADQAwCdASoQABQAPu1oqk6ppiQjMAgBMB2JYwC06CHf6jSPB8b81cAA/u03b1DSRDCKHaZuDPJrkcorZ0XK7NbLkMyWu3CyAAA=",
+      "dominant": "#8C7A58",
+      "alt": "Grit Botinka, loy: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "grit-botinka/qora/flat",
+      "productHandle": "grit-botinka",
+      "colorSlug": "qora",
+      "role": "flat",
+      "url": "/media/generated/grit-botinka-qora-960.webp",
+      "width": 960,
+      "height": 1200,
+      "srcSet": [
+        {
+          "url": "/media/generated/grit-botinka-qora-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/generated/grit-botinka-qora-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/generated/grit-botinka-qora-1600.webp",
+          "width": 1600
+        }
+      ],
+      "blur": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAABwAwCdASoQABQAPu1mq04ppaQjMAgBMB2JZwDE2CHf6kIkIoAA/u03b7/SzJa5L7QRK32Hvmaa5Y2mi56XI7Z5bDp8y84ZvezRAAAA",
+      "dominant": "#17171A",
+      "alt": "Grit Botinka, qora: kod orqali chizilgan namuna rasm, haqiqiy foto emas"
+    }
+  ]
 }

@@ -26,6 +26,8 @@ export type DisplayVoice = {
   leading: number;
   /** Degrees of slant applied to display type. */
   slant: number;
+  /** Hero size relative to the condensed voice. Wide faces need less to fill the same column. */
+  scale: number;
 };
 
 /** What the Sunray Portal does in this world. Colour here is the blade material. */
@@ -80,7 +82,7 @@ export const worlds: Record<WorldSlug, World> = {
       danger: darkDanger,
       success: darkSuccess,
     },
-    voice: { family: "condensed", weight: 900, tracking: "-0.01em", transform: "uppercase", leading: 0.9, slant: 0 },
+    voice: { family: "condensed", weight: 900, tracking: "-0.01em", transform: "uppercase", leading: 0.9, slant: 0, scale: 1 },
     portal: {
       blade: "#1C1C20",
       metalness: 0.35,
@@ -112,7 +114,7 @@ export const worlds: Record<WorldSlug, World> = {
       danger: "#A12018",
       success: "#1F6B40",
     },
-    voice: { family: "serif", weight: 400, tracking: "-0.01em", transform: "none", leading: 1.02, slant: 0 },
+    voice: { family: "serif", weight: 400, tracking: "-0.01em", transform: "none", leading: 1.02, slant: 0, scale: 0.92 },
     portal: {
       blade: "#E4DACA",
       metalness: 0,
@@ -144,7 +146,7 @@ export const worlds: Record<WorldSlug, World> = {
       danger: darkDanger,
       success: darkSuccess,
     },
-    voice: { family: "sans", weight: 300, tracking: "0.04em", transform: "uppercase", leading: 1, slant: 0 },
+    voice: { family: "sans", weight: 300, tracking: "0.04em", transform: "uppercase", leading: 1, slant: 0, scale: 0.6 },
     portal: {
       blade: "#C8CDD4",
       metalness: 1,
@@ -176,7 +178,7 @@ export const worlds: Record<WorldSlug, World> = {
       danger: darkDanger,
       success: darkSuccess,
     },
-    voice: { family: "condensed", weight: 900, tracking: "0", transform: "uppercase", leading: 0.86, slant: -6 },
+    voice: { family: "condensed", weight: 900, tracking: "0", transform: "uppercase", leading: 0.86, slant: -6, scale: 1 },
     portal: {
       blade: "#6F7650",
       metalness: 0.1,
@@ -217,6 +219,7 @@ export const neutralVoice: DisplayVoice = {
   transform: "uppercase",
   leading: 0.95,
   slant: 0,
+  scale: 1,
 };
 
 const familyVar: Record<DisplayVoice["family"], string> = {
@@ -225,8 +228,28 @@ const familyVar: Record<DisplayVoice["family"], string> = {
   sans: "var(--font-sans-stack)",
 };
 
-function declarations(theme: Theme, voice: DisplayVoice): string {
+/** Neutral blade for pages outside a world. */
+const neutralBlade = "#3A3A3F";
+
+/** Mixes two hex colours. `t` 0 is `a`, 1 is `b`. */
+export function mixHex(a: string, b: string, t: number): string {
+  const parse = (hex: string) => {
+    const n = Number.parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255] as const;
+  };
+  const [x, y] = [parse(a), parse(b)];
+  return `#${x.map((v, i) => Math.round(v + (y[i]! - v) * t).toString(16).padStart(2, "0")).join("")}`;
+}
+
+/** Lit and shaded faces of a pleat. The SVG poster draws with these, the 3D scene lights its own. */
+export const portalShades = (blade: string) => ({ hi: mixHex(blade, "#FFFFFF", 0.3), lo: mixHex(blade, "#000000", 0.45) });
+
+function declarations(theme: Theme, voice: DisplayVoice, blade: string): string {
+  const shades = portalShades(blade);
   return [
+    `--portal-blade:${blade}`,
+    `--portal-hi:${shades.hi}`,
+    `--portal-lo:${shades.lo}`,
     `--bg:${theme.bg}`,
     `--bg-raised:${theme.bgRaised}`,
     `--bg-sunken:${theme.bgSunken}`,
@@ -243,14 +266,21 @@ function declarations(theme: Theme, voice: DisplayVoice): string {
     `--display-transform:${voice.transform}`,
     `--display-leading:${voice.leading}`,
     `--display-slant:${voice.slant}deg`,
+    `--display-scale:${voice.scale}`,
     `color-scheme:${isDark(theme.bg) ? "dark" : "light"}`,
   ].join(";");
 }
 
-/** Generated once for the root layout. `:root` carries the neutral theme. */
+/**
+ * Generated once for the root layout. `:root` carries the neutral theme. A page enters a world
+ * by rendering `data-world-root="<slug>"` anywhere inside it: `:root:has()` then retints the
+ * whole document, header and footer included, from the first server-rendered paint.
+ */
 export function themeCss(): string {
-  const rules = worldList.map((world) => `[data-world="${world.slug}"]{${declarations(world.theme, world.voice)}}`);
-  return `:root,[data-world="neutral"]{${declarations(neutralTheme, neutralVoice)}}${rules.join("")}`;
+  const rules = worldList.map(
+    (world) => `:root:has([data-world-root="${world.slug}"]),[data-world="${world.slug}"]{${declarations(world.theme, world.voice, world.portal.blade)}}`,
+  );
+  return `:root,[data-world="neutral"]{${declarations(neutralTheme, neutralVoice, neutralBlade)}}${rules.join("")}`;
 }
 
 /* Contrast helpers. Used by the tests and by isDark above. */

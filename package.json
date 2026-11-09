@@ -15,7 +15,8 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
-    "db:seed": "tsx src/server/db/seed-cli.ts"
+    "db:seed": "tsx src/server/db/seed-cli.ts",
+    "media:generate": "tsx tools/demo-media/render.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "0.5.15",

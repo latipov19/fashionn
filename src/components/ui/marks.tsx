@@ -1,38 +1,35 @@
 import type { ComponentProps } from "react";
 import { brand } from "@/content/copy";
 
-/**
- * LIERNE outlined from Forum Regular (SIL OFL) with 40 units of added tracking, so the
- * wordmark does not depend on the font. The last subpath cuts the stem of the I into a
- * hollow slit that shows the ground behind it. The even-odd fill makes that a hole.
- */
-const WORDMARK_PATH =
-  "M45 -10L50 -10Q58 -10 64 -15.5Q70 -21 74.5 -29Q79 -37 81.5 -46Q84 -55 84 -63L84 -598Q84 -605 81.5 -614Q79 -623 74.5 -631Q70 -639 64 -644.5Q58 -650 50 -650L45 -650L45 -660L189 -660L189 -650L184 -650Q176 -650 170 -644.5Q164 -639 160 -631Q156 -623 153.5 -614Q151 -605 151 -598L151 -37L370 -37Q389 -37 403 -46Q417 -55 426.5 -68.5Q436 -82 440.5 -97.5Q445 -113 445 -126L455 -126L455 0L45 0L45 -10ZM554 -660L697 -660L697 -650L692 -650Q685 -650 679 -644.5Q673 -639 669 -631.5Q665 -624 662.5 -614.5Q660 -605 660 -598L660 -65Q660 -57 662 -47.5Q664 -38 668.5 -30Q673 -22 678.5 -16Q684 -10 692 -10L697 -10L697 0L554 0L554 -10L559 -10Q567 -10 573 -15.5Q579 -21 583.5 -29.5Q588 -38 590 -47.5Q592 -57 592 -65L592 -598Q592 -605 590 -614Q588 -623 583.5 -631Q579 -639 573 -644.5Q567 -650 559 -650L554 -650L554 -660ZM833 -10L838 -10Q846 -10 852 -15.5Q858 -21 862.5 -29Q867 -37 869.5 -46Q872 -55 872 -63L872 -598Q872 -605 869.5 -614Q867 -623 862.5 -631Q858 -639 852 -644.5Q846 -650 838 -650L833 -650L833 -660L1218 -660L1218 -567L1208 -567Q1206 -590 1190 -607.5Q1174 -625 1140 -625L939 -625L939 -372L1105 -372Q1128 -372 1143.5 -386Q1159 -400 1159 -419L1169 -419L1169 -294L1159 -294Q1159 -312 1144 -325Q1129 -338 1105 -338L939 -338L939 -35L1158 -35Q1177 -35 1191 -44Q1205 -53 1214.5 -65.5Q1224 -78 1228.5 -92.5Q1233 -107 1233 -117L1243 -117L1243 0L833 0L833 -10ZM1494 -10L1499 -10L1499 0L1358 0L1358 -10L1363 -10Q1370 -10 1376 -16Q1382 -22 1386.5 -30Q1391 -38 1393 -47.5Q1395 -57 1395 -65L1395 -598Q1395 -605 1393 -614Q1391 -623 1386.5 -631Q1382 -639 1376 -644.5Q1370 -650 1363 -650L1358 -650L1358 -660L1532 -660Q1632 -660 1686.5 -621Q1741 -582 1741 -506Q1741 -468 1728.5 -439.5Q1716 -411 1695 -390.5Q1674 -370 1645.5 -357.5Q1617 -345 1585 -339L1657 -229Q1683 -189 1710 -150.5Q1737 -112 1763 -71Q1770 -61 1778.5 -50Q1787 -39 1796.5 -30Q1806 -21 1816.5 -15.5Q1827 -10 1838 -10L1838 0L1795 0Q1755 0 1729.5 -19.5Q1704 -39 1687 -65Q1642 -131 1597.5 -199Q1553 -267 1509 -333Q1498 -334 1485.5 -335.5Q1473 -337 1462 -339L1462 -65Q1462 -57 1464 -47.5Q1466 -38 1470.5 -30Q1475 -22 1480.5 -16Q1486 -10 1494 -10ZM1462 -626L1462 -372L1467 -372Q1475 -371 1492.5 -370.5Q1510 -370 1536 -370Q1557 -370 1580.5 -376.5Q1604 -383 1624.5 -398.5Q1645 -414 1658.5 -439Q1672 -464 1672 -502Q1672 -540 1657.5 -564Q1643 -588 1617.5 -602Q1592 -616 1556 -621Q1520 -626 1477 -626L1462 -626ZM2043 -10L2048 -10L2048 0L1937 0L1937 -10L1942 -10Q1949 -10 1955.5 -16Q1962 -22 1966 -30Q1970 -38 1972.5 -47.5Q1975 -57 1975 -65L1975 -598Q1975 -605 1973.5 -614Q1972 -623 1968 -631Q1964 -639 1957 -644.5Q1950 -650 1940 -650L1935 -650L1935 -660L2036 -660L2399 -88L2399 -598Q2399 -605 2396.5 -614Q2394 -623 2389.5 -631Q2385 -639 2379 -644.5Q2373 -650 2365 -650L2360 -650L2360 -660L2472 -660L2472 -650L2467 -650Q2459 -650 2453 -644.5Q2447 -639 2442.5 -631Q2438 -623 2436 -614Q2434 -605 2434 -598L2434 0L2372 0L2010 -574L2010 -65Q2010 -57 2012 -47.5Q2014 -38 2018.5 -30Q2023 -22 2029 -16Q2035 -10 2043 -10ZM2606 -10L2611 -10Q2619 -10 2625 -15.5Q2631 -21 2635.5 -29Q2640 -37 2642.5 -46Q2645 -55 2645 -63L2645 -598Q2645 -605 2642.5 -614Q2640 -623 2635.5 -631Q2631 -639 2625 -644.5Q2619 -650 2611 -650L2606 -650L2606 -660L2991 -660L2991 -567L2981 -567Q2979 -590 2963 -607.5Q2947 -625 2913 -625L2712 -625L2712 -372L2878 -372Q2901 -372 2916.5 -386Q2932 -400 2932 -419L2942 -419L2942 -294L2932 -294Q2932 -312 2917 -325Q2902 -338 2878 -338L2712 -338L2712 -35L2931 -35Q2950 -35 2964 -44Q2978 -53 2987.5 -65.5Q2997 -78 3001.5 -92.5Q3006 -107 3006 -117L3016 -117L3016 0L2606 0L2606 -10ZM608 -628H644V-32H608Z";
+const RAYS = 16;
 
-export function Wordmark({ className, ...rest }: ComponentProps<"svg">) {
+/** The small mark: sixteen pleats around an open centre, the Sunray Portal at icon size. */
+export function SunrayMark({ className, ...rest }: ComponentProps<"svg">) {
+  const step = (Math.PI * 2) / RAYS;
+  const point = (r: number, a: number) => `${(12 + r * Math.cos(a)).toFixed(2)} ${(12 - r * Math.sin(a)).toFixed(2)}`;
   return (
-    <svg
-      {...rest}
-      className={className ? `wordmark ${className}` : "wordmark"}
-      viewBox="45 -660 2971 660"
-      role="img"
-      aria-label={brand.name}
-    >
-      <path fillRule="evenodd" d={WORDMARK_PATH} />
+    <svg {...rest} className={className} viewBox="0 0 24 24" aria-hidden="true">
+      {Array.from({ length: RAYS }, (_, i) => {
+        const a = i * step;
+        return (
+          <path
+            key={i}
+            d={`M${point(5, a - step * 0.32)}L${point(11.5, a - step * 0.46)}L${point(11.5, a + step * 0.12)}L${point(5, a + step * 0.08)}Z`}
+            fill="currentColor"
+            opacity={i % 2 === 0 ? 1 : 0.45}
+          />
+        );
+      })}
     </svg>
   );
 }
 
-/** Three nested door outlines crossed by one horizontal line. Also the favicon. */
-export function SmallMark({ className, ...rest }: ComponentProps<"svg">) {
+/** Typographic wordmark. The name is still a working name, so it stays live text. */
+export function Wordmark({ className }: { className?: string }) {
   return (
-    <svg
-      {...rest}
-      className={className ? `small-mark ${className}` : "small-mark"}
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <path d="M4 22V3h16v19M7.5 22V6.5h9V22M11 22V10h2v12M1 16h22" />
-    </svg>
+    <span className={className ? `wordmark ${className}` : "wordmark"}>
+      <SunrayMark />
+      {brand.name}
+    </span>
   );
 }

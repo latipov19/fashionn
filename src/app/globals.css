@@ -1,64 +1,17 @@
 @import "tailwindcss";
 
 /*
- * Tokens and grounds are brief section 3, copied value for value. To restyle the site,
- * change this block and nothing else. There is no theme toggle: sections declare a
- * data-ground, and the semantic tokens resolve from it.
+ * VYBEVERSE design system, docs/DESIGN-SYSTEM.md. Colours are not defined here: worlds.ts
+ * generates the semantic tokens (--bg, --fg, --accent, the display voice and the portal blade)
+ * and the root layout injects them. This file holds everything that is the same in every world.
  */
+
 @theme static {
-  /* Only these tokens exist. Tailwind's default palette, type scale and radii are removed. */
   --color-*: initial;
   --text-*: initial;
   --radius-*: initial;
   --shadow-*: initial;
   --breakpoint-*: initial;
-
-  /* Surfaces */
-  --color-bone: #E4DCCD;
-  --color-bone-raised: #F0EADF;
-  --color-ink: #191613;
-  --color-oxide: #6E2C1E;
-  --color-verdigris: #24504A;
-  --color-lampblack: #161C29;
-
-  /* Text and accent */
-  --color-ink-2: #55493E;
-  --color-muted-dark: #B3A99A;
-  --color-muted-oxide: #D6C7B5;
-  --color-muted-verdigris: #D2CDBD;
-  --color-sienna: #8A3A1C;
-  --color-sienna-hover: #6F2D14;
-  --color-sun: #E7A766;
-  --color-sun-hover: #F2C08A;
-
-  /* States */
-  --color-danger: #8E1F1A;
-  --color-danger-dark: #EE9A8A;
-  --color-success: #2C5A3F;
-  --color-success-dark: #9CCBA8;
-  --color-disabled-fill: #D6CEBF;
-
-  /* Lines */
-  --color-rail-light: #7A6E60;
-  --color-rail-dark: #7D7366;
-  --color-rail-oxide: #C9A78F;
-  --color-rail-verdigris: #8FB0A6;
-  --color-rail-lampblack: #7D7F8A;
-
-  /* Fonts */
-  --font-display: var(--font-forum), "Times New Roman", serif;
-  --font-sans: var(--font-ysabeau), system-ui, "Segoe UI", sans-serif;
-
-  /* Radius: zero. The building has square corners. */
-  --radius-none: 0;
-
-  /* Motion */
-  --ease-door: cubic-bezier(.22,.8,.2,1);
-  --ease-out: cubic-bezier(.2,.7,.3,1);
-  --dur-1: 180ms;
-  --dur-2: 240ms;
-  --dur-3: 320ms;
-  --dur-4: 720ms;
 
   /* Breakpoints: 640, 900, 1200, 1600 */
   --breakpoint-sm: 40rem;
@@ -66,532 +19,412 @@
   --breakpoint-lg: 75rem;
   --breakpoint-xl: 100rem;
 
-  /* Type scale, section 5 */
-  --text-display-xl: clamp(3.25rem, 8.6vw, 9.5rem);
-  --text-display-xl--line-height: .96;
-  --text-display-xl--letter-spacing: .01em;
-  --text-display-l: clamp(2.5rem, 5.4vw, 5.75rem);
-  --text-display-l--line-height: 1;
-  --text-display-l--letter-spacing: .015em;
-  --text-display-m: clamp(1.75rem, 2.8vw, 2.75rem);
-  --text-display-m--line-height: 1.1;
-  --text-display-m--letter-spacing: .02em;
-  --text-lead: 1.375rem;
-  --text-lead--line-height: 1.4;
-  --text-body: 1.125rem;
-  --text-body--line-height: 1.55;
-  --text-small: 1rem;
-  --text-small--line-height: 1.5;
-  --text-label: .875rem;
-  --text-label--line-height: 1.3;
-  --text-label--letter-spacing: .12em;
-  --text-label--font-weight: 600;
-  --text-price: 1.125rem;
-  --text-price--line-height: 1.3;
-  --text-price--font-weight: 500;
+  --radius-none: 0;
+  --radius-input: 2px;
 }
 
-/* Semantic colours for Tailwind utilities, for example bg-ground, text-fg, border-line. */
+/* Semantic colours as Tailwind utilities, for example bg-bg, text-fg-muted, border-line. */
 @theme inline {
-  --color-ground: var(--bg);
+  --color-bg: var(--bg);
+  --color-bg-raised: var(--bg-raised);
+  --color-bg-sunken: var(--bg-sunken);
   --color-fg: var(--fg);
-  --color-fg-2: var(--fg-2);
-  --color-link: var(--link);
-  --color-link-hover: var(--link-hover);
+  --color-fg-muted: var(--fg-muted);
   --color-line: var(--line);
-  --color-danger-text: var(--danger-t);
-  --color-success-text: var(--success-t);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
 }
+
+/*
+ * Registered colours animate. When a world changes, these tokens transition on :root and every
+ * element that reads them follows, so one attribute retints the whole page.
+ */
+@property --bg { syntax: "<color>"; inherits: true; initial-value: #F3F1EC; }
+@property --bg-raised { syntax: "<color>"; inherits: true; initial-value: #FBFAF7; }
+@property --bg-sunken { syntax: "<color>"; inherits: true; initial-value: #E7E4DD; }
+@property --fg { syntax: "<color>"; inherits: true; initial-value: #141416; }
+@property --fg-muted { syntax: "<color>"; inherits: true; initial-value: #57575D; }
+@property --line { syntax: "<color>"; inherits: true; initial-value: #85857F; }
+@property --accent { syntax: "<color>"; inherits: true; initial-value: #141416; }
+@property --accent-fg { syntax: "<color>"; inherits: true; initial-value: #FBFAF7; }
+@property --portal-blade { syntax: "<color>"; inherits: true; initial-value: #3A3A3F; }
+@property --portal-hi { syntax: "<color>"; inherits: true; initial-value: #75757A; }
+@property --portal-lo { syntax: "<color>"; inherits: true; initial-value: #202023; }
 
 :root {
-  /* Spacing, 4 px base */
-  --s-1: .25rem; --s-2: .5rem; --s-3: .75rem; --s-4: 1rem; --s-5: 1.5rem;
-  --s-6: 2rem; --s-7: 3rem; --s-8: 4rem; --s-9: 6rem; --s-10: 9rem;
+  /* Spacing, 8-point family */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px;
+  --s-7: 48px; --s-8: 64px; --s-9: 96px; --s-10: 128px; --s-11: 160px;
 
-  --gutter: clamp(1rem, 3.2vw, 3.5rem);
-  --gap: clamp(.75rem, 1.6vw, 1.5rem);
-  --max: 100rem;
+  /* Containers */
+  --shell: 1440px;
+  --gutter: clamp(16px, 4vw, 56px);
   --measure: 62ch;
-  --header-h: 3.5rem;
+  --header-h: 64px;
 
   /* Layers */
-  --z-stage: 0; --z-wall: 10; --z-placard: 20; --z-header: 40; --z-drawer: 60; --z-toast: 70;
+  --z-canvas: 0; --z-content: 10; --z-header: 40; --z-dialog: 60; --z-toast: 70; --z-skip: 80;
 
-  /* Niche: the only shadow in the system */
-  --niche-shadow: inset 0 .5rem .875rem rgb(0 0 0 / .35), inset 0 0 0 1px rgb(0 0 0 / .25);
+  /* Motion */
+  --d-1: 120ms; --d-2: 200ms; --d-3: 320ms; --d-4: 600ms; --d-5: 900ms;
+  --ease-out: cubic-bezier(.2, .7, .2, 1);
+  --ease-in-out: cubic-bezier(.7, 0, .2, 1);
+
+  /* Type scale. Display sizes take the world's voice. */
+  --t-hero: clamp(3.5rem, 10.5vw, 10.5rem);
+  --t-display: clamp(2.5rem, 6vw, 5.5rem);
+  --t-title: clamp(1.75rem, 3vw, 2.75rem);
+  --t-lead: clamp(1.125rem, 1.6vw, 1.375rem);
+  --t-body: 1rem;
+  --t-small: .875rem;
+  --t-micro: .75rem;
+
+  /* Font stacks. worlds.ts points --display-family at one of these. */
+  --font-sans-stack: var(--font-geologica), system-ui, "Segoe UI", sans-serif;
+  --font-condensed-stack: var(--font-sofia-condensed), "Arial Narrow", system-ui, sans-serif;
+  --font-serif-stack: var(--font-cormorant), Georgia, "Times New Roman", serif;
+
+  transition:
+    --bg var(--d-4) var(--ease-out), --bg-raised var(--d-4) var(--ease-out), --bg-sunken var(--d-4) var(--ease-out),
+    --fg var(--d-4) var(--ease-out), --fg-muted var(--d-4) var(--ease-out), --line var(--d-4) var(--ease-out),
+    --accent var(--d-4) var(--ease-out), --accent-fg var(--d-4) var(--ease-out),
+    --portal-blade var(--d-5) var(--ease-in-out), --portal-hi var(--d-5) var(--ease-in-out), --portal-lo var(--d-5) var(--ease-in-out);
 }
 
-[data-ground="bone"]      { --bg:#E4DCCD; --fg:#191613; --fg-2:#55493E; --link:#8A3A1C; --link-hover:#6F2D14; --line:#7A6E60; --focus:#191613; --danger-t:#8E1F1A; --success-t:#2C5A3F; --btn-bg:#8A3A1C; --btn-bg-hover:#6F2D14; --btn-fg:#F0EADF; }
-[data-ground="raised"]    { --bg:#F0EADF; --fg:#191613; --fg-2:#55493E; --link:#8A3A1C; --link-hover:#6F2D14; --line:#7A6E60; --focus:#191613; --danger-t:#8E1F1A; --success-t:#2C5A3F; --btn-bg:#8A3A1C; --btn-bg-hover:#6F2D14; --btn-fg:#F0EADF; }
-[data-ground="ink"]       { --bg:#191613; --fg:#E4DCCD; --fg-2:#B3A99A; --link:#E7A766; --link-hover:#F2C08A; --line:#7D7366; --focus:#E7A766; --danger-t:#EE9A8A; --success-t:#9CCBA8; --btn-bg:#E7A766; --btn-bg-hover:#F2C08A; --btn-fg:#191613; }
-[data-ground="lampblack"] { --bg:#161C29; --fg:#F0EADF; --fg-2:#B3A99A; --link:#E7A766; --link-hover:#F2C08A; --line:#7D7F8A; --focus:#E7A766; --btn-bg:#F0EADF; --btn-bg-hover:#E4DCCD; --btn-fg:#191613; }
-[data-ground="oxide"]     { --bg:#6E2C1E; --fg:#F0EADF; --fg-2:#D6C7B5; --link:#F0EADF; --link-hover:#E4DCCD; --line:#C9A78F; --focus:#F0EADF; --btn-bg:#F0EADF; --btn-bg-hover:#E4DCCD; --btn-fg:#191613; }
-[data-ground="verdigris"] { --bg:#24504A; --fg:#F0EADF; --fg-2:#D2CDBD; --link:#F0EADF; --link-hover:#E4DCCD; --line:#8FB0A6; --focus:#F0EADF; --btn-bg:#F0EADF; --btn-bg-hover:#E4DCCD; --btn-fg:#191613; }
-
-@media (prefers-contrast: more) {
-  [data-ground="bone"], [data-ground="raised"] { --fg-2:#191613; --link:#6F2D14; }
-  [data-ground="ink"], [data-ground="lampblack"] { --fg-2:#F0EADF; }
-  [data-ground="oxide"], [data-ground="verdigris"] { --fg-2:#F0EADF; }
+@media (prefers-reduced-motion: reduce) {
+  :root { transition: none; }
 }
-
-/* Rail steel starts from these and is resampled from the renders after the spike (6.3). */
-[data-ground="oxide"], [data-ground="verdigris"] { --rail-steel: #0F0E0D; }
-[data-ground="lampblack"] { --rail-steel: #7D7F8A; }
+:root[data-lite="on"] { transition: none; }
 
 @layer base {
   html {
-    background: var(--color-bone);
-    scroll-padding-top: var(--header-h);
+    background: var(--bg);
+    color: var(--fg);
+    scroll-padding-top: calc(var(--header-h) + var(--s-4));
     -webkit-text-size-adjust: 100%;
     font-synthesis: none;
+    text-rendering: optimizeLegibility;
   }
 
   body {
     min-height: 100svh;
+    display: flex;
+    flex-direction: column;
     overflow-x: clip;
-    font-family: var(--font-sans);
-    font-size: var(--text-body);
-    line-height: var(--text-body--line-height);
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans-stack);
+    font-size: var(--t-body);
+    line-height: 1.6;
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
   }
 
-  [data-ground] {
-    background-color: var(--bg);
-    color: var(--fg);
-  }
+  main { flex: 1 0 auto; }
 
-  /* Every focus state in the system. Never removed. */
   :focus-visible {
-    outline: 2px solid var(--focus);
+    outline: 2px solid var(--fg);
     outline-offset: 2px;
   }
+  [tabindex="-1"]:focus { outline: none; }
 
-  /* Programmatic focus targets such as #content do not get a ring. */
-  [tabindex="-1"]:focus {
-    outline: none;
-  }
+  ::selection { background: var(--fg); color: var(--bg); }
 
-  ::selection {
-    background: var(--fg);
-    color: var(--bg);
-  }
-
-  button,
-  [role="button"] {
-    cursor: pointer;
-  }
+  button, [role="button"] { cursor: pointer; }
+  img, svg { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
 }
 
 @layer components {
-  /* Type, section 5. Each class carries family, size, leading, tracking and case. */
-  .t-display-xl,
-  .t-display-l,
-  .t-display-m {
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-synthesis: none;
-    text-wrap: balance;
-  }
-  .t-display-xl { font-size: var(--text-display-xl); line-height: .96; letter-spacing: .01em; text-transform: uppercase; }
-  .t-display-l { font-size: var(--text-display-l); line-height: 1; letter-spacing: .015em; text-transform: uppercase; }
-  .t-display-m { font-size: var(--text-display-m); line-height: 1.1; letter-spacing: .02em; }
-  .t-lead { font-size: var(--text-lead); line-height: 1.4; font-weight: 400; }
-  .t-body { font-size: var(--text-body); line-height: 1.55; font-weight: 400; }
-  .t-small { font-size: var(--text-small); line-height: 1.5; font-weight: 400; }
-  .t-label { font-size: var(--text-label); line-height: 1.3; letter-spacing: .12em; font-weight: 600; text-transform: uppercase; }
-  .t-price { font-size: var(--text-price); line-height: 1.3; font-weight: 500; }
-  .t-price,
-  .t-tabular { font-variant-numeric: lining-nums tabular-nums; }
-  .t-secondary { color: var(--fg-2); }
-
-  /* Grid, 6.1 and 6.2 */
+  /* Layout */
   .shell {
     width: 100%;
-    max-width: var(--max);
+    max-width: calc(var(--shell) + 2 * var(--gutter));
     margin-inline: auto;
     padding-inline: var(--gutter);
   }
   .grid-12 {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: var(--gap);
+    column-gap: clamp(12px, 2vw, 24px);
   }
-  .section { padding-block: var(--s-8); }
   .measure { max-width: var(--measure); }
-  @media (min-width: 56.25rem) {
-    .section { padding-block: var(--s-9); }
+  .section { padding-block: clamp(var(--s-8), 9vw, var(--s-10)); }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
   }
 
-  /* The rail and the one-scale system, 6.3. */
-  .rail-band {
-    position: relative;
-    overflow-x: clip;
+  /* Type */
+  .t-hero, .t-display, .t-title {
+    font-family: var(--display-family);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    text-transform: var(--display-transform);
+    line-height: var(--display-leading);
+    text-wrap: balance;
   }
-  /* The container sits inside the gutters, so 100cqw is the width the row really has. */
-  .rail-rows {
-    container-type: inline-size;
-    display: flex;
-    flex-direction: column;
-    gap: var(--s-7);
+  /* Sized by the column as well as the viewport, so the longest word never runs under the portal. */
+  .t-hero { font-size: calc(min(var(--t-hero), 19cqi) * var(--display-scale, 1)); }
+  .t-display { font-size: var(--t-display); }
+  .t-title { font-size: var(--t-title); line-height: max(var(--display-leading), 1); }
+  /* The RAW ENERGY slant. Inline-block, so the skew never shears the layout box. */
+  .t-slant { display: inline-block; transform: skewX(var(--display-slant)); transform-origin: 0 100%; }
+  .t-lead { font-size: var(--t-lead); line-height: 1.5; font-weight: 300; }
+  .t-body { font-size: var(--t-body); line-height: 1.6; }
+  .t-small { font-size: var(--t-small); line-height: 1.5; }
+  .t-micro {
+    font-size: var(--t-micro); line-height: 1.3; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase;
   }
-  .rail-row {
-    --cm: calc((100cqw - 3 * var(--gap)) / 400);
-    position: relative;
-    display: flex;
-    gap: var(--gap);
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-  .hang-card {
-    position: relative;
-    flex: none;
-    width: calc(var(--frame-w-cm) * var(--cm));
-  }
-  .hang-card[data-frame="wide"] { --frame-w-cm: 160; }
-  .hang-card[data-frame="mid"] { --frame-w-cm: 112; }
-  .hang-card[data-frame="small"] { --frame-w-cm: 72; }
-  .rail-line {
-    position: absolute;
-    top: calc(16 * var(--cm));
-    height: 2px;
-    /* Runs the full band width. .rail-band clips the overshoot. */
-    inset-inline: -100vw;
-    background: var(--rail-steel);
-    pointer-events: none;
-  }
+  .t-price { font-variant-numeric: tabular-nums; font-weight: 500; }
+  .text-muted { color: var(--fg-muted); }
 
-  /* Shop on narrow screens, section 12: one scroll-snap row per room at true scale. */
-  @media (max-width: 56.2rem) {
-    .rail-rows {
-      --cm: calc(min(78vw, 32rem) / 160);
-      flex-direction: row;
-      gap: var(--gap);
-      overflow-x: auto;
-      overscroll-behavior-x: contain;
-      scroll-snap-type: x mandatory;
-      scroll-padding-inline: var(--gutter);
-    }
-    .rail-row {
-      --cm: calc(min(78vw, 32rem) / 160);
-      display: contents;
-    }
-    .rail-line { display: none; }
-    .hang-card { scroll-snap-align: start; }
-    /* The line is drawn per card here, so it travels with the scroll. */
-    .hang-card::before {
-      content: "";
-      position: absolute;
-      top: calc(16 * var(--cm));
-      inset-inline: calc(-1 * var(--gap));
-      height: 2px;
-      background: var(--rail-steel);
-      pointer-events: none;
-    }
+  .kicker {
+    display: inline-flex; align-items: center; gap: var(--s-3);
+    font-size: var(--t-micro); font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--fg-muted);
   }
+  .kicker::before { content: ""; width: 28px; height: 1px; background: currentColor; }
 
-  .niche {
-    position: relative;
-    z-index: 1;
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-    background-color: var(--niche-fill, var(--bg));
-  }
-  .niche > img,
-  .niche > svg {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .niche::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    box-shadow: var(--niche-shadow);
-    pointer-events: none;
-  }
-
-  /* Button, 6.4 and section 11 */
+  /* Buttons */
   .btn {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    padding-inline: var(--s-5);
-    border: 1px solid transparent;
-    border-radius: 0;
-    font-family: var(--font-sans);
-    font-size: var(--text-label);
-    line-height: 1.3;
-    letter-spacing: .12em;
-    font-weight: 600;
-    text-transform: uppercase;
-    text-align: center;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background-color var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
+    min-height: 48px; padding: 0 var(--s-5);
+    font-size: var(--t-small); font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    border: 1px solid transparent; border-radius: 0;
+    transition: background-color var(--d-2) var(--ease-out), color var(--d-2) var(--ease-out), border-color var(--d-2) var(--ease-out);
   }
-  .btn-primary {
-    background-color: var(--btn-bg);
-    color: var(--btn-fg);
-  }
-  .btn-primary:hover { background-color: var(--btn-bg-hover); }
-  .btn-secondary {
-    background-color: transparent;
-    border-color: var(--fg);
-    color: var(--fg);
-  }
-  .btn-secondary:hover {
-    background-color: var(--fg);
-    color: var(--bg);
-  }
-  .btn-text {
-    min-height: 44px;
-    padding-inline: 0;
-    background: none;
-    color: var(--link);
-  }
-  .btn-text:hover { color: var(--link-hover); }
-  .btn[aria-disabled="true"] {
-    background-color: var(--color-disabled-fill);
-    border-color: transparent;
-    color: var(--color-ink-2);
-    cursor: not-allowed;
-  }
+  .btn-primary { background: var(--accent); color: var(--accent-fg); }
+  .btn-primary:hover { background: color-mix(in srgb, var(--accent) 86%, var(--fg)); }
+  .btn-secondary { border-color: var(--fg); color: var(--fg); background: transparent; }
+  .btn-secondary:hover { background: var(--fg); color: var(--bg); }
+  .btn-text { min-height: 44px; padding: 0; text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1px; }
+  .btn-text:hover { text-decoration-thickness: 2px; }
+  .btn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
   .btn[aria-busy="true"] { cursor: progress; }
   .btn[aria-busy="true"]::after {
-    content: "";
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    height: 1px;
-    background: currentColor;
-    transform-origin: left;
-    animation: btn-line var(--dur-4) var(--ease-out) infinite alternate;
-  }
-  @keyframes btn-line {
-    from { transform: scaleX(0); }
-    to { transform: scaleX(1); }
+    content: ""; position: absolute; left: 0; bottom: 0; height: 1px; width: 100%;
+    background: currentColor; transform-origin: left; animation: vv-busy 1s var(--ease-in-out) infinite;
   }
   .btn-full { width: 100%; }
+  .btn .arrow { transition: transform var(--d-2) var(--ease-out); }
+  .btn:hover .arrow { transform: translateX(4px); }
 
-  /* RailLink, section 10.4: a 1 px underline in currentColor drawing from the left. */
-  .rail-link {
-    position: relative;
-    display: inline-block;
-    color: var(--link);
-    text-decoration: none;
-    transition: color var(--dur-1) var(--ease-out);
-  }
-  .rail-link:hover { color: var(--link-hover); }
-  .rail-link::after {
-    content: "";
-    position: absolute;
-    inset-inline: 0;
-    bottom: -1px;
-    height: 1px;
-    background: currentColor;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--dur-1) var(--ease-door);
-  }
-  .rail-link:hover::after,
-  .rail-link[data-underlined="true"]::after,
-  .btn-text:hover .rail-link::after { transform: scaleX(1); }
-
-  /* Placard, 6.4: opaque, zero radius. Text never sits on an image. */
-  .placard {
-    display: flex;
-    flex-direction: column;
-    gap: var(--s-2);
-    padding: var(--s-4);
-  }
-
-  /* Field */
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--s-2);
-    min-width: 0;
-  }
-  .field-label {
-    font-size: var(--text-label);
-    line-height: 1.3;
-    letter-spacing: .12em;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-  .field-hint {
-    font-size: var(--text-small);
-    line-height: 1.5;
-    color: var(--fg-2);
-  }
+  /* Fields */
+  .field { display: grid; gap: var(--s-2); }
+  .field-label { font-size: var(--t-small); font-weight: 500; }
+  .field-hint { font-size: var(--t-small); color: var(--fg-muted); }
   .field-input {
-    width: 100%;
-    min-height: 48px;
-    padding: var(--s-2) var(--s-3);
-    border: 1px solid var(--line);
-    border-radius: 0;
-    background-color: var(--color-bone-raised);
-    color: var(--fg);
-    font-family: var(--font-sans);
-    font-size: 1rem; /* At least 1rem stops iOS zoom. */
-    line-height: 1.5;
-    transition: border-color var(--dur-1) var(--ease-out);
+    min-height: 48px; width: 100%; padding: 0 var(--s-4);
+    background: var(--bg-raised); color: var(--fg);
+    border: 1px solid var(--line); border-radius: var(--radius-input);
   }
-  [data-ground="ink"] .field-input { background-color: var(--bg); }
   .field-input:hover { border-color: var(--fg); }
-  .field-input::placeholder {
-    color: var(--fg-2);
-    opacity: 1;
-  }
-  .field-input:disabled {
-    background-color: var(--color-disabled-fill);
-    border-color: transparent;
-    color: var(--color-ink-2);
-    cursor: not-allowed;
-  }
-  .field-input[aria-invalid="true"] {
-    border: 2px solid var(--danger-t);
-    padding: calc(var(--s-2) - 1px) calc(var(--s-3) - 1px);
-  }
-  .field-error {
-    display: flex;
-    gap: var(--s-2);
-    align-items: flex-start;
-    font-size: var(--text-small);
-    line-height: 1.5;
-    color: var(--danger-t);
-  }
-  .field-error svg {
-    flex: none;
-    margin-top: .2em;
-  }
+  .field-input::placeholder { color: var(--fg-muted); }
+  .field-input[aria-invalid="true"] { border-color: var(--danger); }
+  .field-error { display: flex; gap: var(--s-2); align-items: flex-start; color: var(--danger); font-size: var(--t-small); }
+  .field-error svg { flex: none; margin-top: 3px; }
 
-  /* Toast, section 11: raised, bottom left, role=status. */
+  /* Toast */
   .toast-region {
-    position: fixed;
-    inset-inline-start: var(--gutter);
-    inset-block-end: calc(var(--s-4) + env(safe-area-inset-bottom));
-    z-index: var(--z-toast);
-    display: flex;
-    flex-direction: column;
-    gap: var(--s-2);
-    max-width: min(28rem, calc(100vw - 2 * var(--gutter)));
-    pointer-events: none;
+    position: fixed; z-index: var(--z-toast); right: var(--gutter); bottom: var(--gutter);
+    display: grid; gap: var(--s-2); width: min(420px, calc(100vw - 2 * var(--gutter)));
   }
   .toast {
-    display: flex;
-    gap: var(--s-4);
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
-    border: 1px solid var(--line);
-    font-size: var(--text-small);
-    line-height: 1.5;
-    pointer-events: auto;
+    display: flex; gap: var(--s-4); align-items: center; justify-content: space-between;
+    padding: var(--s-4) var(--s-5); background: var(--bg-raised); color: var(--fg);
+    border: 1px solid var(--line); font-size: var(--t-small);
   }
-  .toast-dismiss {
-    flex: none;
-    min-width: 44px;
-    min-height: 44px;
-    padding-inline: var(--s-2);
-    color: var(--link);
-    font-size: var(--text-label);
-    letter-spacing: .12em;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-  .toast-dismiss:hover { color: var(--link-hover); }
+  .toast-dismiss { text-decoration: underline; text-underline-offset: 4px; min-height: 44px; }
 
-  /* Skip link: the first focusable element on every page. */
+  /* Skip link */
   .skip-link {
-    position: fixed;
-    top: var(--s-2);
-    left: var(--s-2);
-    z-index: var(--z-toast);
-    padding: var(--s-3) var(--s-4);
-    font-size: var(--text-small);
-    transform: translateY(-300%);
-    clip-path: inset(50%);
+    position: fixed; z-index: var(--z-skip); left: var(--s-4); top: var(--s-4);
+    padding: var(--s-3) var(--s-4); background: var(--fg); color: var(--bg); transform: translateY(-200%);
   }
-  .skip-link:focus {
-    transform: none;
-    clip-path: none;
-  }
+  .skip-link:focus { transform: none; }
 
-  /* Marks */
-  /* Set --wordmark-h to resize. The width follows the viewBox of the outlined letters. */
+  /* Header */
+  .demo-band {
+    background: var(--fg); color: var(--bg);
+    font-size: var(--t-micro); letter-spacing: .04em; text-align: center;
+    padding: var(--s-2) var(--gutter);
+  }
+  .site-header {
+    position: sticky; top: 0; z-index: var(--z-header);
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid color-mix(in srgb, var(--line) 45%, transparent);
+  }
+  .header-row { display: flex; align-items: center; gap: var(--s-5); height: var(--header-h); }
   .wordmark {
-    display: block;
-    flex: none;
-    height: var(--wordmark-h, 1.25rem);
-    width: calc(var(--wordmark-h, 1.25rem) * 2971 / 660);
-    fill: currentColor;
+    font-family: var(--font-condensed-stack); font-weight: 900; font-size: 1.625rem;
+    letter-spacing: .06em; line-height: 1; text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: var(--s-2); min-height: 44px;
   }
-  .small-mark {
-    display: block;
-    width: 1.5rem;
-    height: 1.5rem;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
+  .wordmark svg { width: 22px; height: 22px; }
+  .nav-links { display: none; gap: var(--s-5); margin-left: auto; }
+  .nav-link {
+    display: inline-flex; align-items: center; min-height: 44px;
+    font-size: var(--t-small); font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+    background: linear-gradient(currentColor, currentColor) left 100% / 0 1px no-repeat;
+    transition: background-size var(--d-2) var(--ease-out);
+  }
+  .nav-link:hover { background-size: 100% 1px; }
+  .header-actions { display: flex; align-items: center; gap: var(--s-1); margin-left: auto; }
+  .icon-link {
+    position: relative; display: inline-grid; place-items: center; width: 44px; height: 44px;
+  }
+  .icon-link svg { width: 22px; height: 22px; }
+  .cart-count {
+    position: absolute; top: 4px; right: 2px; min-width: 18px; height: 18px; padding: 0 4px;
+    display: grid; place-items: center; border-radius: 9px;
+    background: var(--accent); color: var(--accent-fg); font-size: 11px; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .menu-panel {
+    position: absolute; left: 0; right: 0; top: 100%;
+    background: var(--bg);
+    border-top: 1px solid color-mix(in srgb, var(--line) 45%, transparent);
+    padding-block: var(--s-3) var(--s-5);
+  }
+  .menu-panel a { display: flex; align-items: center; min-height: 48px; font-size: 1.125rem; font-weight: 500; }
+  @media (min-width: 56.25rem) {
+    .nav-links { display: flex; }
+    .header-actions { margin-left: var(--s-4); }
+    .menu-toggle, .menu-panel { display: none; }
   }
 
-  /* Cut sheet. Below 640 the dimension lines give way to the table (section 12). */
-  .cut-sheet {
-    display: block;
-    width: 100%;
-    height: auto;
-    color: inherit;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1;
+  /* Footer */
+  .site-footer { background: var(--bg-sunken); border-top: 1px solid color-mix(in srgb, var(--line) 45%, transparent); }
+  .footer-wordmark { font-family: var(--font-condensed-stack); font-weight: 900; font-size: clamp(3rem, 12vw, 9rem); line-height: .85; letter-spacing: .02em; }
+  .footer-links a { display: inline-flex; min-height: 44px; align-items: center; }
+  .footer-links a:hover { text-decoration: underline; text-underline-offset: 5px; }
+  .lite-toggle {
+    display: inline-flex; align-items: center; gap: var(--s-3); min-height: 44px;
+    font-size: var(--t-small); font-weight: 500;
   }
-  .cut-sheet .cut-outline,
-  .cut-sheet .cut-detail,
-  .cut-sheet .cut-dims line { vector-effect: non-scaling-stroke; }
-  .cut-sheet .cut-detail { stroke-dasharray: 4 3; }
-  .cut-sheet text {
-    fill: currentColor;
-    stroke: none;
-    font-family: var(--font-sans);
-    font-variant-numeric: lining-nums tabular-nums;
+  .lite-toggle .track {
+    position: relative; width: 40px; height: 22px; border: 1px solid var(--fg); border-radius: 11px;
+    transition: background-color var(--d-2) var(--ease-out);
   }
-  @media (max-width: 39.99rem) {
-    .cut-sheet .cut-dims { display: none; }
+  .lite-toggle .track::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--fg); transition: transform var(--d-2) var(--ease-out), background-color var(--d-2);
   }
+  .lite-toggle[aria-pressed="true"] .track { background: var(--fg); }
+  .lite-toggle[aria-pressed="true"] .track::after { transform: translateX(18px); background: var(--bg); }
+
+  /* Demo tag */
+  .demo-tag {
+    display: inline-block; padding: 2px 6px; border: 1px solid currentColor;
+    font-size: 10px; font-weight: 700; letter-spacing: .14em; line-height: 1.4;
+  }
+
+  /* Product card */
+  .card { position: relative; display: grid; gap: var(--s-3); }
+  .card-media {
+    position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: var(--bg-sunken);
+    background-size: cover;
+  }
+  .card-media img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform var(--d-4) var(--ease-out);
+  }
+  .card:hover .card-media img { transform: scale(1.035); }
+  .card-tags { position: absolute; left: var(--s-3); top: var(--s-3); display: flex; gap: var(--s-2); }
+  .card-tags > * { background: var(--bg); }
+  .card-title { font-size: var(--t-body); font-weight: 500; line-height: 1.35; }
+  .card-link::after { content: ""; position: absolute; inset: 0; }
+  .card-link:focus-visible { outline: none; }
+  .card-link:focus-visible::after { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .swatches { display: flex; gap: 6px; }
+  .swatch { width: 12px; height: 12px; border-radius: 50%; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 35%, transparent); }
+  .price { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-2); font-variant-numeric: tabular-nums; }
+  .price-now { font-weight: 600; }
+  .price-was { color: var(--fg-muted); font-size: var(--t-small); }
+  .price-off { font-size: var(--t-micro); font-weight: 700; color: var(--accent); letter-spacing: .06em; }
+
+  /* World switcher */
+  .switcher { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+  .switcher a {
+    display: grid; gap: 2px; align-content: start; justify-items: start; text-align: left;
+    min-height: 64px; padding: var(--s-3) var(--s-3) var(--s-3) 0;
+    color: var(--fg-muted); border-top: 2px solid transparent; margin-top: -1px;
+    transition: color var(--d-2) var(--ease-out), border-color var(--d-3) var(--ease-out);
+  }
+  .switcher a:hover { color: var(--fg); }
+  .switcher a[aria-current="true"] { color: var(--fg); border-top-color: var(--fg); }
+  .switcher .idx { font-size: var(--t-micro); font-weight: 600; letter-spacing: .14em; font-variant-numeric: tabular-nums; }
+  .switcher .name { font-family: var(--font-condensed-stack); font-weight: 800; font-size: clamp(1rem, 1.6vw, 1.375rem); letter-spacing: .04em; line-height: 1; }
+
+  /* Hero */
+  .hero { position: relative; padding-top: clamp(var(--s-5), 4vw, var(--s-7)); padding-bottom: var(--s-7); }
+  .hero-grid { align-items: end; row-gap: var(--s-6); }
+  .hero-copy { grid-column: 1 / -1; display: grid; gap: var(--s-5); position: relative; z-index: var(--z-content); container-type: inline-size; }
+  .hero-portal { grid-column: 1 / -1; order: -1; }
+  @media (min-width: 56.25rem) {
+    /* Fills the first screen below the demo band and header, so the switcher is never cut off. */
+    .hero-grid { min-height: calc(100svh - var(--header-h) - 200px); }
+    .hero-copy { grid-column: 1 / span 6; padding-bottom: var(--s-4); }
+    .hero-portal { grid-column: 7 / -1; order: 0; align-self: center; }
+    .portal-placard { position: absolute; right: 0; bottom: 4%; }
+  }
+
+  /* Portal */
+  .portal-wrap { position: relative; width: min(100%, 680px); margin-inline: auto; display: grid; gap: var(--s-4); }
+  .portal { position: relative; width: 100%; aspect-ratio: 1; touch-action: pan-y; }
+  .portal-poster, .portal-canvas { position: absolute; inset: 0; }
+  .portal-poster { transition: opacity var(--d-3) var(--ease-out); }
+  .portal[data-ready="true"] .portal-poster { opacity: 0; }
+  .portal-canvas { z-index: 2; pointer-events: none; opacity: 0; transition: opacity var(--d-4) var(--ease-out); }
+  .portal[data-ready="true"] .portal-canvas { opacity: 1; }
+  .portal-aperture {
+    position: absolute; z-index: 1; left: 50%; top: 50%; width: 55%; aspect-ratio: 1;
+    transform: translate(-50%, -50%); border-radius: 50%; overflow: hidden;
+    background: var(--bg-sunken);
+  }
+  .portal-aperture img { animation: vv-aperture var(--d-4) var(--ease-out) backwards; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; transition: transform var(--d-4) var(--ease-out); }
+  .portal-aperture:hover img { transform: scale(1.05); }
+  /* Below the ring on phones, pinned to its corner from 900 px. */
+  .portal-placard {
+    position: relative; z-index: 3; justify-self: end;
+    display: grid; gap: 2px; padding: var(--s-3) var(--s-4);
+    background: var(--bg-raised); border: 1px solid color-mix(in srgb, var(--line) 50%, transparent);
+    font-size: var(--t-small); max-width: 62%;
+  }
+  .portal-placard a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+  /* Look */
+  .look-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4); }
+  /* One column per piece, so a four-piece look fills the row as evenly as a five-piece one. */
+  @media (min-width: 56.25rem) { .look-grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); } }
+  .look-total {
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--s-3);
+    border-top: 1px solid var(--line); padding-top: var(--s-4);
+  }
+
+  /* Trust */
+  .trust-item { border-top: 1px solid var(--line); padding-top: var(--s-4); }
 }
 
-/* Forced colours: hairlines map to system colours, and focus stays visible. */
-@media (forced-colors: active) {
-  :focus-visible { outline-color: Highlight; }
-  .btn { border-color: ButtonText; }
-  .btn[aria-disabled="true"] { border-color: GrayText; color: GrayText; }
-  .field-input { border-color: CanvasText; }
-  .field-input[aria-invalid="true"] { border-color: Mark; }
-  .toast { border-color: CanvasText; }
-  .niche::after { box-shadow: none; border: 1px solid CanvasText; }
-  .rail-line,
-  .hang-card::before,
-  .rail-link::after,
-  .btn[aria-busy="true"]::after {
-    forced-color-adjust: none;
-    background: CanvasText;
-  }
+@keyframes vv-aperture {
+  from { opacity: 0; transform: scale(1.12); }
+  to { opacity: 1; transform: none; }
 }
 
-/* Reduced motion: every UI transition becomes instant. */
+@keyframes vv-busy {
+  0% { transform: scaleX(0); }
+  60% { transform: scaleX(1); }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *,
-  *::before,
-  *::after {
-    transition-duration: 0ms !important;
-    transition-delay: 0ms !important;
-    animation-duration: 0ms !important;
-    animation-delay: 0ms !important;
-    animation-iteration-count: 1 !important;
-  }
+  *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
+  .card:hover .card-media img, .portal-aperture:hover img { transform: none; }
 }
+:root[data-lite="on"] .card:hover .card-media img { transform: none; }

@@ -43,19 +43,23 @@ Bitta mahsulot bir nechta olamda boʻlishi mumkin, jami 20 ta mahsulot bor.
 - Pul birligi soʻm. Narxlar butun soʻmda saqlanadi.
 - Toʻlov faqat yetkazib berishda. Click va Payme uchun merchant akkaunt kerak, ular hali ulanmagan.
 
-**Texnologiyalar:** Next.js 16.4 (App Router, Turbopack), React 19.3, TypeScript 6, Tailwind CSS 4, Drizzle ORM. Lokal kompyuterda PGlite (brauzersiz ishlaydigan Postgres) ishlatiladi, serverda haqiqiy PostgreSQL. Shuningdek Zod 4, Vitest 5 va Playwright. 3D uchun three.js va GSAP oʻrnatilgan, lekin hali ishlatilmagan.
+**Texnologiyalar:** Next.js 16.4 (App Router, Turbopack), React 19.3, TypeScript 6, Tailwind CSS 4, Drizzle ORM. Lokal kompyuterda PGlite (brauzersiz ishlaydigan Postgres) ishlatiladi, serverda haqiqiy PostgreSQL. Shuningdek Zod 4, Vitest 5 va Playwright. 3D: three.js va React Three Fiber. Animatsiya: GSAP (ScrollTrigger).
 
 ---
 
 ## Hozir nima ishlaydi, nima yoʻq
 
-Loyiha avval **Lierne** nomli boshqa doʻkon edi. Hozir u VYBEVERSE'ga koʻchirilmoqda. Server tomonidagi savdo mantigʻi tayyor, lekin sahifalarning aksariyati hali yozilmagan.
+Loyiha avval **Lierne** nomli boshqa doʻkon edi. Hozir u VYBEVERSE'ga koʻchirilmoqda. Dizayn tizimi, sayt qobigʻi va bosh sahifa tayyor. Savdo mantigʻi serverda tayyor, lekin qolgan sahifalar hali yozilmagan.
 
 ### ✅ Ishlaydi
 
 | Nima | Izoh |
 |---|---|
-| Bosh sahifa `/` | Bazadagi 20 ta demo mahsulotni koʻrsatadi: nomi, turkumi, olami, narxi, ranglari va DEMO belgisi. Bu vaqtinchalik sahifa, haqiqiy bosh sahifa keyin quriladi. |
+| Bosh sahifa `/` | `docs/DESIGN-SYSTEM.md` boʻyicha qurilgan. **Sunray Portal** — 3D plisse halqa, ichida haqiqiy mahsulot. 4 ta olam almashtirgichi: tanlanganda butun sayt rangi, shrifti va portal materiali oʻzgaradi, halqa boʻylab toʻlqin yuradi. Shuningdek The Current Drop (4 ta mahsulot), Build Your Look (olamdagi toʻliq obraz va uning jami narxi), Biz haqimizda va ishonch bloki bor. Olam URL'da saqlanadi: `/?world=soft-signal`. |
+| Sunray Portal zaxirasi | WebGL boʻlmasa, `prefers-reduced-motion` yoqilgan boʻlsa yoki Yengil rejimda 3D yuklanmaydi. Oʻrniga xuddi shu matematikadan chizilgan SVG poster chiqadi. 3D qismi sahifa chizilgandan keyin, brauzer boʻsh paytda yuklanadi. |
+| Dizayn tizimi | Ranglar, shrift ovozi va portal materiali faqat `src/content/worlds.ts`da belgilanadi. Shriftlar: Geologica, Sofia Sans Extra Condensed, Cormorant. |
+| Sayt qobigʻi | Demo bandi, header (menyu, qidiruv, savat soni, telefonda menyu tugmasi), footer va **Yengil rejim** tugmasi (3D va harakatni oʻchiradi, brauzerda saqlanadi). |
+| Demo rasmlar | 20 ta mahsulotning har bir rangi uchun kod orqali chizilgan kiyim eskizi (37 ta rasm, 3 oʻlchamda). Rasm burchagida DEMO yozuvi bor. |
 | Maʼlumotlar bazasi | Birinchi soʻrovda oʻzi yaratiladi, migratsiya qilinadi va demo katalog bilan toʻldiriladi. |
 | Savdo mantigʻi (server) | Savat, buyurtma berish, qoldiqni kamaytirish, buyurtma holatlari, admin kirishi, rasm yuklash va soʻrovlarni cheklash. Bu kod `src/server/` ichida tayyor, lekin uni ishlatadigan sahifalar hali yoʻq. |
 | `/uploads/<fayl>` | Admin yuklagan rasmlarni beradi. |
@@ -64,7 +68,8 @@ Loyiha avval **Lierne** nomli boshqa doʻkon edi. Hozir u VYBEVERSE'ga koʻchiri
 
 - `/shop`, `/worlds`, mahsulot sahifasi, `/cart`, `/checkout` — hammasi **404** qaytaradi.
 - Admin panel. `/admin` manzili `/admin/login`ga yoʻnaltiradi, u yerda esa sahifa yoʻq (404).
-- 3D portal, haqiqiy mahsulot rasmlari (hozir rasm oʻrnida mahsulot rangi koʻrsatiladi), onlayn toʻlov.
+- Haqiqiy mahsulot fotolari (hozir kod orqali chizilgan demo eskizlar) va onlayn toʻlov.
+- Bosh sahifadagi havolalar (mahsulot, olam, Shop Fast, savat) hozircha 404 sahifaga olib boradi, chunki ular keyingi qadamlarda quriladi.
 
 ### ⚠️ Maʼlum muammolar
 
@@ -72,8 +77,7 @@ Loyiha avval **Lierne** nomli boshqa doʻkon edi. Hozir u VYBEVERSE'ga koʻchiri
 |---|---|
 | Unit testlar eskirgan | Testlar hali Lierne modelida yozilgan: 69 tadan 23 tasi oʻtadi, 46 tasi yiqiladi. Testlarda 115 ta TypeScript xatosi bor. `src/` papkasida xato **yoʻq**. |
 | `npm run build` yiqiladi | Kod kompilyatsiyadan oʻtadi, lekin Next build paytida testlardagi tip xatolarini ham tekshiradi va toʻxtaydi. Testlar yangilanmaguncha production build chiqmaydi. |
-| Dizayn hali eski | `src/app/globals.css`dagi ranglar va shriftlar Lierne'dan qolgan. Yangi dizayn tizimi `docs/DESIGN-SYSTEM.md`da yozilgan, lekin hali qoʻllanmagan. |
-| Eski logo | `src/components/ui/marks.tsx`dagi `Wordmark` hali **LIERNE** yozuvini chizadi, shuning uchun sahifalarda ishlatilmaydi. |
+| Konsolda `THREE.Clock` ogohlantirishi | React Three Fiber 9.8 kutubxonasining ichidan keladi. Ishlashga taʼsir qilmaydi, kutubxona yangilanganda yoʻqoladi. |
 
 Ish rejasi va bosqichlari: [docs/IMPLEMENTATION-PLAN.md](docs/IMPLEMENTATION-PLAN.md).
 
@@ -168,6 +172,7 @@ Admin panel hali yozilmagan, lekin akkaunt bazada yaratib qoʻyiladi.
 | `npm run test:e2e` | Playwright (Chrome orqali) | `tests/e2e` hali yoʻq |
 | `npm run db:generate` | Sxemadan yangi migratsiya yaratadi | — |
 | `npm run db:seed` | Bazani migratsiya qiladi va toʻldiradi | Avval `npm run dev`ni toʻxtating |
+| `npm run media:generate` | Demo kiyim eskizlarini `public/media/generated`ga chizadi va `media.generated.json`ni yangilaydi | Katalogga mahsulot yoki rang qoʻshilganda ishlating |
 
 ---
 
@@ -176,17 +181,23 @@ Admin panel hali yozilmagan, lekin akkaunt bazada yaratib qoʻyiladi.
 ```
 src/
   app/                  Sahifalar (Next App Router)
-    page.tsx            Bosh sahifa (vaqtinchalik)
-    layout.tsx          Umumiy qolip, shriftlar, metadata
-    globals.css         Dizayn tokenlari (hali Lierne'niki)
+    page.tsx            Bosh sahifa
+    layout.tsx          Umumiy qolip: shriftlar, olam tokenlari, header, footer
+    globals.css         Dizayn tizimi: oʻlchamlar, shrift shkalasi, komponent uslublari
     uploads/[file]/     Yuklangan rasmlarni beradi
-  components/ui/        Tugma, maydon, toast, logo
+  components/
+    shell/              Header, mobil menyu, footer, Yengil rejim tugmasi
+    world/              Olam almashtirgich, Sunray Portal, SVG poster
+    product/            Mahsulot kartasi, narx
+    motion/             Scroll'da paydo boʻlish (GSAP)
+    ui/                 Tugma, maydon, toast, logo
+  scene/                3D sahna. three faqat shu yerda import qilinadi
   content/              Matn va demo maʼlumotlar
     locales/uz.ts       Saytdagi barcha oʻzbekcha matnlar
     worlds.ts           4 ta olam: ranglar, shriftlar, uslub
     catalog.demo.ts     Demo katalog (20 ta mahsulot)
     commerce.ts         Yetkazib berish hududlari va narxlari (namuna)
-  lib/                  Pul, qidiruv, validatsiya (bazasiz kod)
+  lib/                  Pul, qidiruv, validatsiya, portal geometriyasi (bazasiz kod)
   server/               Bazaga murojaat qiluvchi barcha kod
     catalog.ts          Mahsulotlar, filtrlar, olamlar
     cart.ts             Savat (cookie'da faqat variant id va miqdor)
@@ -197,6 +208,8 @@ src/
     db/                 Sxema, ulanish, seed
     payment/            Toʻlov provayderlari (hozir faqat yetkazib berishda toʻlov)
   proxy.ts              /admin uchun yoʻnaltirish
+tools/demo-media/       Demo kiyim eskizlari generatori (saytga kirmaydi)
+public/media/generated/ Generator chizgan rasmlar
 drizzle/                Bazaning migratsiyalari
 tests/unit/             Vitest testlari
 docs/                   Loyiha hujjatlari

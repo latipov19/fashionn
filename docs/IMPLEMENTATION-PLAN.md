@@ -10,15 +10,15 @@ Legend: [x] done and verified, [~] partly done, [ ] not started.
 - [x] Brief, architecture, design system and plan written
 
 ## Stage 1: working vertical slice
-- [ ] Domain moved to products, worlds, UZS and Uzbek checkout fields
-- [ ] Demo catalog and generated imagery
-- [ ] Design tokens and site shell
-- [ ] Home with world switching
+- [~] Domain moved to products, worlds, UZS and Uzbek checkout fields: server code done, unit tests still target the old model
+- [x] Demo catalog and generated imagery (`npm run media:generate`)
+- [x] Design tokens and site shell
+- [x] Home with world switching
 - [ ] `/worlds`, `/worlds/[slug]`
 - [ ] `/shop` with search and filters
 - [ ] `/products/[handle]`
 - [ ] `/cart`
-- [ ] Sunray Portal 3D scene and fallback
+- [x] Sunray Portal 3D scene and fallback (desktop and phone Chrome; real devices are Stage 4)
 - [ ] Unit, e2e and axe checks
 
 ## Stage 2: ecommerce operations
