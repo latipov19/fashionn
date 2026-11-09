@@ -413,5 +413,6 @@ export function demoStock(handle: string, colorSlug: string, size: string): numb
   const bucket = hash % 10;
   if (bucket === 0) return 0;
   if (bucket <= 2) return 2;
-  return 6 + (hash >> 8) % 9;
+  // Unsigned shift: `>>` would read hashes above 2^31 as negative and give negative stock.
+  return 6 + ((hash >>> 8) % 9);
 }

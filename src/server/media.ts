@@ -23,7 +23,7 @@ type UploadRow = typeof productMedia.$inferSelect;
 type OverrideRow = typeof mediaOverrides.$inferSelect;
 
 function generatedFor(productHandle: string, colorSlug: string, entries = manifest.items): GeneratedMediaEntry[] {
-  return entries.filter((item) => item.productHandle === productHandle && item.colorId === colorSlug);
+  return entries.filter((item) => item.productHandle === productHandle && item.colorSlug === colorSlug);
 }
 
 /** Merges the manifest with uploads, applying hide and order. Hidden items are kept, flagged. */

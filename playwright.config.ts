@@ -18,7 +18,7 @@ export default defineConfig({
     { name: "mobile", use: { ...devices["Pixel 7"], channel: "chrome" } },
   ],
   webServer: {
-    command: `npm run dev -- --port ${port}`,
+    command: "npm run dev",
     url: `http://localhost:${port}`,
     reuseExistingServer: true,
     timeout: 120_000,

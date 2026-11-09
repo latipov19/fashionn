@@ -21,7 +21,7 @@ export async function subscribeAction(_previous: NewsletterState, formData: Form
   try {
     const result = await subscribe({ email });
     return result.ok
-      ? { status: "success", message: copy.footer.success }
+      ? { status: "success", message: copy.newsletter.success }
       : { status: "error", message: result.message, email };
   } catch (error) {
     console.error("subscribeAction failed", error);

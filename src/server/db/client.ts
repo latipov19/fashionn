@@ -18,6 +18,13 @@ const holder = globalThis as typeof globalThis & { __vybeverseDb?: Promise<Conne
 const migrationsFolder = () => path.join(process.cwd(), "drizzle");
 
 async function openPglite(): Promise<Connection> {
+  // Optimising PGlite's 9 MB WASM module takes far more memory than running it, and on a
+  // machine short of commit memory V8 then aborts the whole process with "Zone" out of memory.
+  // Staying on the baseline compiler avoids that. Queries run slower, which suits local use.
+  const { setFlagsFromString } = await import("node:v8");
+  setFlagsFromString("--no-wasm-tier-up");
+  setFlagsFromString("--no-wasm-dynamic-tiering");
+
   const { PGlite } = await import("@electric-sql/pglite");
   const { drizzle } = await import("drizzle-orm/pglite");
   const { migrate } = await import("drizzle-orm/pglite/migrator");

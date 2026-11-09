@@ -250,6 +250,7 @@ export const uz = {
   },
 
   newsletter: {
+    success: "Obuna boʻldingiz. Rahmat!",
     tooMany: "Urinishlar juda koʻp. Bir daqiqa kutib, qayta urinib koʻring.",
     failed: "Obuna boʻlib boʻlmadi. Qayta urinib koʻring.",
   },

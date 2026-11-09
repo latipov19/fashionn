@@ -18,7 +18,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${forum.variable} ${ysabeau.variable}`}>
+    <html lang="uz" className={`${forum.variable} ${ysabeau.variable}`}>
       <body data-ground="bone">
         <a href="#content" className="skip-link" data-ground="raised">
           {copy.nav.skipToContent}
