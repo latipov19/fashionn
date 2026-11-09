@@ -236,6 +236,19 @@ Kompyuterda boʻsh xotira yetmayapti. Bu kod xatosi emas. Windows'da C: disk to�
 
 3100 portni boshqa dastur band qilgan. Koʻpincha bu shu loyihaning oldin ochilgan oʻz serveri boʻladi: boshqa terminalni tekshiring. PGlite bir vaqtda faqat bitta jarayonga ruxsat beradi, shuning uchun bitta loyiha uchun ikkita server ochmang.
 
+**`An unexpected Turbopack error occurred` / `failed to create junction point ... Access is denied`**
+
+Turbopack `.next\dev` ichida `pglite`, `pg` va `sharp` paketlariga papka havolasi (junction) yaratadi. Windows buni rad etsa, havola oʻrnida boʻsh papka qoladi va har bir sahifa 500 qaytaradi. Kod bunga aloqador emas, bu buzilgan kesh. Serverni toʻxtating (`Ctrl + C`), keshni oʻchiring va qayta ishga tushiring:
+
+```powershell
+Remove-Item -Recurse -Force .next
+npm run dev
+```
+
+**Saytni `localhost` orqali oching**
+
+Terminalda `Network: http://26.x.x.x:3100` kabi manzil ham chiqadi. Uni ishlatmang: Next dev rejimida bu manzildan keladigan soʻrovlarni bloklaydi, shuning uchun sahifa avtomatik yangilanmaydi va xatolarning tafsilotlari koʻrinmaydi. Har doim **http://localhost:3100** manzilini oching.
+
 **Sahifa 500 xato bersa yoki maʼlumotlar eskirgan boʻlsa**
 
 Serverni toʻxtating, `.data` papkasini oʻchiring va qayta ishga tushiring. Baza yangidan yaratiladi.
