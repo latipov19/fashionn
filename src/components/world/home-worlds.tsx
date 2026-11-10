@@ -10,6 +10,8 @@ import { gsapNow, loadGsap } from "@/lib/gsap-client";
 import { useMotionAllowed } from "@/lib/use-motion";
 import type { Aperture } from "./portal";
 import { Portal } from "./portal";
+import type { ShowroomCopy, ShowroomItem } from "./showroom";
+import { Showroom } from "./showroom";
 
 export type HomeCopy = {
   explore: string;
@@ -18,6 +20,7 @@ export type HomeCopy = {
   openProduct: string;
   demoTag: string;
   drop: { kicker: string; title: string; all: string[] };
+  showroom: ShowroomCopy;
   look: { kicker: string; title: string; body: string; total: string };
 };
 
@@ -26,6 +29,7 @@ type Props = {
   copy: HomeCopy;
   apertures: Record<WorldSlug, Aperture | null>;
   drops: Record<WorldSlug, ReactNode>;
+  showrooms: Record<WorldSlug, ShowroomItem[]>;
   looks: Record<WorldSlug, { items: ReactNode; total: string } | null>;
 };
 
@@ -34,7 +38,7 @@ type Props = {
  * is server rendered for all four worlds. Switching only chooses which one shows, retints the
  * page through `data-world-root`, and runs the portal wave.
  */
-export function HomeWorlds({ initial, copy, apertures, drops, looks }: Props) {
+export function HomeWorlds({ initial, copy, apertures, drops, showrooms, looks }: Props) {
   const [active, setActive] = useState<WorldSlug>(initial);
   const world = worlds[active];
   const motion = useMotionAllowed();
@@ -134,6 +138,8 @@ export function HomeWorlds({ initial, copy, apertures, drops, looks }: Props) {
           </Reveal>
         </div>
       </section>
+
+      <Showroom world={active} items={showrooms[active]} copy={copy.showroom} />
 
       {look ? (
         <section className="section" aria-labelledby="look-title">

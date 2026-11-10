@@ -1,14 +1,15 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import type { ErrorInfo, PointerEvent, ReactNode } from "react";
-import { Component, useCallback, useEffect, useRef, useState } from "react";
+import type { PointerEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { WorldSlug } from "@/content/types";
 import { worlds } from "@/content/worlds";
 import { BLADES_DESKTOP, BLADES_PHONE } from "@/lib/portal";
 import { useMediaQuery, useMotionAllowed } from "@/lib/use-motion";
 import type { PortalPointer } from "@/scene/portal-scene";
 import { PortalPoster } from "./portal-poster";
+import { hasWebGL, SceneBoundary } from "./scene-boundary";
 
 /** Only this chunk imports three. It is requested on idle, after the first paint. */
 const PortalScene = dynamic(() => import("@/scene/portal-scene"), { ssr: false, loading: () => null });
@@ -26,29 +27,6 @@ export type Aperture = {
 };
 
 type Labels = { openProduct: string; demoTag: string };
-
-class SceneBoundary extends Component<{ onError: () => void; children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-  componentDidCatch(error: unknown, info: ErrorInfo) {
-    console.error("Portal scene failed, showing the poster", error, info.componentStack);
-    this.props.onError();
-  }
-  render() {
-    return this.state.failed ? null : this.props.children;
-  }
-}
-
-function hasWebGL(): boolean {
-  try {
-    const canvas = document.createElement("canvas");
-    return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"));
-  } catch {
-    return false;
-  }
-}
 
 export function Portal({ world, aperture, labels }: { world: WorldSlug; aperture: Aperture | null; labels: Labels }) {
   const motion = useMotionAllowed();
@@ -125,7 +103,7 @@ export function Portal({ world, aperture, labels }: { world: WorldSlug; aperture
           </a>
         ) : null}
         {use3d ? (
-          <SceneBoundary onError={fail}>
+          <SceneBoundary name="Portal" onError={fail}>
             <PortalScene world={world} count={phone ? BLADES_PHONE : BLADES_DESKTOP} pointer={pointer} bindInvalidate={bindInvalidate} onReady={onReady} onFail={fail} />
           </SceneBoundary>
         ) : null}

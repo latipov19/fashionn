@@ -1,7 +1,7 @@
 import { asc, eq, inArray } from "drizzle-orm";
 import { commerce } from "@/content/commerce";
 import { stockLabel } from "@/content/copy";
-import type { MediaRecord, SizeChart, Slot, WorldSlug } from "@/content/types";
+import type { MediaRecord, ModelEntry, SizeChart, Slot, WorldSlug } from "@/content/types";
 import { worlds as worldContent, worldList } from "@/content/worlds";
 import { matchesQuery } from "@/lib/search";
 import type { CatalogFilters, ParsedCatalogFilters } from "@/lib/validation";
@@ -10,7 +10,7 @@ import { requireAdmin } from "./auth";
 import type { Executor } from "./db/client";
 import { getDb } from "./db/client";
 import { productColors, products, productWorlds, variants } from "./db/schema";
-import { loadMediaForOwners } from "./media";
+import { loadMediaForOwners, modelFor } from "./media";
 
 export type CatalogVariant = { id: string; size: string; stock: number; sku: string };
 
@@ -25,6 +25,8 @@ export type CatalogColor = {
   variants: CatalogVariant[];
   /** Merged generated and uploaded media, in order, hidden items removed. */
   media: MediaRecord[];
+  /** The colour's 3D model, when one has been imported. */
+  model: ModelEntry | null;
 };
 
 export type CatalogProduct = {
@@ -142,6 +144,7 @@ async function hydrate(rows: ProductRow[], conn: Executor, includeInactive: bool
           return variant ? [{ id: variant.id, size, stock: variant.stock, sku: variant.sku }] : [];
         }),
         media: (media.get(color.id) ?? []).filter((item) => includeInactive || !item.hidden),
+        model: modelFor(row.handle, color.slug),
       }));
 
     return {

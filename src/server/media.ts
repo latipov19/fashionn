@@ -3,15 +3,24 @@ import { inArray } from "drizzle-orm";
 import sharp from "sharp";
 import aiJson from "@/content/media.ai.json";
 import manifestJson from "@/content/media.generated.json";
-import type { AiManifest, GeneratedManifest, GeneratedMediaEntry, MediaRecord } from "@/content/types";
+import type { AiManifest, GeneratedManifest, GeneratedMediaEntry, MediaRecord, ModelEntry } from "@/content/types";
 import type { Executor } from "./db/client";
 import { getDb } from "./db/client";
 import { mediaOverrides, productMedia } from "./db/schema";
 
+const ai = aiJson as unknown as AiManifest;
+
 /** AI packshots come first, so they lead over the drawn flats for the same colour. */
 const manifest = {
-  items: [...(aiJson as unknown as AiManifest).items, ...(manifestJson as unknown as GeneratedManifest).items],
+  items: [...ai.items, ...(manifestJson as unknown as GeneratedManifest).items],
 };
+
+const models = new Map(ai.models.map((model) => [`${model.productHandle}/${model.colorSlug}`, model]));
+
+/** The optimised GLB for a product colour, written by `npm run assets:import`. Null when there is none. */
+export function modelFor(productHandle: string, colorSlug: string): ModelEntry | null {
+  return models.get(`${productHandle}/${colorSlug}`) ?? null;
+}
 
 /** Generated items sort after this unless reordered, so a new upload lands first. */
 const GENERATED_BASE_POSITION = 1000;

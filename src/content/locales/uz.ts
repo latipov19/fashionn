@@ -43,6 +43,16 @@ export const uz = {
       title: "Hozirgi drop",
       all: (world: string) => `${world} olamini ochish`,
     },
+    showroom: {
+      kicker: "3D Showroom",
+      title: "Har tomondan koʻring",
+      body: "3D modeli bor mahsulotni sudrab aylantiring. Qolganlari hozircha surat koʻrinishida, modellar qoʻshilgani sari ular ham aylanadi.",
+      label: "Mahsulotlar karuseli",
+      prev: "Oldingi mahsulot",
+      next: "Keyingi mahsulot",
+      modelTag: "3D",
+      dragHint: "Sudrab aylantiring",
+    },
     look: {
       kicker: "Build Your Look",
       title: "Bitta olam, toʻliq obraz",

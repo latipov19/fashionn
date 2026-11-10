@@ -29,7 +29,7 @@ References: a "Try the Look" lineup of full-body looks with an "in this look" pa
 - [ ] Pilot asset: Noir Oversize Hudi, black, packshot and GLB (owner generates)
 - [ ] Remaining AI assets: 37 packshots, 4 looks, 8 heroes, GLBs where useful (owner generates)
 - [ ] Try the Look lineup
-- [ ] 3D product carousel and GLB viewer
+- [x] 3D product carousel and GLB viewer: the 3D Showroom on the home page (DESIGN-SYSTEM section 6, scene 3). Checked with one sample GLB in desktop Chrome, phone-sized Chrome and reduced motion; real devices are Stage 4
 - [ ] Photographic hero per world
 
 ## Stage 2: ecommerce operations

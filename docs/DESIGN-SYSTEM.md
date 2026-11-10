@@ -79,7 +79,19 @@ Focus is a 2 px `--fg` outline with a 2 px offset.
 
 Real product cards for the chosen world, server rendered. Cards enter with a short staggered rise using ScrollTrigger once. Nothing stays hidden if scripts fail.
 
-### Scene 3: the look
+### Scene 3: 3D Showroom
+
+| | |
+|---|---|
+| Framing | Up to 7 of the world's products on an arc that turns to the chosen one. Two either side are in view. A large brand wordmark sits behind, in the DOM |
+| Items | A colour with a GLB shows the model, scaled to fit whatever units it was made in and stood on a shared floor. Any other product shows its packshot on a card, untoned so it matches the page. Products with a model lead the order |
+| Interaction | Previous and next buttons, tap a neighbour, drag to turn. A model turns freely with inertia and slowly on its own (about 18 s a turn); a card only tilts. Touch scrolling is never blocked (`touch-action: pan-y`) |
+| Light | The world's key light, an ambient fill and the same procedural environment as the portal |
+| Loading | The chunk loads when the stage comes within 200 px of the viewport, on idle. Cards load together before the poster fades, so the arc never appears half empty. Each GLB loads on its own behind its card |
+| Budget (targets) | DPR capped at 1.75, on-demand rendering, frames only while the stage is on screen. GLBs at most 3 MB from `npm run assets:import` |
+| Fallback | A CSS carousel of the same images in the same order, sized by container units to match the scene. Used before the 3D loads, and for no WebGL, context loss, reduced motion and light mode. A model that fails to load shows its card |
+
+### Scene 4: the look
 
 One complete outfit per world, built from real products, with a real total.
 

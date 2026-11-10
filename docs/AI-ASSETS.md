@@ -37,7 +37,7 @@ Har bir faylning aniq nomi va prompti: **[AI-PROMPTS.md](AI-PROMPTS.md)**.
    ```bash
    npm run assets:import
    ```
-6. Saytni yangilang. Yangi surat eskizdan oldinga chiqadi.
+6. Saytni yangilang. Yangi surat eskizdan oldinga chiqadi. 3D model bosh sahifadagi **3D Showroom** boʻlimida chiqadi: modeli bor mahsulot karuselda birinchi turadi va aylanadi.
 
 Papkalar boʻlmasa yoki katalog oʻzgargan boʻlsa, avval `npm run assets:brief` buyrugʻini ishga tushiring. U promptlarni va papkalarni qayta yaratadi.
 

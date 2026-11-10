@@ -4,10 +4,10 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import type { RefObject } from "react";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import type { WorldSlug } from "@/content/types";
 import { worlds } from "@/content/worlds";
 import { bladeLayout, RING } from "@/lib/portal";
+import { ProceduralEnvironment } from "./environment";
 
 /*
  * The Sunray Portal, docs/DESIGN-SYSTEM.md section 6. One instanced mesh, so one draw call for
@@ -273,24 +273,6 @@ function Blades({ world, count, pointer, bindInvalidate, onReady }: Omit<PortalS
       <ProceduralEnvironment />
     </>
   );
-}
-
-/**
- * Reflections come from three's RoomEnvironment: a box of procedural light panels, prefiltered
- * once with PMREM. No HDRI is downloaded. Each world scales it through envMapIntensity.
- */
-function ProceduralEnvironment() {
-  const gl = useThree((state) => state.gl);
-  const target = useMemo(() => {
-    const pmrem = new THREE.PMREMGenerator(gl);
-    const room = new RoomEnvironment();
-    const result = pmrem.fromScene(room, 0.04);
-    room.dispose();
-    pmrem.dispose();
-    return result;
-  }, [gl]);
-  useEffect(() => () => target.dispose(), [target]);
-  return <primitive object={target.texture} attach="environment" />;
 }
 
 export default function PortalScene({ onFail, ...props }: PortalSceneProps) {

@@ -1,6 +1,14 @@
 {
   "version": 1,
   "items": [],
-  "models": [],
+  "models": [
+    {
+      "productHandle": "night-runner",
+      "colorSlug": "qora",
+      "url": "/media/ai/3d/night-runner-qora.glb",
+      "bytes": 1871220,
+      "triangles": 22700
+    }
+  ],
   "scenes": []
 }
