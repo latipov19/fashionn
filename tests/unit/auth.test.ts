@@ -3,7 +3,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { SESSION_COOKIE, UnauthorizedError, getSession, login, logout, requireAdmin, requireAdminPage } from "@/server/auth";
 import * as adminActions from "@/server/actions/admin";
 import { loginAction, logoutAction } from "@/server/actions/auth";
-import { adminGetProduct, adminListCloths, adminListProducts } from "@/server/catalog";
+import { copy } from "@/content/copy";
+import { adminGetProduct, adminListProducts } from "@/server/catalog";
 import { closeDb, getDb } from "@/server/db/client";
 import { adminSessions, products } from "@/server/db/schema";
 import { adminGetOrder, adminListOrders, cancelOrder, setOrderStatus } from "@/server/orders";
@@ -82,7 +83,7 @@ describe("sessions", () => {
     await expect(loginAction({ message: null }, form({ email, password }))).rejects.toMatchObject({ url: "/admin" });
     jar().clear();
     expect(await loginAction({ message: null }, form({ email, password: "wrong" }))).toEqual({
-      message: "That email and password do not match.",
+      message: copy.admin.login.failed,
     });
     await expect(logoutAction()).rejects.toMatchObject({ url: "/admin/login" });
   });
@@ -112,7 +113,7 @@ describe("login rate limit", () => {
   it("uses the address from the request in the action", async () => {
     setIp("3.3.3.3");
     for (let i = 0; i < 5; i += 1) await loginAction({ message: null }, form({ email, password: "wrong" }));
-    expect((await loginAction({ message: null }, form({ email, password }))).message).toContain("Too many attempts");
+    expect((await loginAction({ message: null }, form({ email, password }))).message).toBe(copy.admin.login.tooMany);
     setIp("4.4.4.4");
     await expect(loginAction({ message: null }, form({ email, password }))).rejects.toMatchObject({ url: "/admin" });
   });
@@ -129,9 +130,9 @@ describe("login rate limit", () => {
 
 describe("authorization without a session", () => {
   it("every admin action refuses and changes nothing", async () => {
-    const variant = await variantOf("quiet-uzun-palto", "tosh", "S");
+    const variant = await variantOf("quiet-uzun-palto", "tosh", "M");
     const db = await getDb();
-    const [product] = await db.select().from(products).where(eq(products.slug, "quiet-uzun-palto"));
+    const [product] = await db.select().from(products).where(eq(products.handle, "quiet-uzun-palto"));
 
     const upload = form({ productId: product!.id, colorId: ID, alt: "x" });
     const calls: [string, () => Promise<{ ok: boolean; code?: string }>][] = [
@@ -153,8 +154,8 @@ describe("authorization without a session", () => {
     }
 
     expect(await stockOf(variant.id)).toBe(variant.stock);
-    const [after] = await db.select().from(products).where(eq(products.slug, "quiet-uzun-palto"));
-    expect(after).toMatchObject({ name: "Lintel Coat", published: true });
+    const [after] = await db.select().from(products).where(eq(products.handle, "quiet-uzun-palto"));
+    expect(after).toMatchObject({ name: "Quiet Uzun Palto", published: true });
   });
 
   it("the action list above covers every exported action", () => {
@@ -179,7 +180,6 @@ describe("authorization without a session", () => {
     for (const read of [
       () => adminListProducts(),
       () => adminGetProduct(ID),
-      () => adminListCloths(),
       () => adminListOrders(),
       () => adminGetOrder(ID),
       () => setOrderStatus(ID, "packed"),

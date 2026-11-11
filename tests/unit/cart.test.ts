@@ -77,12 +77,12 @@ describe("cart cookie tampering", () => {
   });
 
   it("prices a tampered cart from the database, dropping unknown variants", async () => {
-    const coat = await variantOf("quiet-uzun-palto", "slate", "S");
-    setCookie(JSON.stringify([[coat.id, 2, 1], [randomUUID(), 3]]));
+    const bomber = await variantOf("blackout-bomber", "qora", "S");
+    setCookie(JSON.stringify([[bomber.id, 2, 1], [randomUUID(), 3]]));
     const cart = await getCart();
     expect(cart.lines).toHaveLength(1);
-    expect(cart.lines[0]).toMatchObject({ unitPriceUzs: 92_000, lineTotalUzs: 184_000, productName: "Lintel Coat", colorName: "Slate", size: "S" });
-    expect(cart.subtotalUzs).toBe(184_000);
+    expect(cart.lines[0]).toMatchObject({ unitPriceUzs: 1_290_000, lineTotalUzs: 2_580_000, productName: "Blackout Bomber", colorName: "Qora", size: "S" });
+    expect(cart.subtotalUzs).toBe(2_580_000);
     expect(cart.count).toBe(2);
     expect(cart.changed).toBe(true);
   });
@@ -90,40 +90,40 @@ describe("cart cookie tampering", () => {
 
 describe("cart view", () => {
   it("caps a line at current stock and flags the change", async () => {
-    const variant = await variantOf("transom-cape", "oat", "One size");
+    const variant = await variantOf("signal-tote", "sut", "Yagona");
     await forceStock(variant.id, 1);
     setCookie(serializeCart([{ variantId: variant.id, quantity: 3 }]));
     const cart = await getCart();
-    expect(cart.lines[0]).toMatchObject({ quantity: 1, requestedQuantity: 3, stock: 1, lineTotalUzs: 68_000 });
+    expect(cart.lines[0]).toMatchObject({ quantity: 1, requestedQuantity: 3, stock: 1, lineTotalUzs: 320_000 });
     expect(cart.changed).toBe(true);
   });
 
   it("treats an unpublished product as unavailable", async () => {
-    const variant = await variantOf("transom-cape", "fir", "One size");
+    const variant = await variantOf("signal-tote", "qum", "Yagona");
     const db = await getDb();
-    await db.update(products).set({ published: false }).where(eq(products.slug, "transom-cape"));
+    await db.update(products).set({ published: false }).where(eq(products.handle, "signal-tote"));
     setCookie(serializeCart([{ variantId: variant.id, quantity: 1 }]));
     const cart = await getCart();
     expect(cart.lines[0]).toMatchObject({ quantity: 0, stock: 0, lineTotalUzs: 0 });
-    await db.update(products).set({ published: true }).where(eq(products.slug, "transom-cape"));
+    await db.update(products).set({ published: true }).where(eq(products.handle, "signal-tote"));
   });
 });
 
 describe("cart actions", () => {
   it("adds, merges and stays within stock", async () => {
-    const variant = await variantOf("purlin-vest", "black", "M");
+    const variant = await variantOf("static-hudi", "kul", "M");
     await forceStock(variant.id, 3);
 
     expect(await addToCartAction(idle, form({ variantId: variant.id, quantity: 2 }))).toEqual({ status: "added", message: copy.micro.added });
     expect(cookieLines()).toEqual([{ variantId: variant.id, quantity: 2 }]);
     expect(jar().get(CART_COOKIE)?.options).toMatchObject({ httpOnly: true, sameSite: "lax", path: "/" });
 
-    expect(await addToCartAction(idle, form({ variantId: variant.id, quantity: 2 }))).toEqual({ status: "added", message: "Only 3 left" });
+    expect(await addToCartAction(idle, form({ variantId: variant.id, quantity: 2 }))).toEqual({ status: "added", message: copy.micro.onlyLeft(3) });
     expect(cookieLines()).toEqual([{ variantId: variant.id, quantity: 3 }]);
   });
 
   it("refuses sold out, unknown and malformed input", async () => {
-    const variant = await variantOf("purlin-vest", "black", "L");
+    const variant = await variantOf("static-hudi", "kul", "L");
     await forceStock(variant.id, 0);
     expect(await addToCartAction(idle, form({ variantId: variant.id }))).toEqual({ status: "error", message: copy.micro.soldOut });
     expect(await addToCartAction(idle, form({ variantId: randomUUID() }))).toEqual({ status: "error", message: copy.micro.soldOut });
@@ -133,21 +133,21 @@ describe("cart actions", () => {
   });
 
   it("refuses a 21st line", async () => {
-    const variant = await variantOf("purlin-vest", "flax", "L");
+    const variant = await variantOf("static-hudi", "zaytun", "L");
     setCookie(serializeCart(Array.from({ length: 20 }, () => ({ variantId: randomUUID(), quantity: 1 }))));
     expect(await addToCartAction(idle, form({ variantId: variant.id }))).toEqual({ status: "error", message: copy.cart.full });
   });
 
   it("updates, caps, removes at zero and removes outright", async () => {
-    const a = await variantOf("arcade-trouser", "clay", "28");
-    const b = await variantOf("arcade-trouser", "clay", "30");
+    const a = await variantOf("rivet-kargo", "loy", "S");
+    const b = await variantOf("rivet-kargo", "loy", "M");
     await forceStock(a.id, 4);
     setCookie(serializeCart([{ variantId: a.id, quantity: 1 }, { variantId: b.id, quantity: 1 }]));
 
     expect(await updateCartLineAction(idle, form({ variantId: a.id, quantity: 3 }))).toEqual({ status: "updated" });
     expect(cookieLines()[0]?.quantity).toBe(3);
 
-    expect(await updateCartLineAction(idle, form({ variantId: a.id, quantity: 9 }))).toEqual({ status: "updated", message: "Only 4 left" });
+    expect(await updateCartLineAction(idle, form({ variantId: a.id, quantity: 9 }))).toEqual({ status: "updated", message: copy.micro.onlyLeft(4) });
     expect(cookieLines()[0]?.quantity).toBe(4);
 
     expect(await updateCartLineAction(idle, form({ variantId: a.id, quantity: 0 }))).toEqual({ status: "removed" });
@@ -160,20 +160,18 @@ describe("cart actions", () => {
 
 describe("checkout action", () => {
   const details = (key: string) => ({
+    customerName: "Ali Valiyev",
+    phone: "+998 90 123 45 67",
     email: "shopper@example.com",
-    fullName: "Ana Shopper",
-    line1: "1 Long Street",
-    city: "Portland",
-    region: "OR",
-    postalCode: "97201",
-    country: "United States",
-    shippingMethod: "standard",
+    region: "toshkent-shahri",
+    city: "Toshkent",
+    addressLine: "Chilonzor 9, 12-uy",
     idempotencyKey: key,
   });
 
   it("reads lines from the cookie only, clears the cart and redirects", async () => {
     resetRateLimits();
-    const variant = await variantOf("cornice-scarf", "rose-clay", "One size");
+    const variant = await variantOf("pulse-kepka", "zaytun", "Yagona");
     setCookie(serializeCart([{ variantId: variant.id, quantity: 1 }]));
     const data = form(details(uniqueKey()));
     data.set("lines", JSON.stringify([{ variantId: randomUUID(), quantity: 5 }]));
@@ -186,7 +184,7 @@ describe("checkout action", () => {
 
   it("a double submit lands on the same order even though the cookie is gone", async () => {
     resetRateLimits();
-    const variant = await variantOf("cornice-scarf", "saffron", "One size");
+    const variant = await variantOf("pulse-kepka", "loy", "Yagona");
     setCookie(serializeCart([{ variantId: variant.id, quantity: 1 }]));
     const data = form(details(uniqueKey()));
     const first = await placeOrderAction(initialCheckoutState, data).catch((error) => error);
@@ -197,22 +195,22 @@ describe("checkout action", () => {
 
   it("keeps typed values and field errors, and takes nothing", async () => {
     resetRateLimits();
-    const variant = await variantOf("apse-skirt", "camel", "M");
+    const variant = await variantOf("drift-midi-yubka", "tosh", "M");
     setCookie(serializeCart([{ variantId: variant.id, quantity: 1 }]));
     const state = await placeOrderAction(initialCheckoutState, form({ ...details(uniqueKey()), email: "nope" }));
     expect(state.values.email).toBe("nope");
-    expect(state.values.city).toBe("Portland");
+    expect(state.values.city).toBe("Toshkent");
     expect(state.fieldErrors.email).toBe(copy.forms.email);
     expect(await stockOf(variant.id)).toBe(variant.stock);
   });
 
   it("rewrites the cart and says so when stock has changed", async () => {
     resetRateLimits();
-    const variant = await variantOf("apse-skirt", "camel", "L");
+    const variant = await variantOf("drift-midi-yubka", "tosh", "L");
     await forceStock(variant.id, 1);
     setCookie(serializeCart([{ variantId: variant.id, quantity: 3 }]));
     const state = await placeOrderAction(initialCheckoutState, form(details(uniqueKey())));
-    expect(state.message).toBe("Only 1 left in this size. We changed your cart.");
+    expect(state.message).toBe(copy.checkout.stockChanged(1));
     expect(state.cartChanged).toBe(true);
     expect(cookieLines()).toEqual([{ variantId: variant.id, quantity: 1 }]);
   });

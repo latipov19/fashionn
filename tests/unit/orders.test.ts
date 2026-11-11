@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { copy } from "@/content/copy";
 import { closeDb, getDb } from "@/server/db/client";
-import { orderItems } from "@/server/db/schema";
+import { orderItems, products } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import type { PlaceOrderInput } from "@/lib/validation";
 import { adminGetOrder, adminListOrders, cancelOrder, getOrderByToken, placeOrder, setOrderStatus } from "@/server/orders";
@@ -22,11 +22,11 @@ async function mustPlace(input: PlaceOrderInput) {
 describe("totals", () => {
   it("ignores every price the client sends", async () => {
     const coat = await variantOf("quiet-uzun-palto", "tosh", "M");
-    const scarf = await variantOf("cornice-scarf", "saffron", "One size");
+    const tote = await variantOf("signal-tote", "sut", "Yagona");
     const tampered = {
       ...checkoutInput([
         { variantId: coat.id, quantity: 2, unitPriceUzs: 1, priceUzs: 1 } as never,
-        { variantId: scarf.id, quantity: 1, unitPriceUzs: 1 } as never,
+        { variantId: tote.id, quantity: 1, unitPriceUzs: 1 } as never,
       ]),
       subtotalUzs: 1,
       totalUzs: 1,
@@ -35,20 +35,22 @@ describe("totals", () => {
 
     const { order } = await mustPlace(tampered as PlaceOrderInput);
 
-    expect(order.subtotalUzs).toBe(92_000 * 2 + 16_000);
-    expect(order.deliveryUzs).toBe(1800);
-    expect(order.taxCents).toBe(0);
-    expect(order.totalUzs).toBe(200_000 + 1800);
-    expect(order.lines.map((line) => line.unitPriceUzs).sort()).toEqual([16_000, 92_000]);
+    expect(order.subtotalUzs).toBe(1_890_000 * 2 + 320_000);
+    expect(order.deliveryUzs).toBe(30_000);
+    expect(order.totalUzs).toBe(4_100_000 + 30_000);
+    expect(order.lines.map((line) => line.unitPriceUzs).sort((a, b) => a - b)).toEqual([320_000, 1_890_000]);
+    expect(order.phone).toBe("+998901234567");
+    expect(order.address).toEqual({ region: "toshkent-shahri", city: "Toshkent", line: "Chilonzor 9, 12-uy" });
+    expect(order.deliveryZone).toBe("tashkent");
     expect(order.status).toBe("pending");
     expect(order.email).toBe("shopper@example.com");
     expect(order.paymentProvider).toBe("pay_on_delivery");
     expect(order.paymentStatus).toBe("pending");
-    expect(order.number).toMatch(/^L-\d{6}$/);
+    expect(order.number).toMatch(/^VV-\d{6}$/);
   });
 
   it("sums duplicate lines before taking stock", async () => {
-    const variant = await variantOf("purlin-vest", "flax", "S");
+    const variant = await variantOf("noir-oversize-hudi", "qora", "S");
     await forceStock(variant.id, 3);
     const { order } = await mustPlace(checkoutInput([{ variantId: variant.id, quantity: 2 }, { variantId: variant.id, quantity: 1 }]));
     expect(order.lines).toHaveLength(1);
@@ -59,14 +61,14 @@ describe("totals", () => {
 
 describe("stock", () => {
   it("decrements in the same transaction as the order", async () => {
-    const variant = await variantOf("jamb-jacket", "putty", "S");
+    const variant = await variantOf("still-zigir-koylak", "sut", "S");
     const before = variant.stock;
     await mustPlace(checkoutInput([{ variantId: variant.id, quantity: 2 }]));
     expect(await stockOf(variant.id)).toBe(before - 2);
   });
 
   it("lets exactly one of two orders take the last unit", async () => {
-    const variant = await variantOf("nave-dress", "pearl", "S");
+    const variant = await variantOf("calm-keng-shim", "qum", "M");
     await forceStock(variant.id, 1);
     const before = await orderCount();
 
@@ -77,14 +79,14 @@ describe("stock", () => {
 
     expect(results.filter((result) => result.ok)).toHaveLength(1);
     const loser = results.find((result) => !result.ok);
-    expect(loser).toMatchObject({ ok: false, code: "stock", message: "That size has sold out. We changed your cart." });
+    expect(loser).toMatchObject({ ok: false, code: "stock", message: copy.checkout.stockChanged(0) });
     expect(await stockOf(variant.id)).toBe(0);
     expect(await orderCount()).toBe(before + 1);
   });
 
   it("rolls the whole order back when one line lacks stock", async () => {
-    const plenty = await variantOf("apse-skirt", "camel", "S");
-    const short = await variantOf("apse-skirt", "ash", "S");
+    const plenty = await variantOf("drift-midi-yubka", "sut", "M");
+    const short = await variantOf("drift-midi-yubka", "tosh", "M");
     await forceStock(plenty.id, 5);
     await forceStock(short.id, 1);
     const before = await orderCount();
@@ -108,7 +110,7 @@ describe("stock", () => {
   });
 
   it("rolls back when payment is refused", async () => {
-    const variant = await variantOf("arcade-trouser", "stone", "32");
+    const variant = await variantOf("vector-texnik-shim", "komir", "S");
     const refusing: PaymentProvider = { id: "test", authorize: async () => ({ ok: false, provider: "test" }) };
     const before = await orderCount();
     const result = await placeOrder(checkoutInput([{ variantId: variant.id, quantity: 1 }]), refusing);
@@ -119,13 +121,13 @@ describe("stock", () => {
 
   it("refuses an empty cart and invalid details", async () => {
     expect(await placeOrder(checkoutInput([]))).toMatchObject({ ok: false, code: "empty_cart" });
-    const variant = await variantOf("arcade-trouser", "stone", "30");
+    const variant = await variantOf("vector-texnik-shim", "komir", "M");
     const bad = checkoutInput([{ variantId: variant.id, quantity: 1 }]);
-    const result = await placeOrder({ ...bad, email: "nope", address: { ...bad.address, city: " " } });
+    const result = await placeOrder({ ...bad, email: "nope", city: " " });
     expect(result).toMatchObject({ ok: false, code: "validation" });
     if (!result.ok && result.code === "validation") {
       expect(result.fieldErrors.email).toBe(copy.forms.email);
-      expect(result.fieldErrors["address.city"]).toBe(copy.forms.required);
+      expect(result.fieldErrors.city).toBe(copy.forms.required);
     }
     expect(await stockOf(variant.id)).toBe(variant.stock);
   });
@@ -133,7 +135,7 @@ describe("stock", () => {
 
 describe("idempotency", () => {
   it("returns the first order for a repeated key and takes stock once", async () => {
-    const variant = await variantOf("spandrel-top", "ivory", "S");
+    const variant = await variantOf("grid-termo-futbolka", "komir", "S");
     const before = await orderCount();
     const key = uniqueKey();
     const input = checkoutInput([{ variantId: variant.id, quantity: 1 }], key);
@@ -151,7 +153,7 @@ describe("idempotency", () => {
   });
 
   it("handles a double submit racing itself", async () => {
-    const variant = await variantOf("spandrel-top", "ochre", "S");
+    const variant = await variantOf("grid-termo-futbolka", "kumush", "S");
     const key = uniqueKey();
     const input = checkoutInput([{ variantId: variant.id, quantity: 1 }], key);
 
@@ -162,7 +164,7 @@ describe("idempotency", () => {
   });
 
   it("still returns the order after the first submit cleared the cart", async () => {
-    const variant = await variantOf("frieze-tunic", "natural", "S");
+    const variant = await variantOf("field-ish-kurtka", "zaytun", "S");
     const key = uniqueKey();
     const first = await mustPlace(checkoutInput([{ variantId: variant.id, quantity: 1 }], key));
     const second = await mustPlace(checkoutInput([], key));
@@ -172,7 +174,7 @@ describe("idempotency", () => {
 
 describe("confirmation token", () => {
   it("is at least 32 random bytes and is the only public lookup", async () => {
-    const variant = await variantOf("frieze-tunic", "madder", "S");
+    const variant = await variantOf("field-ish-kurtka", "loy", "M");
     const { order } = await mustPlace(checkoutInput([{ variantId: variant.id, quantity: 1 }]));
     expect(Buffer.from(order.token, "base64url").length).toBeGreaterThanOrEqual(32);
     expect((await getOrderByToken(order.token))?.id).toBe(order.id);
@@ -185,12 +187,14 @@ describe("confirmation token", () => {
 describe("status changes", () => {
   it("walks the happy path and lists for admin", async () => {
     await signIn();
-    const variant = await variantOf("clerestory-overshirt", "sand", "S");
+    const variant = await variantOf("mono-shell-kurtka", "komir", "S");
     const { order } = await mustPlace(checkoutInput([{ variantId: variant.id, quantity: 2 }]));
 
+    expect(await setOrderStatus(order.id, "confirmed")).toEqual({ ok: true, status: "confirmed" });
     expect(await setOrderStatus(order.id, "packed")).toEqual({ ok: true, status: "packed" });
     expect(await setOrderStatus(order.id, "shipped")).toEqual({ ok: true, status: "shipped" });
     expect(await setOrderStatus(order.id, "delivered")).toEqual({ ok: true, status: "delivered" });
+    expect(await stockOf(variant.id)).toBe(variant.stock - 2);
 
     const list = await adminListOrders();
     const row = list.find((item) => item.id === order.id);
@@ -198,17 +202,25 @@ describe("status changes", () => {
     expect(row).not.toHaveProperty("token");
     expect((await adminGetOrder(order.id))?.lines[0]?.quantity).toBe(2);
     expect((await adminListOrders({ status: "delivered" })).every((item) => item.status === "delivered")).toBe(true);
+
+    // A return after delivery brings the stock back, once.
+    expect(await setOrderStatus(order.id, "returned")).toEqual({ ok: true, status: "returned" });
+    expect(await stockOf(variant.id)).toBe(variant.stock);
+    expect(await setOrderStatus(order.id, "returned")).toMatchObject({ ok: false, code: "invalid_transition" });
+    expect(await stockOf(variant.id)).toBe(variant.stock);
   });
 
   it("refuses invalid changes", async () => {
     await signIn();
-    const variant = await variantOf("clerestory-overshirt", "rust", "S");
+    const variant = await variantOf("mono-shell-kurtka", "kumush", "M");
     const { order } = await mustPlace(checkoutInput([{ variantId: variant.id, quantity: 1 }]));
 
     expect(await setOrderStatus(order.id, "shipped")).toEqual({ ok: false, code: "invalid_transition", from: "pending", to: "shipped" });
     expect(await setOrderStatus(order.id, "delivered")).toMatchObject({ ok: false, code: "invalid_transition" });
     expect(await setOrderStatus(order.id, "pending")).toMatchObject({ ok: false, code: "invalid_transition" });
 
+    await setOrderStatus(order.id, "confirmed");
+    expect(await setOrderStatus(order.id, "shipped")).toMatchObject({ ok: false, code: "invalid_transition" });
     await setOrderStatus(order.id, "packed");
     expect(await setOrderStatus(order.id, "packed")).toMatchObject({ ok: false, code: "invalid_transition" });
     await setOrderStatus(order.id, "shipped");
@@ -221,8 +233,8 @@ describe("status changes", () => {
 
   it("restores stock on cancel exactly once", async () => {
     await signIn();
-    const variant = await variantOf("mullion-shirt", "white", "S");
-    const other = await variantOf("mullion-shirt", "pale-blue", "S");
+    const variant = await variantOf("alloy-krossovka", "kumush", "40");
+    const other = await variantOf("orbit-sling", "kumush", "Yagona");
     const { order } = await mustPlace(
       checkoutInput([
         { variantId: variant.id, quantity: 3 },
@@ -243,7 +255,7 @@ describe("status changes", () => {
 
   it("restores stock once when two cancels race", async () => {
     await signIn();
-    const variant = await variantOf("mullion-shirt", "white", "M");
+    const variant = await variantOf("alloy-krossovka", "kumush", "41");
     const { order } = await mustPlace(checkoutInput([{ variantId: variant.id, quantity: 2 }]));
     const results = await Promise.all([cancelOrder(order.id), cancelOrder(order.id)]);
     expect(results.filter((result) => result.ok)).toHaveLength(1);
@@ -251,10 +263,13 @@ describe("status changes", () => {
   });
 
   it("keeps the price paid even if the product is repriced later", async () => {
-    const variant = await variantOf("mullion-shirt", "pale-blue", "M");
+    await signIn();
+    const variant = await variantOf("pulse-kepka", "loy", "Yagona");
     const { order } = await mustPlace(checkoutInput([{ variantId: variant.id, quantity: 1 }]));
     const db = await getDb();
+    await db.update(products).set({ priceUzs: 1, name: "Renamed" }).where(eq(products.handle, "pulse-kepka"));
     const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
-    expect(items[0]).toMatchObject({ unitPriceUzs: 24_000, productName: "Mullion Shirt", colorName: "Pale Blue", size: "M" });
+    expect(items[0]).toMatchObject({ unitPriceUzs: 190_000, productName: "Pulse Kepka", colorName: "Loy", size: "Yagona" });
+    expect((await adminGetOrder(order.id))?.totalUzs).toBe(190_000 + 30_000);
   });
 });

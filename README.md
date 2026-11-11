@@ -49,17 +49,18 @@ Bitta mahsulot bir nechta olamda boʻlishi mumkin, jami 20 ta mahsulot bor.
 
 ## Hozir nima ishlaydi, nima yoʻq
 
-Loyiha avval **Lierne** nomli boshqa doʻkon edi. Hozir u VYBEVERSE'ga koʻchirilmoqda. Dizayn tizimi, sayt qobigʻi va bosh sahifa tayyor. Savdo mantigʻi serverda tayyor, lekin qolgan sahifalar hali yozilmagan.
+Loyiha avval **Lierne** nomli boshqa doʻkon edi. Hozir u VYBEVERSE'ga koʻchirilmoqda. Dizayn tizimi, sayt qobigʻi va olam sahifalari tayyor. Savdo mantigʻi serverda tayyor, lekin qolgan sahifalar hali yozilmagan.
 
 ### ✅ Ishlaydi
 
 | Nima | Izoh |
 |---|---|
-| Bosh sahifa `/` | `docs/DESIGN-SYSTEM.md` boʻyicha qurilgan. **Sunray Portal** — 3D plisse halqa, ichida haqiqiy mahsulot. 4 ta olam almashtirgichi: tanlanganda butun sayt rangi, shrifti va portal materiali oʻzgaradi, halqa boʻylab toʻlqin yuradi. Shuningdek The Current Drop (4 ta mahsulot), Build Your Look (olamdagi toʻliq obraz va uning jami narxi), Biz haqimizda va ishonch bloki bor. Olam URL'da saqlanadi: `/?world=soft-signal`. |
+| Olam sahifalari | Navbar'dagi 5 ta sahifa, har biri desktop'da bitta ekranga sigʻadi (telefonda oddiy scroll): `/` — **Sunray Portal** (3D plisse halqa, ichida haqiqiy mahsulot) va 4 ta olam almashtirgichi; `/drop` — The Current Drop (4 ta mahsulot); `/showroom` — 3D Showroom; `/look` — Build Your Look (olamdagi toʻliq obraz va jami narx); `/about` — manifest, katalog raqamlari va «Xarid qanday ishlaydi». Olam tanlanganda butun sayt rangi, shrifti va portal materiali oʻzgaradi. Olam URL'da saqlanadi (`?world=soft-signal`) va sahifadan sahifaga oʻtganda ham saqlanib qoladi. Har sahifa oxirida «Keyingi sahifa» havolasi bor. |
 | Sunray Portal zaxirasi | WebGL boʻlmasa, `prefers-reduced-motion` yoqilgan boʻlsa yoki Yengil rejimda 3D yuklanmaydi. Oʻrniga xuddi shu matematikadan chizilgan SVG poster chiqadi. 3D qismi sahifa chizilgandan keyin, brauzer boʻsh paytda yuklanadi. |
-| 3D Showroom | Bosh sahifada, The Current Drop'dan keyin. Olamning 7 tagacha mahsuloti yoy boʻylab turadi, orqada katta VYBEVERSE yozuvi. 3D modeli (GLB) bor mahsulot haqiqiy model boʻlib chiqadi, sekin aylanadi, sichqoncha yoki barmoq bilan sudrab aylantiriladi. Modeli yoʻq mahsulot rasmli kartochka boʻlib turadi. Modeli bor mahsulotlar birinchi turadi. 3D boʻlim ekranga yaqinlashganda yuklanadi va faqat ekranda koʻrinib turganda chiziladi. WebGL boʻlmasa, harakat kamaytirilgan boʻlsa yoki Yengil rejimda oʻrniga oddiy CSS karusel chiqadi. |
+| 3D Showroom | `/showroom` sahifasida. Olamning 7 tagacha mahsuloti yoy boʻylab turadi, orqada katta VYBEVERSE yozuvi. 3D modeli (GLB) bor mahsulot haqiqiy model boʻlib chiqadi, sekin aylanadi, sichqoncha yoki barmoq bilan sudrab aylantiriladi. Modeli yoʻq mahsulot rasmli kartochka boʻlib turadi. Modeli bor mahsulotlar birinchi turadi. 3D boʻlim ekranga yaqinlashganda yuklanadi va faqat ekranda koʻrinib turganda chiziladi. WebGL boʻlmasa, harakat kamaytirilgan boʻlsa yoki Yengil rejimda oʻrniga oddiy CSS karusel chiqadi. |
 | Dizayn tizimi | Ranglar, shrift ovozi va portal materiali faqat `src/content/worlds.ts`da belgilanadi. Shriftlar: Geologica, Sofia Sans Extra Condensed, Cormorant. |
-| Sayt qobigʻi | Demo bandi, header (menyu, qidiruv, savat soni, telefonda menyu tugmasi), footer va **Yengil rejim** tugmasi (3D va harakatni oʻchiradi, brauzerda saqlanadi). |
+| Sayt qobigʻi | Demo bandi, suzuvchi shisha header (5 ta sahifa havolasi, qidiruv, savat soni; 1200 px dan tor ekranda menyu tugmasi, unda olamlar ham bor), footer va **Yengil rejim** tugmasi (3D, harakat va blur'ni oʻchiradi, brauzerda saqlanadi). |
+| 404 sahifa | Nomaʼlum manzil va hali qurilmagan sahifalar VYBEVERSE uslubidagi oʻzbekcha 404 sahifani ochadi, bosh sahifa va dropga qaytish tugmalari bilan. |
 | Demo rasmlar | 20 ta mahsulotning har bir rangi uchun kod orqali chizilgan kiyim eskizi (37 ta rasm, 3 oʻlchamda). Rasm burchagida DEMO yozuvi bor. |
 | AI materiallar zanjiri | Haqiqiy kiyim yoʻqligi sababli suratlar va 3D modellar AI orqali yaratiladi. Har bir fayl uchun prompt: [docs/AI-PROMPTS.md](docs/AI-PROMPTS.md), yoʻriqnoma: [docs/AI-ASSETS.md](docs/AI-ASSETS.md). Import qilingan AI surati eskizdan oldinga chiqadi. |
 | Maʼlumotlar bazasi | Birinchi soʻrovda oʻzi yaratiladi, migratsiya qilinadi va demo katalog bilan toʻldiriladi. |
@@ -68,17 +69,16 @@ Loyiha avval **Lierne** nomli boshqa doʻkon edi. Hozir u VYBEVERSE'ga koʻchiri
 
 ### ❌ Hali yoʻq
 
-- `/shop`, `/worlds`, mahsulot sahifasi, `/cart`, `/checkout` — hammasi **404** qaytaradi.
+- `/shop`, `/worlds`, mahsulot sahifasi, `/cart`, `/checkout` — hali yozilmagan, 404 sahifani ochadi.
 - Admin panel. `/admin` manzili `/admin/login`ga yoʻnaltiradi, u yerda esa sahifa yoʻq (404).
 - Haqiqiy mahsulot fotolari (hozir kod orqali chizilgan demo eskizlar) va onlayn toʻlov.
-- Bosh sahifadagi havolalar (mahsulot, olam, Shop Fast, savat) hozircha 404 sahifaga olib boradi, chunki ular keyingi qadamlarda quriladi.
+- Mahsulot kartalari, qidiruv va savat tugmalari hozircha 404 sahifaga olib boradi, chunki bu sahifalar keyingi qadamlarda quriladi.
 
 ### ⚠️ Maʼlum muammolar
 
 | Muammo | Tafsilot |
 |---|---|
-| Unit testlar eskirgan | Testlar hali Lierne modelida yozilgan: 69 tadan 23 tasi oʻtadi, 46 tasi yiqiladi. Testlarda 115 ta TypeScript xatosi bor. `src/` papkasida xato **yoʻq**. |
-| `npm run build` yiqiladi | Kod kompilyatsiyadan oʻtadi, lekin Next build paytida testlardagi tip xatolarini ham tekshiradi va toʻxtaydi. Testlar yangilanmaguncha production build chiqmaydi. |
+| Testlarni `E:\fashion` (katta **E**) papkasidan ishga tushiring | Windows'da terminal `e:\fashion` (kichik e) yoʻlida ochilgan boʻlsa, Vitest oʻzini ikki nusxada yuklaydi va `Vitest failed to find the runner` xatosini beradi. Bu kod xatosi emas: `cd E:\fashion` qilib qayta ishga tushiring. |
 | Konsolda `THREE.Clock` ogohlantirishi | React Three Fiber 9.8 kutubxonasining ichidan keladi. Ishlashga taʼsir qilmaydi, kutubxona yangilanganda yoʻqoladi. |
 
 Ish rejasi va bosqichlari: [docs/IMPLEMENTATION-PLAN.md](docs/IMPLEMENTATION-PLAN.md).
@@ -167,11 +167,11 @@ Admin panel hali yozilmagan, lekin akkaunt bazada yaratib qoʻyiladi.
 | Buyruq | Nima qiladi | Hozirgi holati |
 |---|---|---|
 | `npm run dev` | Dev serverni ishga tushiradi: http://localhost:3100 | ✅ Ishlaydi |
-| `npm run build` | Production build | ❌ Testlardagi tip xatolari sabab toʻxtaydi |
-| `npm run start` | Production serverni ishga tushiradi (avval build kerak) | ❌ Build boʻlmagani uchun ishlamaydi |
-| `npm run lint` | ESLint | `src/`da xato yoʻq, 1 ta ogohlantirish bor |
-| `npm run typecheck` | TypeScript tekshiruvi | `src/` toza, testlarda 115 ta xato |
-| `npm test` | Unit testlar (Vitest) | 23 tasi oʻtadi, 46 tasi yiqiladi |
+| `npm run build` | Production build | ✅ Ishlaydi |
+| `npm run start` | Production serverni ishga tushiradi (avval build kerak) | Avval `npm run dev`ni toʻxtating: PGlite bir vaqtda bitta jarayonga ruxsat beradi |
+| `npm run lint` | ESLint | ✅ Xato va ogohlantirish yoʻq |
+| `npm run typecheck` | TypeScript tekshiruvi | ✅ Butun loyiha toza |
+| `npm test` | Unit testlar (Vitest) | ✅ 117 ta test oʻtadi |
 | `npm run test:e2e` | Playwright (Chrome orqali) | `tests/e2e` hali yoʻq |
 | `npm run db:generate` | Sxemadan yangi migratsiya yaratadi | — |
 | `npm run db:seed` | Bazani migratsiya qiladi va toʻldiradi | Avval `npm run dev`ni toʻxtating |
@@ -188,20 +188,24 @@ Admin panel hali yozilmagan, lekin akkaunt bazada yaratib qoʻyiladi.
 ```
 src/
   app/                  Sahifalar (Next App Router)
-    page.tsx            Bosh sahifa
+    page.tsx            Bosh sahifa: Sunray Portal va olam almashtirgich
+    drop/ showroom/     Olam sahifalari: Drop, 3D Showroom,
+    look/ about/          Obraz, Biz haqimizda
+    not-found.tsx       404 sahifa
     layout.tsx          Umumiy qolip: shriftlar, olam tokenlari, header, footer
     globals.css         Dizayn tizimi: oʻlchamlar, shrift shkalasi, komponent uslublari
     uploads/[file]/     Yuklangan rasmlarni beradi
   components/
     shell/              Header, mobil menyu, footer, Yengil rejim tugmasi
-    world/              Olam almashtirgich, Sunray Portal, SVG poster
+    world/              Hero, Sunray Portal, 3D Showroom, Look, sahifa qobigʻi (WorldPage)
     product/            Mahsulot kartasi, narx
-    motion/             Scroll'da paydo boʻlish (GSAP)
+    motion/             Scroll'da paydo boʻlish (GSAP), magnit tugmalar
     ui/                 Tugma, maydon, toast, logo
   scene/                3D sahna. three faqat shu yerda import qilinadi
   content/              Matn va demo maʼlumotlar
     locales/uz.ts       Saytdagi barcha oʻzbekcha matnlar
     worlds.ts           4 ta olam: ranglar, shriftlar, uslub
+    pages.ts            Navbar sahifalari va ularning tartibi
     catalog.demo.ts     Demo katalog (20 ta mahsulot)
     commerce.ts         Yetkazib berish hududlari va narxlari (namuna)
   lib/                  Pul, qidiruv, validatsiya, portal geometriyasi (bazasiz kod)
@@ -211,6 +215,7 @@ src/
     orders.ts           Buyurtma berish va holatlari
     auth.ts             Admin kirishi va sessiyalar
     media.ts            Rasmlarni qayta ishlash (sharp)
+    home-data.tsx       Katalogni olam sahifalari uchun tayyorlaydi
     actions/            Server actions: sahifalar shular orqali yozadi
     db/                 Sxema, ulanish, seed
     payment/            Toʻlov provayderlari (hozir faqat yetkazib berishda toʻlov)

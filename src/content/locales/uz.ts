@@ -21,7 +21,6 @@ export const uz = {
     main: "Asosiy menyu",
     home: "VYBEVERSE bosh sahifasi",
     worlds: "Olamlar",
-    shopFast: "Shop Fast",
     cart: "Savat",
     cartCount: (count: number) => (count === 0 ? "Savat, boʻsh" : `Savat, ${count} ta mahsulot`),
     openMenu: "Menyuni ochish",
@@ -72,7 +71,7 @@ export const uz = {
     story: {
       kicker: "Biz haqimizda",
       title: "Doʻkon emas, kirib boriladigan makon.",
-      body: "VYBEVERSEda kiyim javon boʻyicha emas, kayfiyat boʻyicha joylashgan. Sizga mos olamni toping yoki Shop Fast orqali toʻgʻri kerakli narsaga oʻting.",
+      body: "VYBEVERSEda kiyim javon boʻyicha emas, kayfiyat boʻyicha joylashgan. Sizga mos olamni toping va undan toʻliq obraz yigʻing.",
       factsLabel: "VYBEVERSE raqamlarda",
       facts: { worlds: "Olam", products: "Mahsulot", models: "3D model" },
     },
@@ -170,7 +169,7 @@ export const uz = {
     checkout: "Rasmiylashtirish",
     continue: "Xaridni davom ettirish",
     empty: "Savatingiz boʻsh.",
-    emptyHint: "Olamlardan birini tanlang yoki Shop Fast orqali toʻgʻridan-toʻgʻri xarid qiling.",
+    emptyHint: "Olamlardan birini tanlang yoki hozirgi dropni koʻring.",
     remove: "Olib tashlash",
     removeLine: (name: string) => `${name} mahsulotini olib tashlash`,
     quantityOf: (name: string) => `${name} miqdori`,
@@ -231,7 +230,7 @@ export const uz = {
   notFound: {
     title: "Bu olam topilmadi.",
     body: "Siz izlagan sahifa koʻchirilgan yoki umuman boʻlmagan.",
-    link: "Shop Fastga oʻtish",
+    link: "Bosh sahifaga qaytish",
   },
 
   errorPage: {
@@ -242,10 +241,7 @@ export const uz = {
   },
 
   footer: {
-    tagline: "Vayb boʻyicha xarid qiling.",
-    shop: "Xarid",
     pages: "Sahifalar",
-    allWorlds: "Barcha olamlar",
     lightMode: "Yengil rejim",
     lightModeHint: "3D va harakat oʻchadi, sahifa tezroq ishlaydi.",
     lightModeOn: "Yoqilgan",
@@ -301,7 +297,7 @@ export const uz = {
       fileTooLarge: "Rasm 10 MB dan katta.",
       fileNotImage: "Bu fayl oʻqiladigan rasm emas. JPEG, PNG, WebP, AVIF yoki TIFF ishlating.",
       fileTooSmall: "Rasm juda kichik. Kamida 480 x 600 piksel kerak.",
-      invalidStatus: (from: string, to: string) => `Buyurtma holatini ${from} dan ${to} ga oʻzgartirib boʻlmaydi.`,
+      invalidStatus: (from: string, to: string) => `Buyurtmani «${from}» holatidan «${to}» holatiga oʻtkazib boʻlmaydi.`,
       compareAtTooLow: "Eski narx joriy narxdan yuqori boʻlishi kerak.",
     },
     empty: { orders: "Hali buyurtma yoʻq." },

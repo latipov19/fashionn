@@ -3,7 +3,7 @@ import { and, eq, sql } from "drizzle-orm";
 import type { PlaceOrderInput } from "@/lib/validation";
 import { login } from "@/server/auth";
 import { getDb } from "@/server/db/client";
-import { colors, orders, products, variants } from "@/server/db/schema";
+import { orders, productColors, products, variants } from "@/server/db/schema";
 import { resetRateLimits } from "@/server/rate-limit";
 import type { Jar } from "./setup";
 
@@ -22,17 +22,17 @@ export async function signIn() {
   if (!result.ok) throw new Error("Test sign-in failed");
 }
 
-/** The variant for a product, color and size. */
-export async function variantOf(slug: string, colour: string, size: string) {
+/** The variant for a product handle, colour slug and size. */
+export async function variantOf(handle: string, color: string, size: string) {
   const db = await getDb();
   const [row] = await db
     .select({ id: variants.id, stock: variants.stock })
     .from(variants)
     .innerJoin(products, eq(products.id, variants.productId))
-    .innerJoin(colors, eq(colors.id, variants.colorId))
-    .where(and(eq(products.slug, slug), eq(colors.slug, colour), eq(variants.size, size)))
+    .innerJoin(productColors, eq(productColors.id, variants.colorId))
+    .where(and(eq(products.handle, handle), eq(productColors.slug, color), eq(variants.size, size)))
     .limit(1);
-  if (!row) throw new Error(`No variant ${slug}/${colour}/${size}`);
+  if (!row) throw new Error(`No variant ${handle}/${color}/${size}`);
   return row;
 }
 
@@ -56,18 +56,13 @@ export async function orderCount(): Promise<number> {
 
 export function checkoutInput(lines: PlaceOrderInput["lines"], idempotencyKey = uniqueKey()): PlaceOrderInput {
   return {
+    customerName: "Ali Valiyev",
+    phone: "+998 90 123 45 67",
     email: "Shopper@Example.com",
-    phone: "",
-    address: {
-      fullName: "Ana Shopper",
-      line1: "1 Long Street",
-      line2: "",
-      city: "Portland",
-      region: "OR",
-      postalCode: "97201",
-      country: "United States",
-    },
-    shippingMethod: "standard",
+    region: "toshkent-shahri",
+    city: "Toshkent",
+    addressLine: "Chilonzor 9, 12-uy",
+    notes: "",
     idempotencyKey,
     lines,
   };

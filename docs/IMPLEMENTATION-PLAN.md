@@ -10,7 +10,7 @@ Legend: [x] done and verified, [~] partly done, [ ] not started.
 - [x] Brief, architecture, design system and plan written
 
 ## Stage 1: working vertical slice
-- [~] Domain moved to products, worlds, UZS and Uzbek checkout fields: server code done, unit tests still target the old model
+- [x] Domain moved to products, worlds, UZS and Uzbek checkout fields, with the unit tests ported to it (117 passing)
 - [x] Demo catalog and generated imagery (`npm run media:generate`)
 - [x] Design tokens and site shell
 - [x] Home with world switching
@@ -20,7 +20,7 @@ Legend: [x] done and verified, [~] partly done, [ ] not started.
 - [ ] `/products/[handle]`
 - [ ] `/cart`
 - [x] Sunray Portal 3D scene and fallback (desktop and phone Chrome; real devices are Stage 4)
-- [ ] Unit, e2e and axe checks
+- [~] Unit, e2e and axe checks: unit tests pass; e2e and axe not written yet
 
 ## Stage 1b: premium visuals from the owner's references
 

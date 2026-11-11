@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import sharp from "sharp";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { GeneratedMediaEntry } from "@/content/types";
@@ -17,10 +17,11 @@ import {
   updateProduct,
   uploadMedia,
 } from "@/server/actions/admin";
-import { adminGetProduct, adminListCloths, adminListProducts, getProductByHandle, listProducts } from "@/server/catalog";
+import { copy } from "@/content/copy";
+import { adminGetProduct, adminListProducts, getProductByHandle, listProducts } from "@/server/catalog";
 import { closeDb, getDb } from "@/server/db/client";
-import { colors, products } from "@/server/db/schema";
-import { focalCrop, getAllMediaFor, getMediaFor, hourImages, mergeMedia, needsRenderedDisclosure, primaryMedia, processUpload } from "@/server/media";
+import { productColors, products } from "@/server/db/schema";
+import { focalCrop, getAllMediaFor, getMediaFor, leadsWithGeneratedImage, mergeMedia, primaryMedia, processUpload } from "@/server/media";
 import { placeOrder } from "@/server/orders";
 import { UPLOAD_NAME, localStorage } from "@/server/storage/local";
 import type { StorageProvider } from "@/server/storage/provider";
@@ -30,45 +31,43 @@ import { checkoutInput, signIn, stockOf, variantOf } from "./helpers";
 // One generated entry per image, standing in for the manifest the pipeline writes.
 vi.mock("@/content/media.generated.json", () => ({
   default: {
-    version: 1,
+    version: 2,
     items: [
       {
-        id: "lintel-coat/chalk/room/morning",
+        id: "quiet-uzun-palto/tosh/flat",
         productHandle: "quiet-uzun-palto",
-        colorId: "tosh",
-        role: "room",
-        hour: "morning",
+        colorSlug: "tosh",
+        role: "flat",
         url: "/media/generated/a-1600.webp",
         width: 1600,
         height: 2000,
         srcSet: [{ url: "/media/generated/a-1600.webp", width: 1600 }],
         blur: "data:image/webp;base64,AA",
-        alt: "Lintel Coat in Chalk",
+        alt: "Quiet Uzun Palto, tosh",
       },
       {
-        id: "lintel-coat/chalk/room/noon",
+        id: "quiet-uzun-palto/tosh/render",
         productHandle: "quiet-uzun-palto",
-        colorId: "tosh",
-        role: "room",
-        hour: "noon",
+        colorSlug: "tosh",
+        role: "render",
         url: "/media/generated/b-1600.webp",
         width: 1600,
         height: 2000,
         srcSet: [{ url: "/media/generated/b-1600.webp", width: 1600 }],
         blur: "data:image/webp;base64,AA",
-        alt: "Lintel Coat in Chalk at noon",
+        alt: "Quiet Uzun Palto, tosh, render",
       },
       {
-        id: "lintel-coat/chalk/cloth",
+        id: "quiet-uzun-palto/tosh/detail",
         productHandle: "quiet-uzun-palto",
-        colorId: "tosh",
-        role: "cloth",
+        colorSlug: "tosh",
+        role: "detail",
         url: "/media/generated/c-960.webp",
         width: 960,
-        height: 960,
+        height: 1200,
         srcSet: [{ url: "/media/generated/c-960.webp", width: 960 }],
         blur: "data:image/webp;base64,AA",
-        alt: "Heavy wool twill in Chalk",
+        alt: "Quiet Uzun Palto, mato",
       },
     ] satisfies GeneratedMediaEntry[],
   },
@@ -96,37 +95,36 @@ beforeEach(async () => {
 });
 
 const newProduct: CreateProductInput = {
-  slug: "keystone-apron",
-  peg: "II.05",
-  name: "Keystone Apron",
-  category: "Shirts",
-  room: "II",
-  hour: "noon",
-  frameClass: "mid",
-  hang: "shoulderRod",
-  priceUzs: 15_000,
+  handle: "keystone-fartuk",
+  name: "Keystone Fartuk",
+  category: "Fartuk",
+  slot: "accessory",
+  worlds: ["soft-signal"],
+  priceUzs: 150_000,
   sizes: ["S", "M"],
   colors: [
-    { slug: "plaster", name: "Plaster", hex: "#D8CDB8", lining: "#847B6A" },
-    { slug: "moss", name: "Moss", hex: "#24504B", lining: "#1A3A36" },
+    { slug: "sut", name: "Sut", hex: "#EFE9DD" },
+    { slug: "zaytun", name: "Zaytun", hex: "#5C6243" },
   ],
-  clothId: "cotton-canvas-340",
-  description: "A square apron in cotton canvas.",
-  cut: { template: "vest", lengthCm: 80, bodyWidthCm: 60, spanCm: 60, sleeveDepthCm: 0, neckWidthCm: 20, neckDropCm: 10 },
+  description: "Qalin paxta matodan toʻrtburchak fartuk.",
+  fabric: "Paxta 100%",
+  fit: "Erkin",
+  care: "30°C da yuving",
 };
 
+/** Quiet Uzun Palto in tosh: the colour the mocked manifest describes. */
 async function chalk() {
   const db = await getDb();
   const [row] = await db
-    .select({ productId: products.id, colorId: colors.id })
-    .from(colors)
-    .innerJoin(products, eq(products.id, colors.productId))
-    .where(eq(colors.slug, "tosh"));
-  if (!row) throw new Error("No chalk");
+    .select({ productId: products.id, colorId: productColors.id })
+    .from(productColors)
+    .innerJoin(products, eq(products.id, productColors.productId))
+    .where(and(eq(products.handle, "quiet-uzun-palto"), eq(productColors.slug, "tosh")));
+  if (!row) throw new Error("No quiet-uzun-palto/tosh");
   return row;
 }
 
-const chalkOwner = async () => ({ product: { slug: "quiet-uzun-palto" }, color: { id: (await chalk()).colorId, slug: "tosh" } });
+const chalkOwner = async () => ({ product: { handle: "quiet-uzun-palto" }, color: { id: (await chalk()).colorId, slug: "tosh" } });
 
 function imageBuffer(width: number, height: number, format: "png" | "jpeg" = "png") {
   return sharp({ create: { width, height, channels: 3, background: "#884422" } })
@@ -145,57 +143,64 @@ describe("products", () => {
   it("creates a draft with colors and zero-stock variants", async () => {
     const result = await createProduct(newProduct);
     if (!result.ok) throw new Error(result.message);
-    expect(result.data.slug).toBe("keystone-apron");
-    expect(result.data.warnings).toEqual([expect.stringContaining("Moss")]);
+    expect(result.data.handle).toBe("keystone-fartuk");
 
-    expect(await getProductByHandle("keystone-apron")).toBeNull();
+    expect(await getProductByHandle("keystone-fartuk")).toBeNull();
     const product = await adminGetProduct(result.data.id);
-    expect(product).toMatchObject({ published: false, gatherPct: 5, details: [] });
-    expect(product?.colors.map((c) => c.slug)).toEqual(["plaster", "moss"]);
+    expect(product).toMatchObject({ published: false, isDemo: false, compareAtUzs: null, worlds: ["soft-signal"], sizeChart: { columns: [], rows: [] } });
+    expect(product?.colors.map((c) => c.slug)).toEqual(["sut", "zaytun"]);
     expect(product?.colors[0]?.variants).toHaveLength(2);
     expect(product?.colors.flatMap((c) => c.variants).every((v) => v.stock === 0)).toBe(true);
-    expect(product?.colors[0]?.variants[0]?.sku).toBe("KEYSTONE-APRON-PLASTER-S");
+    expect(product?.colors[0]?.variants[0]?.sku).toBe("KEYSTONE-FARTUK-SUT-S");
   });
 
   it("refuses duplicates and bad input with field errors", async () => {
-    expect(await createProduct(newProduct)).toMatchObject({ ok: false, code: "conflict", fieldErrors: { slug: expect.any(String) } });
-    expect(await createProduct({ ...newProduct, slug: "another", peg: "I.01" })).toMatchObject({ ok: false, code: "conflict", fieldErrors: { peg: expect.any(String) } });
-    expect(await createProduct({ ...newProduct, slug: "Bad Slug", peg: "X.9" })).toMatchObject({ ok: false, code: "validation", fieldErrors: { slug: expect.any(String) } });
-    expect(await createProduct({ ...newProduct, slug: "x1", peg: "X.1", clothId: "no-cloth" })).toMatchObject({ ok: false, code: "validation", fieldErrors: { clothId: expect.any(String) } });
-    expect(await createProduct({ ...newProduct, slug: "x2", peg: "X.2", priceUzs: 19.99 })).toMatchObject({ ok: false, code: "validation" });
+    expect(await createProduct(newProduct)).toMatchObject({ ok: false, code: "conflict", fieldErrors: { handle: copy.admin.errors.handleTaken } });
+    expect(await createProduct({ ...newProduct, handle: "Bad Handle" })).toMatchObject({ ok: false, code: "validation", fieldErrors: { handle: expect.any(String) } });
+    expect(await createProduct({ ...newProduct, handle: "x1", priceUzs: 19.99 })).toMatchObject({ ok: false, code: "validation" });
+    expect(await createProduct({ ...newProduct, handle: "x2", compareAtUzs: 100_000 })).toMatchObject({
+      ok: false,
+      code: "validation",
+      fieldErrors: { compareAtUzs: copy.admin.errors.compareAtTooLow },
+    });
+    expect(await createProduct({ ...newProduct, handle: "x3", worlds: ["nowhere" as never] })).toMatchObject({ ok: false, code: "validation" });
+    expect(await createProduct({ ...newProduct, handle: "x4", sizes: ["S", "S"] })).toMatchObject({ ok: false, code: "validation" });
   });
 
   it("updates only the fields sent, and keeps existing stock", async () => {
-    const before = await variantOf("jamb-jacket", "putty", "M");
-    const [product] = (await adminListProducts()).filter((item) => item.slug === "jamb-jacket");
+    const before = await variantOf("still-zigir-koylak", "sut", "M");
+    const [product] = (await adminListProducts()).filter((item) => item.handle === "still-zigir-koylak");
 
-    const result = await updateProduct({ id: product!.id, priceUzs: 55_000, description: "Changed." });
+    const result = await updateProduct({ id: product!.id, priceUzs: 555_000, description: "Oʻzgardi." });
     expect(result.ok).toBe(true);
 
     const after = await adminGetProduct(product!.id);
-    expect(after).toMatchObject({ priceUzs: 55_000, description: "Changed.", name: "Jamb Jacket", slug: "jamb-jacket" });
+    expect(after).toMatchObject({ priceUzs: 555_000, description: "Oʻzgardi.", name: "Still Zigʻir Koʻylak", handle: "still-zigir-koylak" });
     expect(await stockOf(before.id)).toBe(before.stock);
     expect(await updateProduct({ id: "00000000-0000-4000-8000-000000000000", name: "X" })).toMatchObject({ ok: false, code: "not_found" });
   });
 
   it("adds and removes sizes and colors without losing variants", async () => {
-    const product = (await adminListProducts()).find((item) => item.slug === "spandrel-top")!;
-    const ivory = product.colors.find((c) => c.slug === "ivory")!;
+    const product = (await adminListProducts()).find((item) => item.handle === "grid-termo-futbolka")!;
+    const komir = product.colors.find((c) => c.slug === "komir")!;
     await updateProduct({
       id: product.id,
-      sizes: ["S", "M", "L", "XL"],
-      colors: [{ slug: "ivory", name: "Ivory", hex: ivory.hex, lining: ivory.lining }],
+      sizes: ["S", "M", "L", "XL", "XXL"],
+      colors: [{ slug: "komir", name: komir.name, hex: komir.hex }],
     });
 
-    const shop = await getProductByHandle("spandrel-top");
-    expect(shop?.colors.map((c) => c.slug)).toEqual(["ivory"]);
-    expect(shop?.colors[0]?.variants.map((v) => v.size)).toEqual(["S", "M", "L", "XL"]);
+    const shop = await getProductByHandle("grid-termo-futbolka");
+    expect(shop?.colors.map((c) => c.slug)).toEqual(["komir"]);
+    expect(shop?.colors[0]?.variants.map((v) => v.size)).toEqual(["S", "M", "L", "XL", "XXL"]);
     expect(shop?.colors[0]?.variants.at(-1)?.stock).toBe(0);
 
-    const ochre = await variantOf("spandrel-top", "ochre", "S");
-    expect(await placeOrder(checkoutInput([{ variantId: ochre.id, quantity: 1 }]))).toMatchObject({ ok: false, code: "stock" });
-    const removedSize = await variantOf("spandrel-top", "ivory", "XS");
+    // A removed colour and a removed size cannot be bought, but their rows survive for past orders.
+    const kumush = await variantOf("grid-termo-futbolka", "kumush", "S");
+    expect(await placeOrder(checkoutInput([{ variantId: kumush.id, quantity: 1 }]))).toMatchObject({ ok: false, code: "stock" });
+    await updateProduct({ id: product.id, sizes: ["S", "M", "L"] });
+    const removedSize = await variantOf("grid-termo-futbolka", "komir", "XL");
     expect(await placeOrder(checkoutInput([{ variantId: removedSize.id, quantity: 1 }]))).toMatchObject({ ok: false, code: "stock" });
+    expect((await getProductByHandle("grid-termo-futbolka"))?.colors[0]?.variants.map((v) => v.size)).toEqual(["S", "M", "L"]);
   });
 
   it("publishes, unpublishes and reorders", async () => {
@@ -213,8 +218,8 @@ describe("products", () => {
   });
 
   it("sets stock, one or many, and refuses negatives", async () => {
-    const a = await variantOf("mullion-shirt", "white", "L");
-    const b = await variantOf("mullion-shirt", "white", "XL");
+    const a = await variantOf("vector-texnik-shim", "komir", "L");
+    const b = await variantOf("vector-texnik-shim", "komir", "XL");
     expect((await setStock({ variantId: a.id, stock: 5 })).ok).toBe(true);
     expect(await stockOf(a.id)).toBe(5);
     expect(await setStock({ variantId: a.id, stock: -1 })).toMatchObject({ ok: false, code: "validation" });
@@ -232,21 +237,17 @@ describe("products", () => {
     ).toBe(true);
     expect(await stockOf(b.id)).toBe(2);
   });
-
-  it("lists cloths for the form", async () => {
-    expect(await adminListCloths()).toHaveLength(10);
-  });
 });
 
 describe("orders through the admin action", () => {
   it("explains an invalid change in words", async () => {
-    const variant = await variantOf("nave-dress", "garnet", "M");
+    const variant = await variantOf("calm-keng-shim", "sut", "M");
     const placed = await placeOrder(checkoutInput([{ variantId: variant.id, quantity: 1 }]));
     if (!placed.ok) throw new Error("Order failed");
     expect(await updateOrderStatus({ orderId: placed.order.id, status: "delivered" })).toMatchObject({
       ok: false,
       code: "invalid_transition",
-      message: "An order that is placed cannot become delivered.",
+      message: copy.admin.errors.invalidStatus(copy.order.status.pending, copy.order.status.delivered),
     });
     expect(await updateOrderStatus({ orderId: placed.order.id, status: "canceled" })).toEqual({ ok: true, data: { status: "canceled" } });
     expect(await stockOf(variant.id)).toBe(variant.stock);
@@ -258,22 +259,21 @@ describe("media merging", () => {
   it("merges the manifest and leads with the first generated room image", async () => {
     const { product, color } = await chalkOwner();
     const media = await getMediaFor(product, color);
-    expect(media.map((item) => item.id)).toEqual(["lintel-coat/chalk/room/morning", "lintel-coat/chalk/room/noon", "lintel-coat/chalk/cloth"]);
-    expect(needsRenderedDisclosure(media)).toBe(true);
-    expect(Object.keys(hourImages(media))).toEqual(["morning", "noon"]);
+    expect(media.map((item) => item.id)).toEqual(["quiet-uzun-palto/tosh/flat", "quiet-uzun-palto/tosh/render", "quiet-uzun-palto/tosh/detail"]);
+    expect(leadsWithGeneratedImage(media)).toBe(true);
+    expect(primaryMedia(media)?.id).toBe("quiet-uzun-palto/tosh/flat");
   });
 
   it("orders uploads by position against generated items", () => {
-    const generated = [{ id: "g", productHandle: "p", colorId: "c", role: "room", url: "/g", width: 1, height: 1, srcSet: [], blur: "", alt: "G" }] satisfies GeneratedMediaEntry[];
-    const upload = { id: "u", productId: "p", colorId: "c", role: "photo", hour: null, url: "/u", width: 1, height: 1, srcSet: [], blur: "", dominant: null, alt: "U", position: 999, hidden: false, createdAt: new Date() } as const;
+    const generated = [{ id: "g", productHandle: "p", colorSlug: "c", role: "flat", url: "/g", width: 1, height: 1, srcSet: [], blur: "", alt: "G" }] satisfies GeneratedMediaEntry[];
+    const upload = { id: "u", productId: "p", colorId: "c", role: "photo", url: "/u", width: 1, height: 1, srcSet: [], blur: "", dominant: null, alt: "U", position: 999, hidden: false, createdAt: new Date() } as const;
     expect(mergeMedia(generated, [{ ...upload, srcSet: [] }], []).map((m) => m.id)).toEqual(["u", "g"]);
     expect(mergeMedia(generated, [{ ...upload, srcSet: [] }], [{ mediaKey: "g", hidden: false, position: 0 }]).map((m) => m.id)).toEqual(["g", "u"]);
   });
 
   it("copes with a color that has no media", () => {
     expect(primaryMedia([])).toBeNull();
-    expect(needsRenderedDisclosure([])).toBe(false);
-    expect(hourImages([])).toEqual({});
+    expect(leadsWithGeneratedImage([])).toBe(false);
   });
 });
 
@@ -308,17 +308,16 @@ describe("upload", () => {
     const { productId, colorId } = await chalk();
     const { product, color } = await chalkOwner();
 
-    const result = await uploadMedia(uploadForm({ productId, colorId, alt: "Lintel Coat, photographed", focalX: "0.4", focalY: "0.6" }, await imageBuffer(1200, 1600)));
+    const result = await uploadMedia(uploadForm({ productId, colorId, alt: "Quiet Uzun Palto, foto", focalX: "0.4", focalY: "0.6" }, await imageBuffer(1200, 1600)));
     if (!result.ok) throw new Error(result.message);
 
     expect(stored.size).toBe(3);
     expect([...stored.keys()].every((name) => UPLOAD_NAME.test(name) && !name.includes("my photo"))).toBe(true);
 
     const media = await getMediaFor(product, color);
-    expect(media[0]).toMatchObject({ id: result.data.id, source: "upload", role: "photo", alt: "Lintel Coat, photographed", width: 1600, height: 2000 });
+    expect(media[0]).toMatchObject({ id: result.data.id, source: "upload", role: "photo", alt: "Quiet Uzun Palto, foto", width: 1600, height: 2000 });
     expect(media[0]?.srcSet.map((src) => src.width)).toEqual([480, 960, 1600]);
-    expect(needsRenderedDisclosure(media)).toBe(false);
-    expect(hourImages(media)).toEqual({});
+    expect(leadsWithGeneratedImage(media)).toBe(false);
 
     const shop = await getProductByHandle("quiet-uzun-palto");
     expect(primaryMedia(shop!.colors[0]!.media)?.source).toBe("upload");
@@ -326,7 +325,7 @@ describe("upload", () => {
     expect((await revertToGenerated({ productId, colorId })).ok).toBe(true);
     const reverted = await getMediaFor(product, color);
     expect(reverted[0]?.source).toBe("generated");
-    expect(needsRenderedDisclosure(reverted)).toBe(true);
+    expect(leadsWithGeneratedImage(reverted)).toBe(true);
     expect((await getAllMediaFor(product, color)).filter((item) => item.hidden).map((item) => item.id)).toEqual([result.data.id]);
   });
 
@@ -335,20 +334,20 @@ describe("upload", () => {
     const base = { productId, colorId, alt: "x" };
 
     const fake = uploadForm(base, Buffer.from("<?php echo 1; ?>"), "shell.png", "image/png");
-    expect(await uploadMedia(fake)).toMatchObject({ ok: false, code: "validation", fieldErrors: { file: expect.stringContaining("not an image") } });
+    expect(await uploadMedia(fake)).toMatchObject({ ok: false, code: "validation", fieldErrors: { file: copy.admin.errors.fileNotImage } });
 
     const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="2500"><rect width="2000" height="2500"/></svg>');
     expect(await uploadMedia(uploadForm(base, svg, "x.svg", "image/svg+xml"))).toMatchObject({ ok: false, code: "validation" });
 
     const tiny = await imageBuffer(300, 300);
-    expect(await uploadMedia(uploadForm(base, tiny))).toMatchObject({ ok: false, fieldErrors: { file: expect.stringContaining("too small") } });
+    expect(await uploadMedia(uploadForm(base, tiny))).toMatchObject({ ok: false, fieldErrors: { file: copy.admin.errors.fileTooSmall } });
 
     const none = new FormData();
     for (const [key, value] of Object.entries(base)) none.set(key, value);
     expect(await uploadMedia(none)).toMatchObject({ ok: false, code: "validation" });
 
     const big = uploadForm(base, Buffer.alloc(MAX_UPLOAD_BYTES + 1));
-    expect(await uploadMedia(big)).toMatchObject({ ok: false, fieldErrors: { file: expect.stringContaining("10 MB") } });
+    expect(await uploadMedia(big)).toMatchObject({ ok: false, fieldErrors: { file: copy.admin.errors.fileTooLarge } });
 
     const noAlt = uploadForm({ productId, colorId, alt: " " }, await imageBuffer(1000, 1000));
     expect(await uploadMedia(noAlt)).toMatchObject({ ok: false, code: "validation", fieldErrors: { alt: expect.any(String) } });
@@ -358,7 +357,7 @@ describe("upload", () => {
 
   it("refuses a color from another product", async () => {
     const { colorId } = await chalk();
-    const other = (await adminListProducts()).find((product) => product.slug === "nave-dress")!;
+    const other = (await adminListProducts()).find((product) => product.handle === "drift-midi-yubka")!;
     const form = uploadForm({ productId: other.id, colorId, alt: "x" }, await imageBuffer(1000, 1000));
     expect(await uploadMedia(form)).toMatchObject({ ok: false, code: "not_found" });
   });
@@ -389,9 +388,9 @@ describe("hide and order", () => {
     const { product, color } = await chalkOwner();
     await revertToGenerated({ productId, colorId });
 
-    expect((await hideMedia({ colorId, mediaId: "lintel-coat/chalk/room/morning", hidden: true })).ok).toBe(true);
-    expect((await getMediaFor(product, color))[0]?.id).toBe("lintel-coat/chalk/room/noon");
-    expect(await hideMedia({ colorId, mediaId: "nave-dress/pearl/room/evening", hidden: true })).toMatchObject({ ok: false, code: "not_found" });
+    expect((await hideMedia({ colorId, mediaId: "quiet-uzun-palto/tosh/flat", hidden: true })).ok).toBe(true);
+    expect((await getMediaFor(product, color))[0]?.id).toBe("quiet-uzun-palto/tosh/render");
+    expect(await hideMedia({ colorId, mediaId: "drift-midi-yubka/sut/flat", hidden: true })).toMatchObject({ ok: false, code: "not_found" });
 
     const upload = await uploadMedia(uploadForm({ productId, colorId, alt: "Photo" }, await imageBuffer(1000, 1000)));
     if (!upload.ok) throw new Error(upload.message);
@@ -409,11 +408,11 @@ describe("hide and order", () => {
     const upload = await uploadMedia(uploadForm({ productId, colorId, alt: "Photo" }, await imageBuffer(1000, 1000)));
     if (!upload.ok) throw new Error(upload.message);
 
-    expect((await reorderMedia({ productId, colorId, orderedIds: ["lintel-coat/chalk/room/noon"] })).ok).toBe(true);
+    expect((await reorderMedia({ productId, colorId, orderedIds: ["quiet-uzun-palto/tosh/render"] })).ok).toBe(true);
     const media = await getMediaFor(product, color);
-    expect(media[0]?.id).toBe("lintel-coat/chalk/room/noon");
+    expect(media[0]?.id).toBe("quiet-uzun-palto/tosh/render");
     expect(media[1]?.id).toBe(upload.data.id);
-    expect(needsRenderedDisclosure(media)).toBe(true);
+    expect(leadsWithGeneratedImage(media)).toBe(true);
 
     expect(await reorderMedia({ productId, colorId, orderedIds: ["nonsense"] })).toMatchObject({ ok: false, code: "not_found" });
   });

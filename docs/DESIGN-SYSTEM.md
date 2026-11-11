@@ -14,7 +14,7 @@ Around the portal the page reads as an obsidian glass atelier: the portal stands
 
 ## 2. Tokens
 
-`src/content/worlds.ts` is the only place a world colour is defined. It generates the CSS variables and feeds the 3D scene. There is no contrast unit test yet; check new pairs with `contrastRatio` from the same file.
+`src/content/worlds.ts` is the only place a world colour is defined. It generates the CSS variables and feeds the 3D scene, and a unit test (`tests/unit/lib.test.ts`) checks that text and muted text reach WCAG AA contrast on every ground of every world.
 
 Semantic tokens, the same for every world: `--bg`, `--bg-raised`, `--bg-sunken`, `--fg`, `--fg-muted`, `--line`, `--accent`, `--accent-fg`, `--danger`, `--success`, `--glow`, plus the display voice below. `--glow` is a light colour for the stage, glass edges and the primary button's halo, never text. A world is one theme object, never a separate stylesheet.
 

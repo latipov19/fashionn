@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { unstable_rethrow } from "next/navigation";
 import { Suspense } from "react";
 import { Wordmark } from "@/components/ui/marks";
 import { copy } from "@/content/copy";
@@ -12,6 +13,9 @@ async function cartCount(): Promise<number> {
   try {
     return (await getCart()).count;
   } catch (error) {
+    // Next signals a request-time page by throwing from cookies(); that must reach Next, or a
+    // page with a cart count could be prerendered statically with a stale count.
+    unstable_rethrow(error);
     // The header must render even when the database is unavailable.
     console.error("cart count failed", error);
     return 0;

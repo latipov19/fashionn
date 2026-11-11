@@ -382,7 +382,8 @@ export async function updateOrderStatus(input: { orderId: string; status: OrderS
     const result = await changeStatus(parsed.data.orderId, parsed.data.status);
     if (result.ok) return { ok: true, data: { status: result.status } };
     if (result.code === "not_found") return fail("not_found", errors.notFound);
-    return fail("invalid_transition", errors.invalidStatus(result.from, result.to));
+    // The owner reads the store's own status names, never the internal codes.
+    return fail("invalid_transition", errors.invalidStatus(copy.order.status[result.from], copy.order.status[result.to]));
   });
 }
 
