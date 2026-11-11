@@ -1,8 +1,12 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { Wordmark } from "@/components/ui/marks";
 import { copy } from "@/content/copy";
+import { pages } from "@/content/pages";
+import { worldList } from "@/content/worlds";
 import { getCart } from "@/server/cart";
 import { MobileMenu } from "./mobile-menu";
+import { NavLinks, NavLinksFallback } from "./nav-links";
 
 async function cartCount(): Promise<number> {
   try {
@@ -32,42 +36,48 @@ function BagIcon() {
   );
 }
 
-export const navItems = [
-  { href: "/worlds", label: copy.nav.worlds },
-  { href: "/shop", label: copy.nav.shopFast },
-] as const;
+const navItems = pages.map(({ href, label }) => ({ href, label }));
+const worldItems = worldList.map((world) => ({ slug: world.slug, label: world.name, index: world.index, swatch: world.theme.bg }));
+const menuLabels = { open: copy.nav.openMenu, close: copy.nav.closeMenu, nav: copy.nav.main, worlds: copy.nav.worlds };
 
 export async function SiteHeader() {
   const count = await cartCount();
 
   return (
     <>
-      <p className="demo-band">{copy.demoNotice}</p>
+      <p className="demo-band">
+        <span className="demo-tag" aria-hidden="true">
+          {copy.demoTag}
+        </span>
+        <span>{copy.demoNotice}</span>
+      </p>
       <header className="site-header">
-        <div className="shell header-row">
-          <Link href="/" aria-label={copy.nav.home}>
-            <Wordmark />
-          </Link>
-          <nav aria-label={copy.nav.main} className="nav-links">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className="nav-link">
-                {item.label}
+        <div className="shell">
+          <div className="nav-capsule">
+            <Link href="/" aria-label={copy.nav.home} className="brand-link">
+              <Wordmark />
+            </Link>
+            {/* The links read the world from the URL; until then they render without it. */}
+            <Suspense fallback={<NavLinksFallback items={navItems} label={copy.nav.main} />}>
+              <NavLinks items={navItems} label={copy.nav.main} />
+            </Suspense>
+            <div className="header-actions">
+              <Link href="/shop" className="icon-link search-link">
+                <SearchIcon />
+                <span className="search-label">{copy.nav.search}</span>
               </Link>
-            ))}
-          </nav>
-          <div className="header-actions">
-            <Link href="/shop" className="icon-link" aria-label={copy.nav.search}>
-              <SearchIcon />
-            </Link>
-            <Link href="/cart" className="icon-link" aria-label={copy.nav.cartCount(count)}>
-              <BagIcon />
-              {count > 0 ? (
-                <span className="cart-count" aria-hidden="true">
-                  {count}
-                </span>
-              ) : null}
-            </Link>
-            <MobileMenu items={navItems} openLabel={copy.nav.openMenu} closeLabel={copy.nav.closeMenu} navLabel={copy.nav.main} />
+              <Link href="/cart" className="icon-link cart-link" aria-label={copy.nav.cartCount(count)}>
+                <BagIcon />
+                {count > 0 ? (
+                  <span className="cart-count" aria-hidden="true">
+                    {count}
+                  </span>
+                ) : null}
+              </Link>
+              <Suspense fallback={null}>
+                <MobileMenu items={navItems} worlds={worldItems} labels={menuLabels} />
+              </Suspense>
+            </div>
           </div>
         </div>
       </header>

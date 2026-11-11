@@ -14,6 +14,7 @@ Legend: [x] done and verified, [~] partly done, [ ] not started.
 - [x] Demo catalog and generated imagery (`npm run media:generate`)
 - [x] Design tokens and site shell
 - [x] Home with world switching
+- [x] World pages from the header: `/drop`, `/showroom`, `/look`, `/about`, each one screen on desktop, world kept in `?world=`
 - [ ] `/worlds`, `/worlds/[slug]`
 - [ ] `/shop` with search and filters
 - [ ] `/products/[handle]`

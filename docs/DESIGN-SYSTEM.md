@@ -10,15 +10,19 @@ The tension is quiet editorial layout against one futuristic sculpture. There is
 
 The garment in the opening is real page content. It sits in the DOM behind a transparent canvas, so it still shows with WebGL off.
 
+Around the portal the page reads as an obsidian glass atelier: the portal stands on a lit stage (a soft key light in the world's `--glow`, a hairline orbit with one light travelling round it, a slow dashed dial), and the controls float above the page as glass. Editorial type stays flat and straight; glass is kept for things you touch.
+
 ## 2. Tokens
 
-`src/content/worlds.ts` is the only place a world colour is defined. It generates the CSS variables and feeds the 3D scene, and a unit test computes contrast for every pair.
+`src/content/worlds.ts` is the only place a world colour is defined. It generates the CSS variables and feeds the 3D scene. There is no contrast unit test yet; check new pairs with `contrastRatio` from the same file.
 
-Semantic tokens, the same for every world: `--bg`, `--bg-raised`, `--bg-sunken`, `--fg`, `--fg-muted`, `--line`, `--accent`, `--accent-fg`, `--danger`, `--success`, plus the display voice below. A world is one theme object, never a separate stylesheet.
+Semantic tokens, the same for every world: `--bg`, `--bg-raised`, `--bg-sunken`, `--fg`, `--fg-muted`, `--line`, `--accent`, `--accent-fg`, `--danger`, `--success`, `--glow`, plus the display voice below. `--glow` is a light colour for the stage, glass edges and the primary button's halo, never text. A world is one theme object, never a separate stylesheet.
+
+Glass is mixed from those tokens in `globals.css`, so it works on light and dark worlds alike. Three densities: `.glass-1` for the floating navigation and switcher, `.glass-2` for panels such as the look receipt, `.glass-3` for overlays (mobile menu, toast). Backdrop blur is used on at most a handful of elements at once, never on product cards, and light mode turns every glass surface solid.
 
 Spacing is an 8-point family: 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 160.
-Containers: `--shell` 1440 px with fluid gutters of at least 16 px, `--measure` 62ch.
-Radius: 0 for surfaces, 2 px for inputs. Fashion layouts hold straight edges.
+Containers: `--shell` 1440 px with fluid gutters of at least 16 px, `--measure` 62ch. `--header-h` is 78 px: a 58 px capsule with 10 px above and below.
+Radius: `--r-xs` 8, `--r-sm` 12, `--r-md` 18, `--r-lg` 26 and `--r-pill` for glass, buttons and product frames; 2 px for inputs. Type, rules and section edges stay straight.
 Z-index: canvas 0, content 10, header 40, dialog 60, toast 70, skip link 80.
 Durations: 120, 200, 320, 600, 900 ms. Easing: `--ease-out` cubic-bezier(.2,.7,.2,1), `--ease-in-out` cubic-bezier(.7,0,.2,1).
 
@@ -43,7 +47,7 @@ Each world has a display voice made of tokens: family, weight, tracking, case, l
 | CHROME FUTURE | Geologica 300, uppercase, wide tracking |
 | RAW ENERGY | Extra condensed 900, uppercase, slanted, stacked tight |
 
-Scale is fluid with `clamp()`. Display sizes are `--t-hero`, `--t-display` and `--t-title`. Text sizes are `--t-lead`, `--t-body`, `--t-small` and `--t-micro`. Prices use tabular numerals.
+Scale is fluid with `clamp()`. Display sizes are `--t-mega` (the manifesto), `--t-hero`, `--t-display` and `--t-title`. Text sizes are `--t-lead`, `--t-body`, `--t-small` and `--t-micro`. Prices use tabular numerals.
 
 ## 4. Layout
 
@@ -51,11 +55,26 @@ Asymmetric 12-column grid. Hero text sits on the left and low, and the portal is
 
 Text never depends on the canvas for contrast. Text sits on solid `--bg`.
 
+The store reads as pages, not one long scroll. `src/content/pages.ts` lists them in order: `/` (the hero), `/drop`, `/showroom`, `/look` and `/about` (manifesto and how buying works). Each page fills the first screen below the header with its content centred (`WorldPage`), and checks at 1440×900, 1920×1080 and 1366×768 fit without scrolling, except the showroom at 768 px tall, about 25 px over. Phones scroll as usual. The world travels in `?world=`: the hero switcher rewrites it in place, header and menu links carry it, and every page ends with a "next page" link in reading order.
+
 ## 5. Components
 
 Header, footer, demo notice, world switcher, product card, sale price, buy box, swatches, size picker, quantity stepper, size guide dialog, filter panel, cart line, toast. All real states are designed: hover, focus, active, loading, error, empty and sold out.
 
-Focus is a 2 px `--fg` outline with a 2 px offset.
+Home page components as built:
+
+| Component | Notes |
+|---|---|
+| Header | Floating glass capsule, sticky. The five page links show from 1200 px; below that they sit in the menu. It settles from clear to dense over the first 160 px of scroll through a CSS scroll-driven animation, so no script and no layout change. The current section keeps a glass pill (`aria-current`). Search shows its label from 900 px. Phones get a glass menu with the main links and the four worlds; Escape and a press outside close it |
+| World switcher | Glass segmented control. A thumb slides to the chosen world; each world shows a dot of its own ground colour |
+| Product card | A soft frame around the 4:5 image. Hover (fine pointers only) lifts the frame, zooms the image, passes a light across it and shows an arrow chip. A container query steps the text down on narrow cards so a full price fits |
+| The Current Drop | Four columns with an editorial stagger from 1200 px, two columns on tablets, a swipeable snap row of large cards on phones |
+| Build Your Look | The pieces beside a sticky glass receipt with each piece's category and price and the server-computed total. Pointing at a piece or its line lights both and dims the rest. Five-piece looks lay out two large and three small |
+| Story | A manifesto in `--t-mega` whose words rise once, real catalogue counts (worlds, products, products with a 3D model) and the wordmark drifting behind |
+| Trust | Three glass cards with line icons. Copy is unchanged and makes no new claims |
+| Footer | Positioning line, link columns, light mode, and an oversized gradient wordmark cut by the page edge |
+
+Focus is a 2 px `--fg` outline with a 3 px offset; it follows rounded corners.
 
 ## 6. Shot list
 
@@ -93,11 +112,19 @@ Real product cards for the chosen world, server rendered. Cards enter with a sho
 
 ### Scene 4: the look
 
-One complete outfit per world, built from real products, with a real total.
+One complete outfit per world, built from real products, with a real total. The receipt beside it lists each piece and is presentational only: no bundle purchase exists, so it offers none.
 
 ## 7. Motion
 
-CSS handles microinteractions and colour transitions through registered custom properties. GSAP is used only for the hero headline swap and scroll reveals. Under `prefers-reduced-motion` or light mode, nonessential movement stops and all content stays static and readable.
+CSS handles microinteractions and colour transitions through registered custom properties. GSAP is used only for the hero headline swap and scroll reveals (`Reveal`, `RevealWords`). Under `prefers-reduced-motion` or light mode, nonessential movement stops and all content stays static and readable.
+
+The rest of the motion language, all transform and opacity:
+
+- First paint: the hero kicker, headline, calls to action and switcher rise in with a short stagger. The animation only holds its start state during the delay, so the GSAP headline swap still owns those elements afterwards.
+- Hero stage: the orbit light turns every 16 s and the dial every 120 s, paused while the hero is off screen. With a fine pointer the glow, orbit and dial shift a few pixels against the pointer, one rAF write per frame.
+- Magnetic calls to action: the two hero buttons lean toward a fine pointer. Touch, reduced motion and light mode leave them still.
+- Story wordmark: drifts with the section's own scroll progress where the browser supports `animation-timeline: view()`.
+- Never put a CSS transition on a property GSAP animates on the same element: they fight, and a reveal can stay hidden. Dim or lift an inner element instead.
 
 ## 8. Imagery rule
 

@@ -1,20 +1,27 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { HTMLAttributes, ReactNode, Ref } from "react";
 import { useLayoutEffect, useRef } from "react";
 import { gsapNow, loadGsap } from "@/lib/gsap-client";
 import { useMotionAllowed } from "@/lib/use-motion";
 
+type Props = Omit<HTMLAttributes<HTMLElement>, "children"> & {
+  children: ReactNode;
+  /** A list by default. Use `div` for a block of headings and text. */
+  as?: "ul" | "div";
+  [data: `data-${string}`]: string | undefined;
+};
+
 /**
- * Children rise in once, staggered, when the list scrolls into view. The hidden start state is
+ * Children rise in once, staggered, when the element scrolls into view. The hidden start state is
  * set by script, so without scripts, under reduced motion and in light mode nothing is hidden.
  */
-export function Reveal({ children, className }: { children: ReactNode; className?: string }) {
-  const list = useRef<HTMLUListElement>(null);
+export function Reveal({ children, as: Tag = "ul", ...rest }: Props) {
+  const box = useRef<HTMLElement>(null);
   const motion = useMotionAllowed();
 
   useLayoutEffect(() => {
-    const el = list.current;
+    const el = box.current;
     if (!motion || !el) return;
     let revert: (() => void) | undefined;
     let cancelled = false;
@@ -45,8 +52,8 @@ export function Reveal({ children, className }: { children: ReactNode; className
   }, [motion]);
 
   return (
-    <ul ref={list} className={className}>
+    <Tag ref={box as Ref<HTMLUListElement & HTMLDivElement>} {...rest}>
       {children}
-    </ul>
+    </Tag>
   );
 }

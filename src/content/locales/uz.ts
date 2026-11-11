@@ -27,21 +27,29 @@ export const uz = {
     openMenu: "Menyuni ochish",
     closeMenu: "Menyuni yopish",
     search: "Qidirish",
+    pages: {
+      home: "Bosh sahifa",
+      drop: "Drop",
+      showroom: "3D Showroom",
+      look: "Obraz",
+      about: "Biz haqimizda",
+    },
+    next: "Keyingi sahifa",
   },
 
   demoNotice: "Demo katalog: mahsulot, narx va qoldiqlar namuna. Haqiqiy savdo hali boshlanmagan.",
   demoTag: "DEMO",
 
   home: {
-    explore: "Olamlarni kashf eting",
-    shopFast: "Shop Fast",
+    heroPrimary: "Dropni koʻrish",
+    heroSecondary: "3D Showroom",
     switcherLabel: "Olamni tanlang",
     apertureLabel: (world: string) => `${world} olamidan mahsulot`,
     openProduct: "Mahsulotni koʻrish",
+    scrollCue: "Dropga oʻtish",
     drop: {
       kicker: "The Current Drop",
       title: "Hozirgi drop",
-      all: (world: string) => `${world} olamini ochish`,
     },
     showroom: {
       kicker: "3D Showroom",
@@ -58,12 +66,17 @@ export const uz = {
       title: "Bitta olam, toʻliq obraz",
       body: "Har bir obraz haqiqiy mahsulotlardan yigʻilgan. Narx ham, qoldiq ham katalogdan olinadi.",
       total: "Obraz jami",
+      summary: "Obraz tarkibi",
+      pieces: (count: number) => `${count} ta buyum, narxlar katalogdan`,
     },
     story: {
       kicker: "Biz haqimizda",
       title: "Doʻkon emas, kirib boriladigan makon.",
       body: "VYBEVERSEda kiyim javon boʻyicha emas, kayfiyat boʻyicha joylashgan. Sizga mos olamni toping yoki Shop Fast orqali toʻgʻri kerakli narsaga oʻting.",
+      factsLabel: "VYBEVERSE raqamlarda",
+      facts: { worlds: "Olam", products: "Mahsulot", models: "3D model" },
     },
+    trustHead: { kicker: "Ishonch", title: "Xarid qanday ishlaydi" },
     trust: [
       { title: "Yetkazib berishda toʻlov", body: "Hozircha onlayn toʻlov yoʻq. Buyurtmani qabul qilganda toʻlaysiz." },
       { title: "Oʻzbekiston boʻylab", body: "Hududlar va narxlar doʻkon egasi tasdiqlaganidan keyin aniq boʻladi." },
@@ -231,6 +244,7 @@ export const uz = {
   footer: {
     tagline: "Vayb boʻyicha xarid qiling.",
     shop: "Xarid",
+    pages: "Sahifalar",
     allWorlds: "Barcha olamlar",
     lightMode: "Yengil rejim",
     lightModeHint: "3D va harakat oʻchadi, sahifa tezroq ishlaydi.",

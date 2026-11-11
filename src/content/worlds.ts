@@ -16,6 +16,8 @@ export type Theme = {
   accentFg: string;
   danger: string;
   success: string;
+  /** Light colour for the stage glow, glass edges and the primary button's halo. Never text. */
+  glow: string;
 };
 
 export type DisplayVoice = {
@@ -71,16 +73,17 @@ export const worlds: Record<WorldSlug, World> = {
     lead: "Qora, grafit va aniq siluetlar. Koʻcha uslubi yorugʻlik tushgan joydan boshlanadi.",
     mood: "Koʻcha uslubi",
     theme: {
-      bg: "#0B0B0D",
-      bgRaised: "#17171B",
-      bgSunken: "#050506",
-      fg: "#F2F0EC",
-      fgMuted: "#A6A6AC",
-      line: "#6E6E76",
-      accent: "#E8E4DA",
-      accentFg: "#0B0B0D",
+      bg: "#08090C",
+      bgRaised: "#12151C",
+      bgSunken: "#050507",
+      fg: "#F5F5F3",
+      fgMuted: "#A0A5B0",
+      line: "#686E7A",
+      accent: "#EDEBE6",
+      accentFg: "#08090C",
       danger: darkDanger,
       success: darkSuccess,
+      glow: "#8FB8FF",
     },
     voice: { family: "condensed", weight: 900, tracking: "-0.01em", transform: "uppercase", leading: 0.9, slant: 0, scale: 1 },
     portal: {
@@ -113,6 +116,7 @@ export const worlds: Record<WorldSlug, World> = {
       accentFg: "#FBF7F0",
       danger: "#A12018",
       success: "#1F6B40",
+      glow: "#E0A766",
     },
     voice: { family: "serif", weight: 400, tracking: "-0.01em", transform: "none", leading: 1.02, slant: 0, scale: 0.92 },
     portal: {
@@ -145,6 +149,7 @@ export const worlds: Record<WorldSlug, World> = {
       accentFg: "#15171A",
       danger: darkDanger,
       success: darkSuccess,
+      glow: "#B4C8FF",
     },
     voice: { family: "sans", weight: 300, tracking: "0.04em", transform: "uppercase", leading: 1, slant: 0, scale: 0.6 },
     portal: {
@@ -177,6 +182,7 @@ export const worlds: Record<WorldSlug, World> = {
       accentFg: "#23261A",
       danger: darkDanger,
       success: darkSuccess,
+      glow: "#E6CF72",
     },
     voice: { family: "condensed", weight: 900, tracking: "0", transform: "uppercase", leading: 0.86, slant: -6, scale: 1 },
     portal: {
@@ -198,6 +204,15 @@ export const worldList: World[] = WORLD_SLUGS.map((slug) => worlds[slug]);
 export const isWorldSlug = (value: unknown): value is WorldSlug =>
   typeof value === "string" && (WORLD_SLUGS as readonly string[]).includes(value);
 
+/** The world a page opens in when the URL names none. */
+export const DEFAULT_WORLD: WorldSlug = "dark-mode";
+
+/** The world named by a `?world=` value, or the default. */
+export const worldOr = (value: unknown): WorldSlug => (isWorldSlug(value) ? value : DEFAULT_WORLD);
+
+/** An internal link that opens in the given world. The default world keeps a clean URL. */
+export const withWorld = (href: string, world: WorldSlug): string => (world === DEFAULT_WORLD ? href : `${href}?world=${world}`);
+
 /** Shop Fast and the utility pages. Calm on purpose, so products and prices lead. */
 export const neutralTheme: Theme = {
   bg: "#F3F1EC",
@@ -210,6 +225,7 @@ export const neutralTheme: Theme = {
   accentFg: "#FBFAF7",
   danger: "#A12018",
   success: "#1F6B40",
+  glow: "#9AA3B5",
 };
 
 export const neutralVoice: DisplayVoice = {
@@ -260,6 +276,7 @@ function declarations(theme: Theme, voice: DisplayVoice, blade: string): string 
     `--accent-fg:${theme.accentFg}`,
     `--danger:${theme.danger}`,
     `--success:${theme.success}`,
+    `--glow:${theme.glow}`,
     `--display-family:${familyVar[voice.family]}`,
     `--display-weight:${voice.weight}`,
     `--display-tracking:${voice.tracking}`,

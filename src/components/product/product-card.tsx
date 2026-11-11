@@ -31,7 +31,7 @@ export function leadImage(product: CatalogProduct) {
   return null;
 }
 
-export function ProductCard({ product, sizes = "(max-width: 900px) 50vw, 25vw", compact = false }: { product: CatalogProduct; sizes?: string; compact?: boolean }) {
+export function ProductCard({ product, sizes = "(max-width: 640px) 78vw, (max-width: 900px) 50vw, 25vw", compact = false }: { product: CatalogProduct; sizes?: string; compact?: boolean }) {
   const image = leadImage(product);
   const href = `/products/${product.handle}`;
 
@@ -55,24 +55,27 @@ export function ProductCard({ product, sizes = "(max-width: 900px) 50vw, 25vw", 
           {product.isDemo ? <span className="demo-tag">{copy.demoTag}</span> : null}
           {product.soldOut ? <span className="demo-tag">{copy.micro.soldOut}</span> : null}
         </div>
+        <span className="card-go" aria-hidden="true">
+          →
+        </span>
       </div>
-      <div className="grid gap-1">
-        <h3 className="card-title">
-          <a href={href} className="card-link">
-            {product.name}
-          </a>
-        </h3>
-        {compact ? null : (
-          <p className="t-small text-muted">{[product.category, ...product.worlds.map((world) => worlds[world].name)].join(" · ")}</p>
-        )}
+      <div className="card-body">
+        <div className="card-head">
+          <h3 className="card-title">
+            <a href={href} className="card-link">
+              {product.name}
+            </a>
+          </h3>
+          {compact ? null : (
+            <div className="swatches" aria-label={`${copy.product.color}: ${product.colors.map((color) => color.name).join(", ")}`} role="img">
+              {product.colors.map((color) => (
+                <span key={color.id} className="swatch" style={{ backgroundColor: color.hex }} />
+              ))}
+            </div>
+          )}
+        </div>
+        {compact ? null : <p className="card-meta">{[product.category, ...product.worlds.map((world) => worlds[world].name)].join(" · ")}</p>}
         <Price priceUzs={product.priceUzs} compareAtUzs={product.compareAtUzs} />
-        {compact ? null : (
-          <div className="swatches" aria-label={`${copy.product.color}: ${product.colors.map((color) => color.name).join(", ")}`} role="img">
-            {product.colors.map((color) => (
-              <span key={color.id} className="swatch" style={{ backgroundColor: color.hex }} />
-            ))}
-          </div>
-        )}
       </div>
     </article>
   );
