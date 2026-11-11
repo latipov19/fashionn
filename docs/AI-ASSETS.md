@@ -31,8 +31,9 @@ Har bir faylning aniq nomi va prompti: **[AI-PROMPTS.md](AI-PROMPTS.md)**.
 2. `docs/AI-PROMPTS.md`dan promptni **toʻliq, oʻzgartirmasdan** nusxalang va xizmatga bering. 2–4 ta variant yarating.
 3. Eng yaxshisini tanlang (qoidalar 4-boʻlimda) va koʻrsatilgan nom bilan saqlang, masalan:
    `assets/incoming/products/noir-oversize-hudi/qora.png`
-4. 3D kerak boʻlsa, oʻsha PNG'ni 3D xizmatiga bering va GLB'ni yoniga xuddi shu nom bilan saqlang:
-   `assets/incoming/products/noir-oversize-hudi/qora.glb`
+4. 3D kerak boʻlsa, ikki yoʻl bor:
+   - **Meshy yoki Tripo:** oʻsha PNG'ni 3D xizmatiga bering va GLB'ni yoniga xuddi shu nom bilan saqlang: `assets/incoming/products/noir-oversize-hudi/qora.glb`
+   - **Akkauntsiz, terminaldan:** `npm run assets:shape -- noir-oversize-hudi` PNG'ni Hugging Face'dagi Tencent Hunyuan3D-2 ga yuboradi va teksturasiz shaklni `assets/incoming/shapes/` ga saqlaydi. Keyin `npm run assets:texture` shu shaklni har bir rangning PNG'si bilan bo'yaydi: old tomoniga surat tushadi, orqasi mato rangida boʻladi. Bitta shakl mahsulotning barcha ranglariga yetadi. Bepul GPU limiti kuniga bir necha shaklga yetadi; `.env.local`ga `HF_TOKEN` qoʻyilsa koʻpayadi.
 5. Terminalda ishga tushiring:
    ```bash
    npm run assets:import
@@ -79,5 +80,6 @@ Papkalar boʻlmasa yoki katalog oʻzgargan boʻlsa, avval `npm run assets:brief`
 ## 6. Qoidalar
 
 - **Hamma narsa DEMO.** Bu materiallar haqiqiy mahsulot emas. Sayt ularni avtomatik "DEMO" deb belgilaydi va rasm tavsifida "AI orqali yaratilgan namuna rasm, haqiqiy foto emas" deb yozadi.
+- **Boshqa birovning modeli boʻlsa, muallifini yozing.** Internetdan olingan model yoki surat (masalan, CC BY litsenziyali) [public/media/ai/CREDITS.md](../public/media/ai/CREDITS.md) fayliga muallifi, manbasi va litsenziyasi bilan yoziladi. Hozir u yerda bitta sinov modeli bor: Night Runner oʻrnidagi krossovka (Shopify, CC BY 4.0). Oʻzingiz yaratgan model kelganda u almashtiriladi va qatori oʻchiriladi.
 - **Haqiqiy odamlar va brendlar yoʻq.** Promptlarda tanilgan odamlarning ismi, boshqa brendlar yoki logotiplar ishlatilmaydi.
 - **Haqiqiy kiyim kelganda** haqiqiy foto yuklanadi. U avtomatik ravishda AI suratidan oldinga chiqadi (`DESIGN-SYSTEM.md`, 9-boʻlim).

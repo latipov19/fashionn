@@ -1,13 +1,179 @@
 {
   "version": 1,
-  "items": [],
+  "items": [
+    {
+      "id": "blackout-bomber/qora/render",
+      "productHandle": "blackout-bomber",
+      "colorSlug": "qora",
+      "role": "render",
+      "srcSet": [
+        {
+          "url": "/media/ai/products/blackout-bomber-qora-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/ai/products/blackout-bomber-qora-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/ai/products/blackout-bomber-qora-1600.webp",
+          "width": 1600
+        }
+      ],
+      "url": "/media/ai/products/blackout-bomber-qora-960.webp",
+      "width": 960,
+      "height": 1200,
+      "blur": "data:image/webp;base64,UklGRkQBAABXRUJQVlA4WAoAAAAQAAAADwAAEwAAQUxQSMYAAAABgJtt27Hnfp437Fg6le0BVLPKSJ7AGsDpbFRp09rOi/9u3i8zRMQEICqqgv+KACL/MMhpaCqASTDI3icvc2AigqoVOsutGigARccbnfeWH51QQLDBnxBC+OUmBAa9dCHq2AWjWKaNWS5BUfhMH/O8LwSG6UKiYx8wyb8ky1Fgk38+5i1XkXZBF5z33rtgeZxmTvh0yVQqRV5bbgNTvGlvbW5paqkZIkeARs5DAQgyr14KAa0ogFFVNSgqByAQxEVEAGgSVAFWUDggWAAAADAEAJ0BKhAAFAA+7WKpTamlo6IwCAEwHYlpAABcp35rpx9T/hIbn8dIAAD+7onJZtgCLCeir+M74oyFOAN1/qTUPRod3AeyXS+bsH3hFeOr7WFw6MAAAAA=",
+      "dominant": "#17171A",
+      "alt": "Blackout Bomber, qora: AI orqali yaratilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "cut-line-futbolka/sut/render",
+      "productHandle": "cut-line-futbolka",
+      "colorSlug": "sut",
+      "role": "render",
+      "srcSet": [
+        {
+          "url": "/media/ai/products/cut-line-futbolka-sut-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/ai/products/cut-line-futbolka-sut-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/ai/products/cut-line-futbolka-sut-1600.webp",
+          "width": 1600
+        }
+      ],
+      "url": "/media/ai/products/cut-line-futbolka-sut-960.webp",
+      "width": 960,
+      "height": 1200,
+      "blur": "data:image/webp;base64,UklGRnYBAABXRUJQVlA4WAoAAAAQAAAADwAAEwAAQUxQSMAAAAABgGPbtmlp3/PKRszUCo0+2O6Fu8HISCuv1Lbt9OHf807hvhrVhIiYABiJiPBHIgCwrABSKCkvLQbIQMidcsV3xnKgABC6WZiZRbeDQMh6E0drrR15TIOyMCouGx0ZgIWkC9GmkJwmAP1iB2hbuoFp0Wz2WaaB+Ka5Z9HMWu7m6mIBhbA1CTF7sgwCQCrmwLSCcAUoxF2aVqHwK+lJNHNINgJSP33X8xzZC0h+E1+EZccAqLzq2tra2pps/Ltlpl9WUDggkAAAABAEAJ0BKhAAFAA+7WKpTamlpCIwCAEwHYlAAHxpQcE4sAvE1UHOm60cAP6zr2v4hwprEWoA+Uc/LYwe74KekPr9A7pNRUnVHnDr2MYIghMX2KG14kcn3qtWwmMz7++FmvFubhid+0nE1oeLmAziV5ieejf5eoJYdyzLJla0SrNdQ0nKD21Xg7F694tKPdjgAA==",
+      "dominant": "#EFE9DD",
+      "alt": "Cut Line Futbolka, sut: AI orqali yaratilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "noir-oversize-hudi/grafit/render",
+      "productHandle": "noir-oversize-hudi",
+      "colorSlug": "grafit",
+      "role": "render",
+      "srcSet": [
+        {
+          "url": "/media/ai/products/noir-oversize-hudi-grafit-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/ai/products/noir-oversize-hudi-grafit-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/ai/products/noir-oversize-hudi-grafit-1600.webp",
+          "width": 1600
+        }
+      ],
+      "url": "/media/ai/products/noir-oversize-hudi-grafit-960.webp",
+      "width": 960,
+      "height": 1200,
+      "blur": "data:image/webp;base64,UklGRloBAABXRUJQVlA4WAoAAAAQAAAADwAAEwAAQUxQSMgAAAABgJtt21rl/f6kwt1dVuFQ2QIOc7hVrOHu7pRa0jkscPSX60WSzBARE4D/4vm+J4goABApt2N4uDsfEuRjlNZwBn6AIOeJ6TSfsyAABKUXNM5ZXlZAAA+z1M45l+EcFARln7T/DL9rIB56aFygZj88hXnqsDUoFH7SBhl+lAIxWhdq2A6MM2NDMhwDtiJYzX34d0wnjdZam0ycT8Ax1/doScfTJZ4DI2zoe7m5ur597WvlGFAfUwgW1dYIAAJRSilAAEB5iOgpAFZQOCBsAAAA0AMAnQEqEAAUAD7tYqlNqaWjojAIATAdiWkAA+N6Ge7uNg1ECw4AAP7jM+drgMcnyvndPoGiO4Uqjvo6zEobBJhfmFyxpIiViX6YzHegvcwh4C9neaazmi2RnLk91TsUYqFwNqDpOvtjAAAA",
+      "dominant": "#3C3E44",
+      "alt": "Noir Oversize Hudi, grafit: AI orqali yaratilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "noir-oversize-hudi/qora/render",
+      "productHandle": "noir-oversize-hudi",
+      "colorSlug": "qora",
+      "role": "render",
+      "srcSet": [
+        {
+          "url": "/media/ai/products/noir-oversize-hudi-qora-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/ai/products/noir-oversize-hudi-qora-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/ai/products/noir-oversize-hudi-qora-1600.webp",
+          "width": 1600
+        }
+      ],
+      "url": "/media/ai/products/noir-oversize-hudi-qora-960.webp",
+      "width": 960,
+      "height": 1200,
+      "blur": "data:image/webp;base64,UklGRjABAABXRUJQVlA4WAoAAAAQAAAADwAAEwAAQUxQSMcAAAABgFtt2/LkeX/BtfKOwyqQFhZwXcJtABgiqaCy2t1hAbc2+r0vD/LlnyEiJgD/JYyiUJBQACCBoKlvcrK/GeKLsUTnuIzII6i9ZaHAh0oIAEH7Hp2ZcrcdAgRYY9HMrMhVBBB0fH3rP+VHByTCKEvmLXEIYYBMkgwEzc9Un+NjM9BLNb8qe4A5FtVnRU4D6yyU0SI3EJ4yn1PnnNNclheQXaZ3aKRxM809YIUtUy8H+/sHrwOdXAC6UygvqS4AkAQCIAiRMBQAAFZQOCBCAAAAkAMAnQEqEAAUAD7tZKlOKaWjojAIATAdiWkAAFvpIPNGnpsMmAD+8NlrMJkGqgT6lkP+jauI+dPpvwsAiKBqCQAA",
+      "dominant": "#17171A",
+      "alt": "Noir Oversize Hudi, qora: AI orqali yaratilgan namuna rasm, haqiqiy foto emas"
+    },
+    {
+      "id": "shadow-kargo/qora/render",
+      "productHandle": "shadow-kargo",
+      "colorSlug": "qora",
+      "role": "render",
+      "srcSet": [
+        {
+          "url": "/media/ai/products/shadow-kargo-qora-480.webp",
+          "width": 480
+        },
+        {
+          "url": "/media/ai/products/shadow-kargo-qora-960.webp",
+          "width": 960
+        },
+        {
+          "url": "/media/ai/products/shadow-kargo-qora-1600.webp",
+          "width": 1600
+        }
+      ],
+      "url": "/media/ai/products/shadow-kargo-qora-960.webp",
+      "width": 960,
+      "height": 1200,
+      "blur": "data:image/webp;base64,UklGRlgBAABXRUJQVlA4WAoAAAAQAAAADwAAEwAAQUxQSNQAAAANgFvbtmplnfvd3d2JtAO6IKYcSiAiowhNiUnd3V3euweHEiJiAvhPYycmb0jOLRv7jeiUNwoyI/pFnPgQr/jHNy5Fv2gtYIPYrrvzQxPX4ASK+z/0UEcDNLf5voP3+K1Gb+0bJQWnTpna3hdxycClL0bhxAJoMAXnoQjZl1tRIBKF61BAs86NKKIZ43jNXcRN2gdAtMyb8RjciO9OFMgDyRdUSkd8jQOVF4T0JSCa4M0XMLz5YneAsjocYM3bCrAHYFmZz+grXrlIY0G5n75xkVkABVZQOCBeAAAAMAMAnQEqEAAUAD7tYqlNqaWjojAIATAdiWlMAAA3LmaswAD+7w+eI3eS0euPqTAYVEj9XPBUCW28vKWhFkv9ULZfx6SXmKLgKonsz7XABJHJYDlFeAsT5yxHEdAAAA==",
+      "dominant": "#17171A",
+      "alt": "Shadow Kargo Shim, qora: AI orqali yaratilgan namuna rasm, haqiqiy foto emas"
+    }
+  ],
   "models": [
+    {
+      "productHandle": "blackout-bomber",
+      "colorSlug": "qora",
+      "url": "/media/ai/3d/blackout-bomber-qora.glb",
+      "bytes": 1887604,
+      "triangles": 60000
+    },
+    {
+      "productHandle": "cut-line-futbolka",
+      "colorSlug": "sut",
+      "url": "/media/ai/3d/cut-line-futbolka-sut.glb",
+      "bytes": 1797380,
+      "triangles": 60000
+    },
     {
       "productHandle": "night-runner",
       "colorSlug": "qora",
       "url": "/media/ai/3d/night-runner-qora.glb",
       "bytes": 1871220,
       "triangles": 22700
+    },
+    {
+      "productHandle": "noir-oversize-hudi",
+      "colorSlug": "grafit",
+      "url": "/media/ai/3d/noir-oversize-hudi-grafit.glb",
+      "bytes": 1787276,
+      "triangles": 60000
+    },
+    {
+      "productHandle": "noir-oversize-hudi",
+      "colorSlug": "qora",
+      "url": "/media/ai/3d/noir-oversize-hudi-qora.glb",
+      "bytes": 1782156,
+      "triangles": 60000
+    },
+    {
+      "productHandle": "shadow-kargo",
+      "colorSlug": "qora",
+      "url": "/media/ai/3d/shadow-kargo-qora.glb",
+      "bytes": 1828504,
+      "triangles": 60000
     }
   ],
   "scenes": []

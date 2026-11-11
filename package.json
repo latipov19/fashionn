@@ -18,7 +18,9 @@
     "db:seed": "tsx src/server/db/seed-cli.ts",
     "media:generate": "tsx tools/demo-media/render.ts",
     "assets:brief": "tsx tools/assets/brief.ts",
-    "assets:import": "tsx tools/assets/import.ts"
+    "assets:import": "tsx tools/assets/import.ts",
+    "assets:shape": "tsx tools/assets/shape.ts",
+    "assets:texture": "tsx tools/assets/texture.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "0.5.15",
@@ -38,6 +40,7 @@
     "@gltf-transform/core": "4.5.1",
     "@gltf-transform/extensions": "4.5.1",
     "@gltf-transform/functions": "4.5.1",
+    "@gradio/client": "1.19.1",
     "@playwright/test": "1.65.0",
     "@tailwindcss/postcss": "4.3.4",
     "@types/node": "26.6.6",

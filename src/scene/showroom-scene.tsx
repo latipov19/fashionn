@@ -324,7 +324,8 @@ function Carousel({ world, items, target, input, onStep, bindInvalidate, onReady
   return (
     <>
       <ambientLight intensity={0.35} />
-      <directionalLight color={look.key.color} intensity={Math.min(look.key.intensity, 4) * 0.6} position={look.key.position} />
+      {/* White, not the world's tinted key: the world sets the angle, never the product's colour. */}
+      <directionalLight color="#ffffff" intensity={Math.min(look.key.intensity, 4) * 0.6} position={look.key.position} />
       <ProceduralEnvironment />
       {items.map((item, i) => (
         <group
@@ -372,6 +373,11 @@ export default function ShowroomScene({ onFail, ...props }: ShowroomSceneProps) 
       gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => {
         gl.setClearColor(0x000000, 0);
+        // Khronos PBR Neutral keeps a product's base colour close to its packshot. ACES, the
+        // default, warms and darkens light fabrics, so a milk tee would read as khaki.
+        gl.toneMapping = THREE.NeutralToneMapping;
+        // Neutral has no built-in lift (three's ACES multiplies by 1 / 0.6), so dark fabrics need a little.
+        gl.toneMappingExposure = 1.3;
         gl.domElement.addEventListener("webglcontextlost", (event) => {
           event.preventDefault();
           onFail();

@@ -138,6 +138,7 @@ Serverni toʻxtatish uchun terminalda `Ctrl + C` bosing.
 | `ADMIN_EMAIL` | Yoʻq | Birinchi admin akkauntining emaili. Baza ochilganda bunday akkaunt boʻlmasa, yaratiladi. |
 | `ADMIN_PASSWORD` | Yoʻq | Oʻsha admin paroli. Uzun, tasodifiy parol qoʻying. |
 | `NEXT_PUBLIC_SITE_URL` | Yoʻq | Saytning toʻliq manzili, metadata va havolalar uchun. Lokalda: `http://localhost:3100`. |
+| `HF_TOKEN` | Yoʻq | Hugging Face tokeni (read). `npm run assets:shape` uchun bepul GPU limitini oshiradi. Boʻlmasa, anonim limit ishlatiladi. |
 
 Admin panel hali yozilmagan, lekin akkaunt bazada yaratib qoʻyiladi.
 
@@ -176,6 +177,8 @@ Admin panel hali yozilmagan, lekin akkaunt bazada yaratib qoʻyiladi.
 | `npm run db:seed` | Bazani migratsiya qiladi va toʻldiradi | Avval `npm run dev`ni toʻxtating |
 | `npm run assets:brief` | Katalogdan AI promptlarini `docs/AI-PROMPTS.md`ga yozadi va `assets/incoming` papkalarini yaratadi | Katalog oʻzgarganda ishlating |
 | `npm run assets:import` | `assets/incoming`dagi AI fayllarni siqib, saytga ulaydi | Yoʻriqnoma: `docs/AI-ASSETS.md` |
+| `npm run assets:shape -- <mahsulot>` | Packshotdan teksturasiz 3D shakl yasaydi (Hugging Face, Tencent Hunyuan3D-2) | Bepul GPU limiti bilan cheklangan |
+| `npm run assets:texture` | Shaklni har bir rang packshoti bilan boʻyab GLB yasaydi, kompyuterda | ✅ Ishlaydi |
 | `npm run media:generate` | Demo kiyim eskizlarini `public/media/generated`ga chizadi va `media.generated.json`ni yangilaydi | Katalogga mahsulot yoki rang qoʻshilganda ishlating |
 
 ---

@@ -26,8 +26,9 @@ Legend: [x] done and verified, [~] partly done, [ ] not started.
 References: a "Try the Look" lineup of full-body looks with an "in this look" panel, a 3D product carousel with a large wordmark behind it, and a full-bleed photographic hero.
 
 - [x] AI asset pipeline: prompts from the catalogue (`npm run assets:brief`), import and optimisation (`npm run assets:import`), AI images lead over flats
-- [ ] Pilot asset: Noir Oversize Hudi, black, packshot and GLB (owner generates)
-- [ ] Remaining AI assets: 37 packshots, 4 looks, 8 heroes, GLBs where useful (owner generates)
+- [x] Pilot asset: Noir Oversize Hudi, qora and grafit packshots (owner) and GLBs (Hunyuan3D-2 shape, `npm run assets:shape`, dressed per colour by `npm run assets:texture`)
+- [~] Same route, one colour each so far: Cut Line Futbolka (sut), Blackout Bomber (qora), Shadow Kargo Shim (qora). DARK MODE's five products all have a 3D model
+- [ ] Remaining AI assets: 32 packshots, 4 looks, 8 heroes, GLBs where useful. Generating them from here is blocked on Hugging Face's anonymous GPU quota; an `HF_TOKEN` raises it
 - [ ] Try the Look lineup
 - [x] 3D product carousel and GLB viewer: the 3D Showroom on the home page (DESIGN-SYSTEM section 6, scene 3). Checked with one sample GLB in desktop Chrome, phone-sized Chrome and reduced motion; real devices are Stage 4
 - [ ] Photographic hero per world

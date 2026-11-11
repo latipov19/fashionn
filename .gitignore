@@ -22,3 +22,5 @@ public/uploads/
 # AI asset sources: large originals stay local, the optimised outputs in public/media/ai are committed
 /assets/incoming/*
 !/assets/incoming/README.md
+# The owner's drop folder for new AI images, before they are copied into assets/incoming
+/module png/
