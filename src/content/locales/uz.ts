@@ -299,6 +299,12 @@ export const uz = {
       noAccount: "Akkauntingiz yoʻqmi?",
       register: "Roʻyxatdan oʻtish",
       soon: "Tez orada",
+      card: {
+        id: "VYBE ID",
+        access: "Access your world",
+        motto: "Your world. Your identity.",
+        world: "World",
+      },
     },
   },
 

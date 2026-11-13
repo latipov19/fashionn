@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect, unstable_rethrow } from "next/navigation";
 import type { CSSProperties } from "react";
 import { LoginForm } from "@/components/account/login-form";
-import { SunrayMark } from "@/components/ui/marks";
+import { VybeIdCard } from "@/components/account/vybe-id-card";
 import { WorldPage } from "@/components/world/world-page";
 import { copy } from "@/content/copy";
 import { worldOr, worlds } from "@/content/worlds";
@@ -29,7 +29,8 @@ async function signedIn(): Promise<boolean> {
 
 /**
  * Shopper sign-in. Opens in the world named in the URL, keeps a checked `?next=` path, and sends
- * a shopper who is already signed in straight on. No 3D here: the page is about the form.
+ * a shopper who is already signed in straight on. No 3D here: the VYBE ID card is CSS and a
+ * small pointer handler, and the page is about the form.
  */
 export default async function LoginPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
@@ -42,17 +43,16 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
 
   return (
     <WorldPage world={world} className="page-login grain">
-      <div className="login-mark" aria-hidden="true">
-        <SunrayMark />
-      </div>
       <div className="shell login-grid">
-        <section className="login-intro" aria-labelledby="login-title">
+        <div className="login-head">
           <p className="kicker hero-in" style={step(0)}>
             {text.kicker}
           </p>
           <h1 id="login-title" className="t-display login-title hero-in" style={step(1)}>
             <span className="t-slant">{text.title}</span>
           </h1>
+        </div>
+        <div className="login-copy">
           <p className="t-lead text-muted measure hero-in" style={step(2)}>
             {text.lead}
           </p>
@@ -63,7 +63,11 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
             </span>
             <span className="t-small text-muted">{text.worldNote}</span>
           </p>
-        </section>
+        </div>
+
+        <div className="login-artifact hero-in" style={step(4)}>
+          <VybeIdCard world={current} />
+        </div>
 
         <section className="login-panel glass-2 hero-in" style={step(2)} aria-labelledby="login-form-title">
           <h2 id="login-form-title" className="t-micro">
