@@ -26,6 +26,8 @@ export const uz = {
     openMenu: "Menyuni ochish",
     closeMenu: "Menyuni yopish",
     search: "Qidirish",
+    signIn: "Kirish",
+    signInLabel: "Akkauntga kirish",
     pages: {
       home: "Bosh sahifa",
       drop: "Drop",
@@ -273,6 +275,31 @@ export const uz = {
     success: "Obuna boʻldingiz. Rahmat!",
     tooMany: "Urinishlar juda koʻp. Bir daqiqa kutib, qayta urinib koʻring.",
     failed: "Obuna boʻlib boʻlmadi. Qayta urinib koʻring.",
+  },
+
+  account: {
+    login: {
+      metaTitle: "Kirish",
+      kicker: "Akkaunt",
+      title: "Vaybingga qayt.",
+      lead: "VYBEVERSE olamiga qaytish uchun akkauntingizga kiring.",
+      worldNote: "Siz hozir shu olamdasiz. Kirgandan keyin ham u saqlanib qoladi.",
+      formTitle: "Akkauntga kirish",
+      email: "Email",
+      password: "Parol",
+      showPassword: "Parolni koʻrsatish",
+      hidePassword: "Parolni yashirish",
+      submit: "Kirish",
+      submitting: "Kirilmoqda",
+      failed: "Email yoki parol notoʻgʻri.",
+      tooMany: "Urinishlar juda koʻp. 15 daqiqa kutib, qayta urinib koʻring.",
+      unavailable: "Hozir kirib boʻlmadi. Birozdan keyin qayta urinib koʻring.",
+      forgot: "Parolni unutdingizmi?",
+      forgotNote: "Parolni tiklash hali ishga tushmagan. U keyingi bosqichda shu yerda paydo boʻladi.",
+      noAccount: "Akkauntingiz yoʻqmi?",
+      register: "Roʻyxatdan oʻtish",
+      soon: "Tez orada",
+    },
   },
 
   admin: {

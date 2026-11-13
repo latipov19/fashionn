@@ -72,6 +72,7 @@ Home page components as built:
 | Build Your Look | The pieces beside a sticky glass receipt with each piece's category and price and the server-computed total. Pointing at a piece or its line lights both and dims the rest. Five-piece looks lay out two large and three small |
 | Story | A manifesto in `--t-mega` whose words rise once, real catalogue counts (worlds, products, products with a 3D model) and the wordmark drifting behind |
 | Trust | Three glass cards with line icons. Copy is unchanged and makes no new claims |
+| Sign in `/login` | The hero's composition, quieter: editorial headline and the current world on the left, a glass panel with the form on the right (stacked on phones, the panel capped at 560 px on tablets). The Sunray mark turns slowly behind the type in place of the portal; no 3D loads here. Inputs take a glow focus ring in the world's `--glow`. Registration and password reset are marked «Tez orada» rather than linked |
 | Footer | Positioning line, link columns, light mode, and an oversized gradient wordmark cut by the page edge |
 
 Focus is a 2 px `--fg` outline with a 3 px offset; it follows rounded corners.

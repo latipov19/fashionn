@@ -6,6 +6,7 @@ import { copy } from "@/content/copy";
 import { pages } from "@/content/pages";
 import { worldList } from "@/content/worlds";
 import { getCart } from "@/server/cart";
+import { AccountLink, AccountLinkFallback } from "./account-link";
 import { MobileMenu } from "./mobile-menu";
 import { NavLinks, NavLinksFallback } from "./nav-links";
 
@@ -42,7 +43,7 @@ function BagIcon() {
 
 const navItems = pages.map(({ href, label }) => ({ href, label }));
 const worldItems = worldList.map((world) => ({ slug: world.slug, label: world.name, index: world.index, swatch: world.theme.bg }));
-const menuLabels = { open: copy.nav.openMenu, close: copy.nav.closeMenu, nav: copy.nav.main, worlds: copy.nav.worlds };
+const menuLabels = { open: copy.nav.openMenu, close: copy.nav.closeMenu, nav: copy.nav.main, worlds: copy.nav.worlds, signIn: copy.nav.signIn };
 
 export async function SiteHeader() {
   const count = await cartCount();
@@ -70,6 +71,9 @@ export async function SiteHeader() {
                 <SearchIcon />
                 <span className="search-label">{copy.nav.search}</span>
               </Link>
+              <Suspense fallback={<AccountLinkFallback label={copy.nav.signInLabel} />}>
+                <AccountLink label={copy.nav.signInLabel} />
+              </Suspense>
               <Link href="/cart" className="icon-link cart-link" aria-label={copy.nav.cartCount(count)}>
                 <BagIcon />
                 {count > 0 ? (

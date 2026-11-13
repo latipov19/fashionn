@@ -76,6 +76,8 @@ Money is integer whole soʻm. Columns are named `*_uzs`.
 
 Admin access is checked on the server in every read and action. `proxy.ts` is only a convenience redirect. Passwords use scrypt. Sessions are hashed rows in an HttpOnly, SameSite=Lax cookie, Secure in production. Login and checkout are rate limited in process memory, which is correct for one process and must move to shared storage before scaling out. Uploads are re-encoded by sharp, capped at 10 MB and named by the server.
 
+Shopper accounts (`/login`) are a separate boundary from admin: `customers` and `customer_sessions` tables, the `vv_customer` cookie, `src/server/customer-auth.ts` and their own rate limits, so a shopper session can never pass `requireAdmin` and shopper traffic cannot lock the admin out. Both kinds of session share `src/server/session-token.ts`: 32 random bytes in the cookie, only the SHA-256 stored. An unknown email and a wrong password take the same time and give the same answer. A `?next=` destination passes `safeNextPath` (same-site paths only, never `/login` or `/admin`) on the page and again in the action. `DEMO_CUSTOMER_EMAIL` and `DEMO_CUSTOMER_PASSWORD` create one shopper account at boot for local testing; they are ignored in production.
+
 `.env*` is ignored except `.env.example`, which has blank values.
 
 ## 7. 3D and motion

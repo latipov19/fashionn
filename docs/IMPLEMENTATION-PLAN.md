@@ -35,6 +35,8 @@ References: a "Try the Look" lineup of full-body looks with an "in this look" pa
 - [ ] Photographic hero per world
 
 ## Stage 2: ecommerce operations
+- [x] Shopper sign-in `/login`: customer accounts and sessions apart from admin, safe `?next=` redirects, world kept, development account from the environment
+- [ ] Registration, password reset, account page and sign-out
 - [ ] Guest `/checkout` and order page
 - [ ] Delivery zones editable in admin
 - [ ] Admin UI: products, stock, media, orders

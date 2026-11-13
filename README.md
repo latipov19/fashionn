@@ -60,6 +60,7 @@ Loyiha avval **Lierne** nomli boshqa doʻkon edi. Hozir u VYBEVERSE'ga koʻchiri
 | 3D Showroom | `/showroom` sahifasida. Olamning 7 tagacha mahsuloti yoy boʻylab turadi, orqada katta VYBEVERSE yozuvi. 3D modeli (GLB) bor mahsulot haqiqiy model boʻlib chiqadi, sekin aylanadi, sichqoncha yoki barmoq bilan sudrab aylantiriladi. Modeli yoʻq mahsulot rasmli kartochka boʻlib turadi. Modeli bor mahsulotlar birinchi turadi. 3D boʻlim ekranga yaqinlashganda yuklanadi va faqat ekranda koʻrinib turganda chiziladi. WebGL boʻlmasa, harakat kamaytirilgan boʻlsa yoki Yengil rejimda oʻrniga oddiy CSS karusel chiqadi. |
 | Dizayn tizimi | Ranglar, shrift ovozi va portal materiali faqat `src/content/worlds.ts`da belgilanadi. Shriftlar: Geologica, Sofia Sans Extra Condensed, Cormorant. |
 | Sayt qobigʻi | Demo bandi, suzuvchi shisha header (5 ta sahifa havolasi, qidiruv, savat soni; 1200 px dan tor ekranda menyu tugmasi, unda olamlar ham bor), footer va **Yengil rejim** tugmasi (3D, harakat va blur'ni oʻchiradi, brauzerda saqlanadi). |
+| Mijoz kirishi `/login` | Bosh sahifa uslubidagi kirish sahifasi: email, parol (koʻrsatish/yashirish tugmasi bilan), maydonni tark etganda va yuborishda tekshiruv, yuklanish holati, xato xabarlari oʻzbekcha. Tanlangan olam sahifada ham, kirgandan keyin ham saqlanadi. `?next=/look` kabi faqat sayt ichidagi manzilga qaytaradi, tashqi manzillar rad etiladi. Kirgan mijoz `/login`ni ochsa, darhol oʻtkazib yuboriladi. Sessiya HttpOnly cookie'da, admin sessiyasidan butunlay alohida (boshqa jadval, boshqa cookie, boshqa urinish limiti). Header'da hozircha kirish tugmasi yoʻq: sahifa manzil orqali ochiladi. |
 | 404 sahifa | Nomaʼlum manzil va hali qurilmagan sahifalar VYBEVERSE uslubidagi oʻzbekcha 404 sahifani ochadi, bosh sahifa va dropga qaytish tugmalari bilan. |
 | Demo rasmlar | 20 ta mahsulotning har bir rangi uchun kod orqali chizilgan kiyim eskizi (37 ta rasm, 3 oʻlchamda). Rasm burchagida DEMO yozuvi bor. |
 | AI materiallar zanjiri | Haqiqiy kiyim yoʻqligi sababli suratlar va 3D modellar AI orqali yaratiladi. Har bir fayl uchun prompt: [docs/AI-PROMPTS.md](docs/AI-PROMPTS.md), yoʻriqnoma: [docs/AI-ASSETS.md](docs/AI-ASSETS.md). Import qilingan AI surati eskizdan oldinga chiqadi. |
@@ -71,6 +72,7 @@ Loyiha avval **Lierne** nomli boshqa doʻkon edi. Hozir u VYBEVERSE'ga koʻchiri
 
 - `/shop`, `/worlds`, mahsulot sahifasi, `/cart`, `/checkout` — hali yozilmagan, 404 sahifani ochadi.
 - Admin panel. `/admin` manzili `/admin/login`ga yoʻnaltiradi, u yerda esa sahifa yoʻq (404).
+- Roʻyxatdan oʻtish, parolni tiklash, mijoz kabineti va chiqish tugmasi. Kirish sahifasida ular «Tez orada» deb belgilangan, soxta havola yoʻq.
 - Haqiqiy mahsulot fotolari (hozir kod orqali chizilgan demo eskizlar) va onlayn toʻlov.
 - Mahsulot kartalari, qidiruv va savat tugmalari hozircha 404 sahifaga olib boradi, chunki bu sahifalar keyingi qadamlarda quriladi.
 
@@ -137,6 +139,8 @@ Serverni toʻxtatish uchun terminalda `Ctrl + C` bosing.
 | `DATABASE_URL` | Yoʻq | Boʻsh qolsa, lokal PGlite ishlatiladi. Production uchun PostgreSQL manzili: `postgres://user:parol@host:5432/baza`. |
 | `ADMIN_EMAIL` | Yoʻq | Birinchi admin akkauntining emaili. Baza ochilganda bunday akkaunt boʻlmasa, yaratiladi. |
 | `ADMIN_PASSWORD` | Yoʻq | Oʻsha admin paroli. Uzun, tasodifiy parol qoʻying. |
+| `DEMO_CUSTOMER_EMAIL` | Yoʻq | Faqat lokal sinov uchun: `/login`ni sinash uchun mijoz akkaunti. Server ishga tushganda bunday akkaunt boʻlmasa, yaratiladi. Production'da eʼtiborsiz qoldiriladi. |
+| `DEMO_CUSTOMER_PASSWORD` | Yoʻq | Oʻsha sinov akkauntining paroli. Faqat sinov uchun ishlatiladigan parol qoʻying. |
 | `NEXT_PUBLIC_SITE_URL` | Yoʻq | Saytning toʻliq manzili, metadata va havolalar uchun. Lokalda: `http://localhost:3100`. |
 | `HF_TOKEN` | Yoʻq | Hugging Face tokeni (read). `npm run assets:shape` uchun bepul GPU limitini oshiradi. Boʻlmasa, anonim limit ishlatiladi. |
 

@@ -25,7 +25,8 @@ function ErrorIcon() {
   );
 }
 
-function FieldShell({
+/** Label, hint, control and error, wired together. Exported for fields with their own control, such as PasswordField. */
+export function FieldShell({
   label,
   hint,
   error,

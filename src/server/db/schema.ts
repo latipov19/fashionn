@@ -250,6 +250,37 @@ export const adminSessions = pgTable(
   (t) => [uniqueIndex("admin_sessions_token_hash_key").on(t.tokenHash), index("admin_sessions_expires_idx").on(t.expiresAt)],
 );
 
+/**
+ * Shoppers. Kept apart from admin_users on purpose: a customer session can never pass an admin
+ * check, because the two live in different tables behind different cookies.
+ */
+export const customers = pgTable(
+  "customers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** Stored lower case. */
+    email: text("email").notNull(),
+    passwordHash: text("password_hash").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("customers_email_key").on(t.email)],
+);
+
+export const customerSessions = pgTable(
+  "customer_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    customerId: uuid("customer_id")
+      .notNull()
+      .references(() => customers.id, { onDelete: "cascade" }),
+    /** SHA-256 of the cookie value. The raw token is never stored. */
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("customer_sessions_token_hash_key").on(t.tokenHash), index("customer_sessions_expires_idx").on(t.expiresAt)],
+);
+
 export const newsletterSignups = pgTable(
   "newsletter_signups",
   {

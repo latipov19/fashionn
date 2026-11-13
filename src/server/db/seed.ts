@@ -2,7 +2,7 @@ import { eq, sql } from "drizzle-orm";
 import { demoCatalog, demoStock } from "../../content/catalog.demo";
 import { hashPassword } from "../password";
 import type { Db } from "./client";
-import { adminUsers, productColors, products, productWorlds, variants } from "./schema";
+import { adminUsers, customers, productColors, products, productWorlds, variants } from "./schema";
 
 export function makeSku(productHandle: string, colorSlug: string, size: string): string {
   return `${productHandle}-${colorSlug}-${size}`.toUpperCase().replace(/[^A-Z0-9]+/g, "-");
@@ -62,9 +62,28 @@ export async function ensureAdminUser(db: Db): Promise<boolean> {
   return true;
 }
 
+/**
+ * Development only: a shopper account to try /login with, read from DEMO_CUSTOMER_EMAIL and
+ * DEMO_CUSTOMER_PASSWORD. Never runs in production, and never overwrites an existing account.
+ */
+export async function ensureDemoCustomer(db: Db): Promise<boolean> {
+  if (process.env.NODE_ENV === "production") return false;
+  const email = process.env.DEMO_CUSTOMER_EMAIL?.trim().toLowerCase();
+  const password = process.env.DEMO_CUSTOMER_PASSWORD;
+  if (!email || !password) return false;
+
+  const [existing] = await db.select({ id: customers.id }).from(customers).where(eq(customers.email, email)).limit(1);
+  if (existing) return false;
+
+  const passwordHash = await hashPassword(password);
+  const inserted = await db.insert(customers).values({ email, passwordHash }).onConflictDoNothing().returning({ id: customers.id });
+  return inserted.length > 0;
+}
+
 /** Runs on every boot. An empty `products` table seeds itself. */
 export async function ensureSeeded(db: Db): Promise<void> {
   const [row] = await db.select({ count: sql<number>`count(*)::int` }).from(products);
   if (!row || row.count === 0) await seedCatalog(db);
   await ensureAdminUser(db);
+  await ensureDemoCustomer(db);
 }

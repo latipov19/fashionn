@@ -30,6 +30,10 @@ vi.mock("next/navigation", () => ({
   redirect: (url: string) => {
     throw Object.assign(new Error("NEXT_REDIRECT"), { url });
   },
+  // Lets the framework's own signals through a catch, as the real one does.
+  unstable_rethrow: (error: unknown) => {
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") throw error;
+  },
 }));
 
 beforeEach(() => {

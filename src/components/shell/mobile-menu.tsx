@@ -6,6 +6,8 @@ import type { CSSProperties } from "react";
 import { useEffect, useId, useRef, useState } from "react";
 import type { WorldSlug } from "@/content/types";
 import { withWorld } from "@/content/worlds";
+import { loginPath } from "@/lib/safe-redirect";
+import { UserIcon } from "./account-link";
 import { isCurrent, type NavItem, useCurrentWorld } from "./nav-links";
 
 type WorldItem = { slug: WorldSlug; label: string; index: string; swatch: string };
@@ -13,7 +15,7 @@ type WorldItem = { slug: WorldSlug; label: string; index: string; swatch: string
 type Props = {
   items: readonly NavItem[];
   worlds: readonly WorldItem[];
-  labels: { open: string; close: string; nav: string; worlds: string };
+  labels: { open: string; close: string; nav: string; worlds: string; signIn: string };
 };
 
 /**
@@ -91,6 +93,20 @@ export function MobileMenu({ items, worlds, labels }: Props) {
                 </Link>
               ))}
             </div>
+            <div className="menu-group menu-account">
+              <Link
+                href={loginPath(pathname, world)}
+                onClick={close}
+                aria-current={pathname === "/login" ? "page" : undefined}
+                style={{ "--i": items.length } as CSSProperties}
+              >
+                <span className="inline-flex items-center gap-3">
+                  <UserIcon />
+                  {labels.signIn}
+                </span>
+                <span aria-hidden="true">→</span>
+              </Link>
+            </div>
             <div className="menu-group menu-worlds" role="group" aria-labelledby={worldsId}>
               <p id={worldsId} className="menu-group-title t-micro text-muted">
                 {labels.worlds}
@@ -101,7 +117,7 @@ export function MobileMenu({ items, worlds, labels }: Props) {
                   href={withWorld(pathname, item.slug)}
                   onClick={close}
                   aria-current={item.slug === world ? "true" : undefined}
-                  style={{ "--i": index + items.length } as CSSProperties}
+                  style={{ "--i": index + items.length + 1 } as CSSProperties}
                 >
                   <span className="inline-flex items-center gap-3">
                     <span className="menu-swatch" style={{ "--swatch": item.swatch } as CSSProperties} aria-hidden="true" />

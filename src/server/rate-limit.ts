@@ -61,6 +61,9 @@ const ONE_MINUTE = 60 * 1000;
 export const loginLimiter = createRateLimiter({ limit: 5, windowMs: FIFTEEN_MINUTES });
 /** Per email across all addresses, so rotating addresses does not buy more guesses. */
 export const loginAccountLimiter = createRateLimiter({ limit: 20, windowMs: FIFTEEN_MINUTES });
+/** The same two limits for shoppers, counted apart, so shopper traffic never locks the admin out. */
+export const customerLoginLimiter = createRateLimiter({ limit: 5, windowMs: FIFTEEN_MINUTES });
+export const customerLoginAccountLimiter = createRateLimiter({ limit: 20, windowMs: FIFTEEN_MINUTES });
 export const checkoutLimiter = createRateLimiter({ limit: 10, windowMs: ONE_MINUTE });
 export const newsletterLimiter = createRateLimiter({ limit: 5, windowMs: ONE_MINUTE });
 
