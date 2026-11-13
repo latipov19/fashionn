@@ -1,5 +1,34 @@
 import { describe, expect, it } from "vitest";
-import { wrapOffset } from "@/lib/showroom";
+import { clampPitch, frontOf, PITCH_MAX, PITCH_MIN, withinReach, wrapOffset } from "@/lib/showroom";
+
+describe("clampPitch", () => {
+  it("passes a small tilt through and holds a large one at the limit", () => {
+    expect(clampPitch(0.1)).toBe(0.1);
+    expect(clampPitch(5)).toBe(PITCH_MAX);
+    expect(clampPitch(-5)).toBe(PITCH_MIN);
+  });
+});
+
+describe("frontOf", () => {
+  it("finds the nearest whole turn, so a reset never spins a model more than half way", () => {
+    expect(frontOf(0.4)).toBe(0);
+    expect(frontOf(-0.4)).toBeCloseTo(0);
+    expect(frontOf(Math.PI * 2 + 0.3)).toBeCloseTo(Math.PI * 2);
+    expect(frontOf(Math.PI * 2 * 3 - 1)).toBeCloseTo(Math.PI * 2 * 3);
+  });
+});
+
+describe("withinReach", () => {
+  it("covers the chosen item and two either side, round the end of the list", () => {
+    const near = [0, 1, 2, 3, 4, 5, 6].filter((index) => withinReach(index, 0, 7, 2));
+    expect(near).toEqual([0, 1, 2, 5, 6]);
+  });
+
+  it("follows an unbounded selection", () => {
+    expect(withinReach(3, 10, 7, 0)).toBe(true);
+    expect(withinReach(0, 10, 7, 2)).toBe(false);
+  });
+});
 
 describe("wrapOffset", () => {
   it("is zero for the chosen item, however far the selection has wrapped", () => {

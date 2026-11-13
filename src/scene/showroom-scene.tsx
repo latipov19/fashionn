@@ -3,29 +3,34 @@
 import type { ThreeEvent } from "@react-three/fiber";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import type { ErrorInfo, ReactNode, RefObject } from "react";
-import { Component, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { Component, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { WorldSlug } from "@/content/types";
 import { worlds } from "@/content/worlds";
-import { wrapOffset } from "@/lib/showroom";
+import { clampPitch, frontOf, withinReach, wrapOffset } from "@/lib/showroom";
 import { ProceduralEnvironment } from "./environment";
 
 /*
  * The 3D Showroom, docs/DESIGN-SYSTEM.md section 6, scene 3. Products stand on an arc that turns
- * to the chosen one. A product with a GLB shows the model, which turns on its own axis; any other
- * product shows its packshot on a card. Rendering is on demand: frames are drawn while the arc
- * moves, while a model turns on screen, and during a drag. Off screen nothing is drawn.
+ * to the chosen one. A product with a GLB shows the model, which the visitor turns all the way
+ * round and tilts a little; any other product shows its packshot on a still card. Rendering is on
+ * demand: frames are drawn while the arc moves, while a model turns on screen, and during a drag.
+ * Off screen nothing is drawn.
  */
 
 export type ShowroomSceneItem = { key: string; texture: string | null; model: string | null; tint: string };
 
 /** Written by the DOM around the canvas, only read by the scene. */
 export type ShowroomInput = {
-  /** Total radians of turn from dragging, ever. The scene turns by the change since its last frame. */
+  /** Total radians of turn from horizontal dragging, ever. The scene turns by the change since its last frame. */
   spin: number;
+  /** Total radians of tilt from vertical dragging, ever. Read the same way, then held within limits. */
+  tilt: number;
   dragging: boolean;
+  /** Counts presses of the reset button. A change brings the chosen model back to its front. */
+  resets: number;
   /** True while the stage is on screen. */
   visible: boolean;
 };
@@ -39,6 +44,8 @@ export type ShowroomSceneProps = {
   /** Moves the selection by this many places. */
   onStep: (delta: number) => void;
   bindInvalidate: (invalidate: (() => void) | null) => void;
+  /** Reduced motion: the arc jumps, nothing turns on its own and a fling has no inertia. Dragging still turns. */
+  calm: boolean;
   onReady: () => void;
   onFail: () => void;
 };
@@ -54,14 +61,15 @@ const STEP = 0.5;
 const ARC_DEPTH = 0.5;
 /** Turn speed of the chosen model when nobody drags it, radians per second. About 18 s a turn. */
 const AUTO_SPIN = 0.35;
+/** Seconds the model holds the visitor's view after a drag or a reset before it turns on its own again. */
+const RESUME_AFTER = 2.5;
+/** Places either side of the chosen item whose GLB loads. Further items keep their card until they come near. */
+const MODEL_REACH = 2;
 /** Each place away from the chosen item shrinks it by this much, on top of the depth of the arc. */
 const NEIGHBOUR_SHRINK = 0.2;
 /** And fades it this far toward the page, so the chosen product leads while the others stay recognisable. */
 const NEIGHBOUR_FADE = 0.3;
-/** A card has no back, so it only tilts this far. */
-const CARD_TILT = 0.4;
 const SETTLE = 1e-3;
-const TAU = Math.PI * 2;
 
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 const mod = (value: number, n: number) => ((value % n) + n) % n;
@@ -268,18 +276,27 @@ class ModelBoundary extends Component<{ fallback: ReactNode; children: ReactNode
 
 /* The arc */
 
-function Carousel({ world, items, target, input, onStep, bindInvalidate, onReady }: Omit<ShowroomSceneProps, "onFail">) {
+function Carousel({ world, items, target, input, onStep, bindInvalidate, calm, onReady }: Omit<ShowroomSceneProps, "onFail">) {
   const layout = useLayout();
   const invalidate = useThree((state) => state.invalidate);
   const canvas = useThree((state) => state.gl.domElement);
 
   const slots = useRef<(THREE.Group | null)[]>([]);
+  const tilters = useRef<(THREE.Group | null)[]>([]);
   const spinners = useRef<(THREE.Group | null)[]>([]);
-  /** Turn of each item, radians. Mutated every frame, so it lives in a ref. */
+  /** Turn and tilt of each item, radians. Mutated every frame, so they live in refs. */
   const spins = useRef<number[]>([]);
+  const pitches = useRef<number[]>([]);
   const velocity = useRef(0);
-  /** The drag total at the last frame. */
+  /** The drag totals and reset count at the last frame. */
   const seenSpin = useRef(input.current.spin);
+  const seenTilt = useRef(input.current.tilt);
+  const seenResets = useRef(input.current.resets);
+  /** True while the chosen model eases back to its front after a reset. */
+  const resetting = useRef(false);
+  /** Time, seconds, before which the chosen model does not turn on its own. */
+  const holdUntil = useRef(0);
+  const lastActive = useRef(-1);
   /** Where the arc is now, as a fractional index. It chases `target`. */
   const current = useRef(target);
   /** Items whose model is on screen, rather than its stand-in card. */
@@ -315,12 +332,21 @@ function Carousel({ world, items, target, input, onStep, bindInvalidate, onReady
   );
   const loadedCallbacks = useMemo(() => new Map(items.map((item) => [item.key, () => markLoaded(item.key)])), [items, markLoaded]);
 
+  // Which GLBs to mount: the chosen item and two either side, plus any already asked for. Kept
+  // up to date during render, as React advises for state that follows props.
+  const [fetched, setFetched] = useState<ReadonlySet<string>>(() => new Set());
+  const arriving = items.filter((item, i) => item.model !== null && !fetched.has(item.key) && withinReach(i, target, items.length, MODEL_REACH));
+  if (arriving.length) setFetched(new Set([...fetched, ...arriving.map((item) => item.key)]));
+  const wanted = items.map((item, i) => item.model !== null && (fetched.has(item.key) || withinReach(i, target, items.length, MODEL_REACH)));
+
   useFrame((state, delta) => {
     const n = items.length;
     if (n === 0) return;
     const io = input.current;
     const dt = Math.min(delta, 0.05);
-    const follow = 1 - Math.exp(-dt * 7);
+    const now = performance.now() / 1000;
+    // Reduced motion: every change lands at once.
+    const follow = calm ? 1 : 1 - Math.exp(-dt * 7);
     let moving = false;
 
     current.current += (target - current.current) * follow;
@@ -331,36 +357,74 @@ function Carousel({ world, items, target, input, onStep, bindInvalidate, onReady
     const chosen = items[active]!;
     const turns = chosen.model !== null && loaded.current.has(chosen.key);
     const spin = spins.current;
-    for (let i = 0; i < n; i++) spin[i] ??= 0;
+    const pitch = pitches.current;
+    for (let i = 0; i < n; i++) {
+      spin[i] ??= 0;
+      pitch[i] ??= 0;
+    }
     const dragged = io.spin - seenSpin.current;
+    const tilted = io.tilt - seenTilt.current;
     seenSpin.current = io.spin;
+    seenTilt.current = io.tilt;
 
-    // The chosen item: a model turns freely with inertia, a card tilts and springs back.
-    if (io.dragging) {
+    // A new choice starts still: a fling at the last product does not carry over to this one.
+    if (active !== lastActive.current) {
+      lastActive.current = active;
+      velocity.current = 0;
+      resetting.current = false;
+      holdUntil.current = 0;
+    }
+    if (io.resets !== seenResets.current) {
+      seenResets.current = io.resets;
+      resetting.current = turns;
+      velocity.current = 0;
+      holdUntil.current = now + RESUME_AFTER;
+    }
+
+    // The chosen item. A model turns freely and tilts within limits; a card never moves, it has no back.
+    if (turns && io.dragging) {
+      resetting.current = false;
       spin[active] = spin[active]! + dragged;
-      velocity.current = THREE.MathUtils.lerp(velocity.current, dt > 0 ? dragged / dt : 0, 0.5);
+      pitch[active] = clampPitch(pitch[active]! + tilted);
+      velocity.current = calm ? 0 : THREE.MathUtils.lerp(velocity.current, dt > 0 ? dragged / dt : 0, 0.5);
+      holdUntil.current = now + RESUME_AFTER;
       moving = true;
-    } else if (turns) {
+    } else if (turns && resetting.current) {
+      const front = frontOf(spin[active]!);
+      spin[active] = spin[active]! + (front - spin[active]!) * follow;
+      pitch[active] = pitch[active]! * (1 - follow);
+      if (Math.abs(front - spin[active]!) < SETTLE && Math.abs(pitch[active]!) < SETTLE) {
+        spin[active] = front;
+        pitch[active] = 0;
+        resetting.current = false;
+      }
+      moving = true;
+    } else if (turns && !calm) {
+      // Inertia from a fling, then, once the visitor has let it be, a slow turn on its own.
       velocity.current *= Math.exp(-dt * 2.5);
-      spin[active] = spin[active]! + (velocity.current + (io.visible ? AUTO_SPIN : 0)) * dt;
+      const auto = io.visible && now >= holdUntil.current;
+      spin[active] = spin[active]! + (velocity.current + (auto ? AUTO_SPIN : 0)) * dt;
+      // Turning on its own, it also comes back level.
+      if (auto) pitch[active] = pitch[active]! * Math.exp(-dt * 1.5);
       moving = true;
     } else {
+      // Reduced motion, a card, or a model still loading: it holds still where it was left.
       velocity.current = 0;
-      spin[active] = spin[active]! * (1 - follow);
-      if (Math.abs(spin[active]!) > SETTLE) moving = true;
-      else spin[active] = 0;
     }
-    if (!turns) spin[active] = THREE.MathUtils.clamp(spin[active]!, -CARD_TILT, CARD_TILT);
 
-    // Everything else settles facing front, by the shortest way round.
+    // Everything else settles facing front and level, by the shortest way round.
     for (let i = 0; i < n; i++) {
       if (i === active) continue;
-      const rest = Math.round(spin[i]! / TAU) * TAU;
+      const rest = frontOf(spin[i]!);
       const gap = rest - spin[i]!;
-      if (Math.abs(gap) > SETTLE) {
+      if (Math.abs(gap) > SETTLE || Math.abs(pitch[i]!) > SETTLE) {
         spin[i] = spin[i]! + gap * follow;
+        pitch[i] = pitch[i]! * (1 - follow);
         moving = true;
-      } else spin[i] = rest;
+      } else {
+        spin[i] = rest;
+        pitch[i] = 0;
+      }
     }
 
     for (let i = 0; i < n; i++) {
@@ -379,6 +443,9 @@ function Carousel({ world, items, target, input, onStep, bindInvalidate, onReady
       if (slot.visible) fadeSlot(slot, Math.min(Math.abs(offset), 2) * NEIGHBOUR_FADE, page);
       const spinner = spinners.current[i];
       if (spinner) spinner.rotation.y = spin[i]!;
+      // Tilted about the slot's middle, which is about the middle of a fitted model, so it stays framed.
+      const tilter = tilters.current[i];
+      if (tilter) tilter.rotation.x = pitch[i]!;
     }
 
     if (moving && io.visible) state.invalidate();
@@ -435,18 +502,24 @@ function Carousel({ world, items, target, input, onStep, bindInvalidate, onReady
           </mesh>
           <group
             ref={(node) => {
-              spinners.current[i] = node;
+              tilters.current[i] = node;
             }}
           >
-            {item.model ? (
-              <ModelBoundary fallback={<Card item={item} layout={layout} page={page} />}>
-                <Suspense fallback={<Card item={item} layout={layout} page={page} />}>
-                  <Model url={item.model} layout={layout} onLoaded={loadedCallbacks.get(item.key)!} />
-                </Suspense>
-              </ModelBoundary>
-            ) : (
-              <Card item={item} layout={layout} page={page} />
-            )}
+            <group
+              ref={(node) => {
+                spinners.current[i] = node;
+              }}
+            >
+              {item.model && wanted[i] ? (
+                <ModelBoundary fallback={<Card item={item} layout={layout} page={page} />}>
+                  <Suspense fallback={<Card item={item} layout={layout} page={page} />}>
+                    <Model url={item.model} layout={layout} onLoaded={loadedCallbacks.get(item.key)!} />
+                  </Suspense>
+                </ModelBoundary>
+              ) : (
+                <Card item={item} layout={layout} page={page} />
+              )}
+            </group>
           </group>
           <Shadow layout={layout} />
         </group>

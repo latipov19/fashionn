@@ -5,7 +5,7 @@ import type { CSSProperties, PointerEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { WorldSlug } from "@/content/types";
 import { wrapOffset } from "@/lib/showroom";
-import { setLiteMode, useLiteMode, useMediaQuery, useMotionAllowed } from "@/lib/use-motion";
+import { setLiteMode, useLiteMode, useMediaQuery } from "@/lib/use-motion";
 import type { ShowroomInput, ShowroomSceneItem } from "@/scene/showroom-scene";
 import { hasWebGL, SceneBoundary } from "./scene-boundary";
 
@@ -35,10 +35,12 @@ export type ShowroomCopy = {
   next: string;
   modelTag: string;
   dragHint: string;
+  resetView: string;
+  /** Said of a chosen product with no GLB, so its picture is never taken for a model. */
+  noModel: string;
   /** Why the products show as pictures, when 3D is off. */
   offLite: string;
   turnOn3d: string;
-  offReduced: string;
   offFailed: string;
   demoTag: string;
   wordmark: string;
@@ -46,6 +48,8 @@ export type ShowroomCopy = {
 
 /** One full turn of a model per this many stage widths of drag. */
 const DRAG_TURNS = 1.2;
+/** Radians of tilt per stage height of vertical drag. The scene holds the tilt within its limits. */
+const DRAG_TILT = 1.5;
 /** Pixels a pointer moves before a press becomes a drag. */
 const DRAG_START = 4;
 
@@ -53,7 +57,8 @@ const pad = (value: number) => String(value).padStart(2, "0");
 
 /**
  * The 3D Showroom. The poster below the canvas is a CSS carousel of the same products, so the
- * section works before the 3D loads, without WebGL, under reduced motion and in light mode.
+ * section works before the 3D loads, without WebGL, in light mode and in a world with no models.
+ * Under reduced motion the 3D still loads, calm: nothing moves unless the visitor moves it.
  * Buttons and the placard are plain DOM and never depend on the scene.
  */
 export function Showroom({ world, items, copy }: { world: WorldSlug; items: ShowroomItem[]; copy: ShowroomCopy }) {
@@ -66,16 +71,23 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
   const active = count ? ((target % count) + count) % count : 0;
   const item = items[active];
 
-  const motion = useMotionAllowed();
+  // Light mode turns 3D off. A world whose products have no GLB never loads WebGL: its cards would
+  // only repeat the poster. Reduced motion keeps the 3D but calms it. Every gate reads false on the
+  // server, so the first paint is the poster and hydration matches.
+  const lite = useLiteMode();
+  const calm = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const hasModels = items.some((entry) => entry.model);
+  const allow3d = !lite && hasModels;
+
   const [near, setNear] = useState(false);
   const [idle, setIdle] = useState(false);
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
   const [dragging, setDragging] = useState(false);
   const stage = useRef<HTMLDivElement>(null);
-  const input = useRef<ShowroomInput>({ spin: 0, dragging: false, visible: false });
+  const input = useRef<ShowroomInput>({ spin: 0, tilt: 0, dragging: false, resets: 0, visible: false });
   const invalidate = useRef<(() => void) | null>(null);
-  const press = useRef<{ id: number; startX: number; x: number } | null>(null);
+  const press = useRef<{ id: number; startX: number; startY: number; x: number; y: number } | null>(null);
 
   // Load the 3D when the stage comes near. Draw frames only while it is on screen.
   useEffect(() => {
@@ -97,7 +109,7 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
   }, []);
 
   useEffect(() => {
-    if (!motion || !near || failed || idle) return;
+    if (!allow3d || !near || failed || idle) return;
     const start = () => (hasWebGL() ? setIdle(true) : setFailed(true));
     if ("requestIdleCallback" in window) {
       const id = window.requestIdleCallback(start, { timeout: 2000 });
@@ -105,17 +117,15 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
     }
     const id = setTimeout(start, 600);
     return () => clearTimeout(id);
-  }, [motion, near, failed, idle]);
+  }, [allow3d, near, failed, idle]);
 
-  const use3d = motion && idle && !failed;
+  const use3d = allow3d && idle && !failed;
   const showScene = use3d && ready;
+  /** The chosen product is a model on screen, so a drag turns it. */
+  const rotatable = showScene && Boolean(item?.model);
 
-  // A showroom of pictures needs a reason on screen, or it reads as broken. Every gate is false
-  // on the server, so the first paint shows no reason and hydration matches.
-  const lite = useLiteMode();
-  const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const hasModels = items.some((entry) => entry.model);
-  const off = !hasModels ? null : lite ? "lite" : reduced ? "reduced" : failed ? "failed" : null;
+  // A showroom of pictures needs a reason on screen, or it reads as broken.
+  const off = !hasModels ? null : lite ? "lite" : failed ? "failed" : null;
 
   const step = useCallback((delta: number) => setSelection((state) => ({ world: state.world, target: state.target + delta })), []);
   const bindInvalidate = useCallback((fn: (() => void) | null) => {
@@ -132,20 +142,30 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
   );
 
   function down(event: PointerEvent<HTMLDivElement>) {
-    if (!showScene || !event.isPrimary || event.button !== 0) return;
-    press.current = { id: event.pointerId, startX: event.clientX, x: event.clientX };
+    if (!rotatable || !event.isPrimary || event.button !== 0) return;
+    press.current = { id: event.pointerId, startX: event.clientX, startY: event.clientY, x: event.clientX, y: event.clientY };
   }
   function move(event: PointerEvent<HTMLDivElement>) {
     const current = press.current;
     if (!current || current.id !== event.pointerId) return;
     if (!input.current.dragging) {
-      if (Math.abs(event.clientX - current.startX) < DRAG_START) return;
+      if (Math.hypot(event.clientX - current.startX, event.clientY - current.startY) < DRAG_START) return;
       input.current.dragging = true;
       setDragging(true);
     }
+    // Across turns the model all the way round. Down and up tilt it toward and away from the
+    // viewer. On touch a vertical swipe scrolls the page instead (`pan-y`), so tilt comes with a
+    // drag that starts sideways.
     const width = stage.current?.clientWidth ?? 1;
+    const height = stage.current?.clientHeight ?? 1;
     input.current.spin += ((event.clientX - current.x) / width) * Math.PI * 2 * DRAG_TURNS;
+    input.current.tilt += ((event.clientY - current.y) / height) * DRAG_TILT;
     current.x = event.clientX;
+    current.y = event.clientY;
+    invalidate.current?.();
+  }
+  function resetView() {
+    input.current.resets += 1;
     invalidate.current?.();
   }
   function release(event: PointerEvent<HTMLDivElement>) {
@@ -166,6 +186,7 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
         ref={stage}
         className="showroom-stage"
         data-ready={showScene}
+        data-rotatable={rotatable}
         data-dragging={dragging}
         onPointerDown={down}
         onPointerMove={move}
@@ -216,6 +237,7 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
               input={input}
               onStep={step}
               bindInvalidate={bindInvalidate}
+              calm={calm}
               onReady={onReady}
               onFail={fail}
             />
@@ -232,17 +254,19 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
           <span className="showroom-progress" style={{ "--p": (active + 1) / count } as CSSProperties} aria-hidden="true" />
           {off ? (
             <p className="showroom-off t-small text-muted">
-              {off === "lite" ? copy.offLite : off === "reduced" ? copy.offReduced : copy.offFailed}
+              {off === "lite" ? copy.offLite : copy.offFailed}
               {off === "lite" ? (
                 <button type="button" className="showroom-on" onClick={() => setLiteMode(false)}>
                   {copy.turnOn3d}
                 </button>
               ) : null}
             </p>
-          ) : (
-            <span className="showroom-hint t-small text-muted" data-show={showScene && Boolean(item.model)} aria-hidden={!(showScene && item.model)}>
+          ) : item.model ? (
+            <span className="showroom-hint t-small text-muted" data-show={rotatable} aria-hidden={!rotatable}>
               {copy.dragHint}
             </span>
+          ) : (
+            <span className="showroom-hint t-small text-muted">{copy.noModel}</span>
           )}
         </div>
         <div className="showroom-placard" aria-live="polite">
@@ -264,6 +288,11 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
           </span>
         </div>
         <div className="showroom-arrows">
+          {rotatable ? (
+            <button type="button" className="showroom-nav showroom-reset" onClick={resetView} aria-label={copy.resetView} title={copy.resetView}>
+              <span aria-hidden="true">↺</span>
+            </button>
+          ) : null}
           <button type="button" className="showroom-nav" onClick={() => step(-1)} aria-label={copy.prev} disabled={count < 2}>
             <span aria-hidden="true">←</span>
           </button>

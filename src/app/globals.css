@@ -1121,8 +1121,10 @@
   .showroom-slide[data-active="true"] { cursor: default; }
   .showroom-slide[data-far="true"] { visibility: hidden; }
   .showroom-slide img { width: 100%; height: 100%; object-fit: cover; }
-  .showroom-canvas { z-index: 2; opacity: 0; cursor: grab; transition: opacity var(--d-4) var(--ease-out); }
+  .showroom-canvas { z-index: 2; opacity: 0; transition: opacity var(--d-4) var(--ease-out); }
   .showroom-stage[data-ready="true"] .showroom-canvas { opacity: 1; }
+  /* Only a model turns. A product shown as a picture does not offer to. */
+  .showroom-stage[data-rotatable="true"] .showroom-canvas { cursor: grab; }
   .showroom-stage[data-dragging="true"] .showroom-canvas { cursor: grabbing; }
   /* Phones: the product first, then the count and the arrows. From 900 px: one row. */
   .showroom-bar {
