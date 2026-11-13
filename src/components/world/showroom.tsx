@@ -5,7 +5,7 @@ import type { CSSProperties, PointerEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { WorldSlug } from "@/content/types";
 import { wrapOffset } from "@/lib/showroom";
-import { useMotionAllowed } from "@/lib/use-motion";
+import { setLiteMode, useLiteMode, useMediaQuery, useMotionAllowed } from "@/lib/use-motion";
 import type { ShowroomInput, ShowroomSceneItem } from "@/scene/showroom-scene";
 import { hasWebGL, SceneBoundary } from "./scene-boundary";
 
@@ -35,6 +35,11 @@ export type ShowroomCopy = {
   next: string;
   modelTag: string;
   dragHint: string;
+  /** Why the products show as pictures, when 3D is off. */
+  offLite: string;
+  turnOn3d: string;
+  offReduced: string;
+  offFailed: string;
   demoTag: string;
   wordmark: string;
 };
@@ -104,6 +109,13 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
 
   const use3d = motion && idle && !failed;
   const showScene = use3d && ready;
+
+  // A showroom of pictures needs a reason on screen, or it reads as broken. Every gate is false
+  // on the server, so the first paint shows no reason and hydration matches.
+  const lite = useLiteMode();
+  const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const hasModels = items.some((entry) => entry.model);
+  const off = !hasModels ? null : lite ? "lite" : reduced ? "reduced" : failed ? "failed" : null;
 
   const step = useCallback((delta: number) => setSelection((state) => ({ world: state.world, target: state.target + delta })), []);
   const bindInvalidate = useCallback((fn: (() => void) | null) => {
@@ -218,9 +230,20 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
             {pad(active + 1)} / {pad(count)}
           </span>
           <span className="showroom-progress" style={{ "--p": (active + 1) / count } as CSSProperties} aria-hidden="true" />
-          <span className="showroom-hint t-small text-muted" data-show={showScene && Boolean(item.model)} aria-hidden={!(showScene && item.model)}>
-            {copy.dragHint}
-          </span>
+          {off ? (
+            <p className="showroom-off t-small text-muted">
+              {off === "lite" ? copy.offLite : off === "reduced" ? copy.offReduced : copy.offFailed}
+              {off === "lite" ? (
+                <button type="button" className="showroom-on" onClick={() => setLiteMode(false)}>
+                  {copy.turnOn3d}
+                </button>
+              ) : null}
+            </p>
+          ) : (
+            <span className="showroom-hint t-small text-muted" data-show={showScene && Boolean(item.model)} aria-hidden={!(showScene && item.model)}>
+              {copy.dragHint}
+            </span>
+          )}
         </div>
         <div className="showroom-placard" aria-live="polite">
           <span className="sr-only">

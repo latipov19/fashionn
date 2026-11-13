@@ -58,6 +58,10 @@ export const uz = {
       next: "Keyingi mahsulot",
       modelTag: "3D",
       dragHint: "Sudrab aylantiring",
+      offLite: "Yengil rejim yoqilgan, shuning uchun 3D oʻchiq.",
+      turnOn3d: "3D ni yoqish",
+      offReduced: "Qurilmangizda animatsiyalar oʻchirilgan, shuning uchun 3D koʻrsatilmayapti.",
+      offFailed: "Brauzeringiz 3D ni koʻrsata olmadi (WebGL). Mahsulotlar surat koʻrinishida.",
     },
     look: {
       kicker: "Build Your Look",
