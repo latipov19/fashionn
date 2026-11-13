@@ -47,8 +47,17 @@ const FOV = 30;
 const CAMERA_Z = 5;
 /** Radians between neighbours on the arc. */
 const STEP = 0.5;
+/**
+ * The arc is an ellipse this much shallower than a circle. On a wide stage a circle sends the
+ * outer pair so far back that perspective draws them on top of the inner pair.
+ */
+const ARC_DEPTH = 0.5;
 /** Turn speed of the chosen model when nobody drags it, radians per second. About 18 s a turn. */
 const AUTO_SPIN = 0.35;
+/** Each place away from the chosen item shrinks it by this much, on top of the depth of the arc. */
+const NEIGHBOUR_SHRINK = 0.2;
+/** And fades it this far toward the page, so the chosen product leads while the others stay recognisable. */
+const NEIGHBOUR_FADE = 0.3;
 /** A card has no back, so it only tilts this far. */
 const CARD_TILT = 0.4;
 const SETTLE = 1e-3;
@@ -59,16 +68,52 @@ const mod = (value: number, n: number) => ((value % n) + n) % n;
 
 type Layout = { slotW: number; slotH: number; radius: number };
 
+/* Fading. A lit material is not made transparent: that would change its shader and let any alpha
+   in its texture through. Its colour dims and its emission rises toward the page colour instead,
+   which reads as fading into the page on a dark world and a light one. Unlit cards and shadows,
+   which are transparent already, fade by opacity. */
+
+type Fadeable = THREE.Material & { color?: THREE.Color; emissive?: THREE.Color };
+type Base = { color: THREE.Color | null; emissive: THREE.Color | null; opacity: number };
+const bases = new WeakMap<THREE.Material, Base>();
+const mixed = new THREE.Color();
+
+function fadeMaterial(material: Fadeable, amount: number, page: THREE.Color) {
+  if (!material.visible || material.userData.solid) return;
+  let base = bases.get(material);
+  if (!base) {
+    base = { color: material.color?.clone() ?? null, emissive: material.emissive?.clone() ?? null, opacity: material.opacity };
+    bases.set(material, base);
+  }
+  if (material.color && material.emissive && base.color && base.emissive) {
+    material.color.copy(base.color).multiplyScalar(1 - amount);
+    material.emissive.copy(base.emissive).multiplyScalar(1 - amount).add(mixed.copy(page).multiplyScalar(amount));
+  } else {
+    material.opacity = base.opacity * (1 - amount);
+  }
+}
+
+function fadeSlot(slot: THREE.Object3D, amount: number, page: THREE.Color) {
+  slot.traverse((node) => {
+    const material = (node as THREE.Mesh).material as Fadeable | Fadeable[] | undefined;
+    if (!material) return;
+    if (Array.isArray(material)) for (const entry of material) fadeMaterial(entry, amount, page);
+    else fadeMaterial(material, amount, page);
+  });
+}
+
 /**
  * Item size and arc radius from the visible area at z = 0. The CSS fallback uses the same
- * fractions (`.showroom-slide`), so the poster and the scene frame products alike.
+ * fractions (`.showroom-slide`), so the poster and the scene frame products alike. A slot is 80%
+ * of the stage height. Neighbours stand 30% of the width away, but never under 0.95 or over 1.6
+ * slots, so a very wide stage cannot push them so deep that they stack behind one another.
  */
 function useLayout(): Layout {
   const viewport = useThree((state) => state.viewport);
   return useMemo(() => {
     const { width, height } = viewport;
-    const slotW = Math.min(height * 0.528, width * 0.62);
-    const neighbour = Math.max(width * 0.3, slotW * 0.95);
+    const slotW = Math.min(height * 0.64, width * 0.62);
+    const neighbour = Math.max(Math.min(width * 0.3, slotW * 1.6), slotW * 0.95);
     return { slotW, slotH: slotW / 0.8, radius: neighbour / Math.sin(STEP) };
   }, [viewport]);
 }
@@ -104,6 +149,19 @@ function Shadow({ layout }: { layout: Layout }) {
 
 /* Cards */
 
+/**
+ * An opaque plane of the page colour just behind a card. A faded card then shows the page through
+ * it, as a model fades toward the page, and never the wordmark or a neighbour behind.
+ */
+function Backing({ layout, page }: { layout: Layout; page: THREE.Color }) {
+  return (
+    <mesh position={[0, 0, -0.01]}>
+      <planeGeometry args={[layout.slotW, layout.slotH]} />
+      <meshBasicMaterial color={page} toneMapped={false} userData={{ solid: true }} />
+    </mesh>
+  );
+}
+
 function CardImage({ url, layout }: { url: string; layout: Layout }) {
   const loaded = useLoader(THREE.TextureLoader, url);
   const gl = useThree((state) => state.gl);
@@ -125,13 +183,20 @@ function CardImage({ url, layout }: { url: string; layout: Layout }) {
   );
 }
 
-function Card({ item, layout }: { item: ShowroomSceneItem; layout: Layout }) {
-  if (item.texture) return <CardImage url={item.texture} layout={layout} />;
+function Card({ item, layout, page }: { item: ShowroomSceneItem; layout: Layout; page: THREE.Color }) {
   return (
-    <mesh>
-      <planeGeometry args={[layout.slotW, layout.slotH]} />
-      <meshBasicMaterial color={item.tint} toneMapped={false} side={THREE.DoubleSide} />
-    </mesh>
+    <>
+      <Backing layout={layout} page={page} />
+      {item.texture ? (
+        <CardImage url={item.texture} layout={layout} />
+      ) : (
+        <mesh>
+          <planeGeometry args={[layout.slotW, layout.slotH]} />
+          {/* Transparent, so it can fade like a picture card. */}
+          <meshBasicMaterial color={item.tint} toneMapped={false} transparent side={THREE.DoubleSide} />
+        </mesh>
+      )}
+    </>
   );
 }
 
@@ -147,15 +212,33 @@ const withMeshopt = (loader: GLTFLoader) => {
  */
 function Model({ url, layout, onLoaded }: { url: string; layout: Layout; onLoaded: () => void }) {
   const gltf = useLoader(GLTFLoader, url, withMeshopt);
-  // The loader caches one scene per URL. A clone shares geometry and materials, so it is cheap.
-  const object = useMemo(() => gltf.scene.clone(true), [gltf]);
+  // The loader caches one scene per URL. A clone shares its geometry, so it is cheap. Materials
+  // are copied, so this item can fade on the arc without touching the cached original. A copy
+  // shares its textures, so freeing it frees no texture.
+  const object = useMemo(() => {
+    const clone = gltf.scene.clone(true);
+    clone.traverse((node) => {
+      const mesh = node as THREE.Mesh;
+      if (mesh.isMesh) mesh.material = Array.isArray(mesh.material) ? mesh.material.map((material) => material.clone()) : mesh.material.clone();
+    });
+    return clone;
+  }, [gltf]);
+  useEffect(
+    () => () =>
+      object.traverse((node) => {
+        const mesh = node as THREE.Mesh;
+        if (!mesh.isMesh) return;
+        for (const material of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) material.dispose();
+      }),
+    [object],
+  );
   const bounds = useMemo(() => {
     const box = new THREE.Box3().setFromObject(object);
     return { size: box.getSize(new THREE.Vector3()), center: box.getCenter(new THREE.Vector3()) };
   }, [object]);
   const fit = useMemo(() => {
     const { size, center } = bounds;
-    const scale = Math.min((layout.slotW * 1.2) / Math.max(Math.hypot(size.x, size.z), 1e-6), (layout.slotH * 0.9) / Math.max(size.y, 1e-6));
+    const scale = Math.min((layout.slotW * 1.2) / Math.max(Math.hypot(size.x, size.z), 1e-6), (layout.slotH * 0.95) / Math.max(size.y, 1e-6));
     const floor = -layout.slotH / 2;
     return { scale, position: [-center.x * scale, floor + (size.y / 2 - center.y) * scale, -center.z * scale] as const };
   }, [bounds, layout]);
@@ -204,6 +287,7 @@ function Carousel({ world, items, target, input, onStep, bindInvalidate, onReady
   const ready = useRef(false);
 
   const signature = items.map((item) => item.key).join("|");
+  const page = useMemo(() => new THREE.Color(worlds[world].theme.bg), [world]);
   const shown = useRef(signature);
 
   useEffect(() => {
@@ -285,10 +369,14 @@ function Carousel({ world, items, target, input, onStep, bindInvalidate, onReady
       const offset = wrapOffset(i - current.current, n);
       const angle = offset * STEP;
       const fade = clamp01((2.6 - Math.abs(offset)) / 0.6);
-      slot.position.set(Math.sin(angle) * layout.radius, 0, (Math.cos(angle) - 1) * layout.radius);
-      slot.rotation.y = angle;
-      slot.scale.setScalar(Math.max(fade, 1e-3));
+      const size = 1 - Math.min(Math.abs(offset), 2) * NEIGHBOUR_SHRINK;
+      slot.position.set(Math.sin(angle) * layout.radius, 0, (Math.cos(angle) - 1) * layout.radius * ARC_DEPTH);
+      // Facing out from the ellipse, as the items on a circle face out from its centre.
+      slot.rotation.y = Math.atan2(ARC_DEPTH * Math.sin(angle), Math.cos(angle));
+      slot.scale.setScalar(Math.max(fade * size, 1e-3));
       slot.visible = fade > 0.001;
+      // Every frame drawn, not only on change: a model that has just loaded brings fresh materials.
+      if (slot.visible) fadeSlot(slot, Math.min(Math.abs(offset), 2) * NEIGHBOUR_FADE, page);
       const spinner = spinners.current[i];
       if (spinner) spinner.rotation.y = spin[i]!;
     }
@@ -305,9 +393,12 @@ function Carousel({ world, items, target, input, onStep, bindInvalidate, onReady
     return (event: ThreeEvent<MouseEvent>) => {
       // A drag that ends over a neighbour is a turn, not a choice.
       if (event.delta > 8) return;
+      // The nearest hit decides. The chosen item keeps its click, so it never reaches a neighbour behind it.
+      event.stopPropagation();
       const offset = Math.round(wrapOffset(index - target, items.length));
       if (offset === 0) return;
-      event.stopPropagation();
+      // The arc now moves under a still pointer, which sends no new over or out event.
+      canvas.style.cursor = "";
       onStep(offset);
     };
   }
@@ -326,6 +417,8 @@ function Carousel({ world, items, target, input, onStep, bindInvalidate, onReady
       <ambientLight intensity={0.35} />
       {/* White, not the world's tinted key: the world sets the angle, never the product's colour. */}
       <directionalLight color="#ffffff" intensity={Math.min(look.key.intensity, 4) * 0.6} position={look.key.position} />
+      {/* A rim from behind, so a black garment keeps its outline on a dark page. */}
+      <directionalLight color="#ffffff" intensity={1.4} position={[0, 2.5, -6]} />
       <ProceduralEnvironment />
       {items.map((item, i) => (
         <group
@@ -334,9 +427,10 @@ function Carousel({ world, items, target, input, onStep, bindInvalidate, onReady
             slots.current[i] = node;
           }}
         >
-          {/* Hit area for choosing a neighbour. Raycasting a plane is cheaper than the model. */}
+          {/* Hit area for choosing a neighbour. Raycasting a plane is cheaper than the model. As wide
+              as a model may stand (`Model` fits its footprint to 1.2 slots), so a long shoe answers at the toe. */}
           <mesh position={[0, 0, 0.3]} onClick={select(i)} onPointerOver={hover(i, true)} onPointerOut={hover(i, false)}>
-            <planeGeometry args={[layout.slotW, layout.slotH]} />
+            <planeGeometry args={[layout.slotW * 1.2, layout.slotH]} />
             <meshBasicMaterial visible={false} />
           </mesh>
           <group
@@ -345,13 +439,13 @@ function Carousel({ world, items, target, input, onStep, bindInvalidate, onReady
             }}
           >
             {item.model ? (
-              <ModelBoundary fallback={<Card item={item} layout={layout} />}>
-                <Suspense fallback={<Card item={item} layout={layout} />}>
+              <ModelBoundary fallback={<Card item={item} layout={layout} page={page} />}>
+                <Suspense fallback={<Card item={item} layout={layout} page={page} />}>
                   <Model url={item.model} layout={layout} onLoaded={loadedCallbacks.get(item.key)!} />
                 </Suspense>
               </ModelBoundary>
             ) : (
-              <Card item={item} layout={layout} />
+              <Card item={item} layout={layout} page={page} />
             )}
           </group>
           <Shadow layout={layout} />

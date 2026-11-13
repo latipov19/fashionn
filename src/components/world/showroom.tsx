@@ -30,9 +30,6 @@ export type ShowroomItem = {
 };
 
 export type ShowroomCopy = {
-  kicker: string;
-  title: string;
-  body: string;
   label: string;
   prev: string;
   next: string;
@@ -153,14 +150,6 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
 
   return (
     <section className="section showroom" aria-roledescription="carousel" aria-label={copy.label}>
-      <div className="shell grid-12 gap-y-6 items-end">
-        <div className="col-span-12 md:col-span-6 grid gap-3">
-          <p className="kicker">{copy.kicker}</p>
-          <h2 className="t-display">{copy.title}</h2>
-        </div>
-        <p className="col-span-12 md:col-span-5 md:col-start-8 t-lead text-muted">{copy.body}</p>
-      </div>
-
       <div
         ref={stage}
         className="showroom-stage"
@@ -222,31 +211,44 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
         ) : null}
       </div>
 
+      {/* Below the stage, never over it: where the arc stands, the chosen product, the arrows. */}
       <div className="shell showroom-bar">
-        <button type="button" className="showroom-nav" onClick={() => step(-1)} aria-label={copy.prev} disabled={count < 2}>
-          <span aria-hidden="true">←</span>
-        </button>
-        <div className="showroom-placard" aria-live="polite">
-          <span className="t-micro text-muted tabular-nums">
+        <div className="showroom-status">
+          <span className="t-micro tabular-nums" aria-hidden="true">
             {pad(active + 1)} / {pad(count)}
+          </span>
+          <span className="showroom-progress" style={{ "--p": (active + 1) / count } as CSSProperties} aria-hidden="true" />
+          <span className="showroom-hint t-small text-muted" data-show={showScene && Boolean(item.model)} aria-hidden={!(showScene && item.model)}>
+            {copy.dragHint}
+          </span>
+        </div>
+        <div className="showroom-placard" aria-live="polite">
+          <span className="sr-only">
+            {active + 1} / {count}
           </span>
           <a href={item.href} className="showroom-name">
             {item.name}
           </a>
-          <span className="t-small text-muted">{item.meta}</span>
-          <span className="t-price">{item.price}</span>
-          <span className="showroom-tags">
-            {item.demo ? <span className="demo-tag">{copy.demoTag}</span> : null}
-            {item.model ? <span className="demo-tag">{copy.modelTag}</span> : null}
+          <span className="showroom-details">
+            <span className="t-small text-muted">{item.meta}</span>
+            <span className="t-price">{item.price}</span>
+            {item.demo || item.model ? (
+              <span className="showroom-tags">
+                {item.demo ? <span className="demo-tag">{copy.demoTag}</span> : null}
+                {item.model ? <span className="demo-tag">{copy.modelTag}</span> : null}
+              </span>
+            ) : null}
           </span>
         </div>
-        <button type="button" className="showroom-nav" onClick={() => step(1)} aria-label={copy.next} disabled={count < 2}>
-          <span aria-hidden="true">→</span>
-        </button>
+        <div className="showroom-arrows">
+          <button type="button" className="showroom-nav" onClick={() => step(-1)} aria-label={copy.prev} disabled={count < 2}>
+            <span aria-hidden="true">←</span>
+          </button>
+          <button type="button" className="showroom-nav" onClick={() => step(1)} aria-label={copy.next} disabled={count < 2}>
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
       </div>
-      <p className="showroom-hint t-small text-muted" data-show={showScene && Boolean(item.model)} aria-hidden={!(showScene && item.model)}>
-        {copy.dragHint}
-      </p>
     </section>
   );
 }

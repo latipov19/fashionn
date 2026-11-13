@@ -55,7 +55,7 @@ Asymmetric 12-column grid. Hero text sits on the left and low, and the portal is
 
 Text never depends on the canvas for contrast. Text sits on solid `--bg`.
 
-The store reads as pages, not one long scroll. `src/content/pages.ts` lists them in order: `/` (the hero), `/drop`, `/showroom`, `/look` and `/about` (manifesto and how buying works). Each page fills the first screen below the header with its content centred (`WorldPage`), and checks at 1440×900, 1920×1080 and 1366×768 fit without scrolling, except the showroom at 768 px tall, about 25 px over. Phones scroll as usual. The world travels in `?world=`: the hero switcher rewrites it in place, header and menu links carry it, and every page ends with a "next page" link in reading order.
+The store reads as pages, not one long scroll. `src/content/pages.ts` lists them in order: `/` (the hero), `/drop`, `/showroom`, `/look` and `/about` (manifesto and how buying works). Each page fills the first screen below the header with its content centred (`WorldPage`), and checks at 1440×900, 1920×1080 and 1366×768 fit without scrolling (the showroom also at 1536×730 and 1280×720). Phones scroll as usual. The world travels in `?world=`: the hero switcher rewrites it in place, header and menu links carry it, and every page ends with a "next page" link in reading order.
 
 ## 5. Components
 
@@ -103,10 +103,11 @@ Real product cards for the chosen world, server rendered. Cards enter with a sho
 
 | | |
 |---|---|
-| Framing | Up to 7 of the world's products on an arc that turns to the chosen one. Two either side are in view. A large brand wordmark sits behind, in the DOM |
+| Framing | Up to 7 of the world's products on a shallow arc (an ellipse half as deep as a circle) that turns to the chosen one. Two either side are in view, each place away a fifth smaller and 30% faded toward the page colour, so the chosen product leads and the others stay recognisable. A large brand wordmark and a soft pool of the world's glow sit behind, in the DOM |
+| Layout | No intro text: the products are the page. The stage runs the full width of the screen; on a landscape screen from 900 px it takes all the height left above a slim bar (count and drag hint, the chosen product's name, category, colour, price and tags, the arrows). Nothing is laid over the stage. A slot is 80% of the stage height, so a product stands about three quarters of it. Phones put the product's details first and the count and arrows below |
 | Items | A colour with a GLB shows the model, scaled to fit whatever units it was made in and stood on a shared floor. Any other product shows its packshot on a card, untoned so it matches the page. Products with a model lead the order |
-| Interaction | Previous and next buttons, tap a neighbour, drag to turn. A model turns freely with inertia and slowly on its own (about 18 s a turn); a card only tilts. Touch scrolling is never blocked (`touch-action: pan-y`) |
-| Light | The world's key light, an ambient fill and the same procedural environment as the portal |
+| Interaction | Previous and next buttons, tap a neighbour (its hit area is as wide as a model may stand, 1.2 slots), drag to turn. A drag never changes the product, and a tap on the chosen product never reaches a neighbour behind it. A model turns freely with inertia and slowly on its own (about 18 s a turn); a card only tilts. Touch scrolling is never blocked (`touch-action: pan-y`) |
+| Light | The world's key light (white), an ambient fill, a white rim from behind so a black garment keeps its outline on a dark page, and the same procedural environment as the portal |
 | Loading | The chunk loads when the stage comes within 200 px of the viewport, on idle. Cards load together before the poster fades, so the arc never appears half empty. Each GLB loads on its own behind its card |
 | Budget (targets) | DPR capped at 1.75, on-demand rendering, frames only while the stage is on screen. GLBs at most 3 MB from `npm run assets:import` |
 | Fallback | A CSS carousel of the same images in the same order, sized by container units to match the scene. Used before the 3D loads, and for no WebGL, context loss, reduced motion and light mode. A model that fails to load shows its card |

@@ -832,9 +832,6 @@
     .page-drop .section-head, .page-drop .drop-grid { width: 100%; max-width: max(800px, calc(294svh - 1225px)); margin-inline: auto; }
   }
 
-  /* Showroom page: the stage gives up height so the title, stage and controls fit one screen. */
-  .page-showroom .showroom-stage { max-height: max(240px, calc(100svh - 575px)); margin-top: var(--s-4); }
-
   /* Look page: the intro and the pieces in one row on the left, the receipt beside both. */
   .look-intro { display: grid; gap: var(--s-4); justify-items: start; align-content: end; }
   @media (min-width: 56.25rem) {
@@ -1082,13 +1079,23 @@
   :root[data-lite="on"] :is(.vybe-float, .vybe-floor, .vybe-halo-rays) { animation: none; }
   :root[data-lite="on"] .vybe-sheen::after { animation: none; }
 
-  /* 3D Showroom. The stage is a size container, so the poster sizes its slides from the stage
-     exactly as showroom-scene.tsx sizes its cards from the viewport: 52.8% of the height, at most
-     62% of the width, neighbours at least 30% of the width away. */
+  /* 3D Showroom. The products are the page: a stage the full width of the screen, the chosen
+     product large in the middle, two either side smaller and further back, the brand wordmark
+     behind. A slim bar below the stage, never over it, holds where the arc stands, the chosen
+     product and the arrows. On a landscape screen from 900 px the stage takes all the height the
+     screen has left above the bar. The stage is a size container, so the poster sizes its slides
+     from the stage as showroom-scene.tsx sizes its cards from the viewport: 64% of the height, at
+     most 62% of the width, neighbours 30% of the width away but between 0.95 and 1.6 slides. */
+  .showroom { display: grid; grid-template-columns: minmax(0, 1fr); row-gap: var(--s-4); }
   .showroom-stage {
-    position: relative; margin-top: var(--s-6); overflow: hidden;
-    height: clamp(420px, 56vw, 760px); max-height: 80svh;
+    position: relative; overflow: hidden;
+    height: clamp(300px, min(105vw, 100svh - 330px), 640px);
     container-type: size; touch-action: pan-y; user-select: none; -webkit-user-select: none;
+  }
+  /* A pool of the world's light behind the chosen product, so a black garment still reads on a black page. */
+  .showroom-stage::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 30% 44% at 50% 54%, color-mix(in srgb, var(--glow) 14%, transparent), transparent);
   }
   .showroom-wordmark {
     position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
@@ -1099,11 +1106,17 @@
   .showroom-poster { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity var(--d-3) var(--ease-out); }
   .showroom-stage[data-ready="true"] .showroom-poster { opacity: 0; pointer-events: none; }
   .showroom-slide {
-    grid-area: 1 / 1; width: min(52.8cqh, 62cqw); aspect-ratio: 4 / 5; overflow: hidden;
+    position: relative; grid-area: 1 / 1; width: min(64cqh, 62cqw); aspect-ratio: 4 / 5; overflow: hidden;
     background: var(--bg-sunken); cursor: pointer;
-    transform: translateX(calc(var(--o) * max(30cqw, 95%))) scale(calc(1 - var(--d) * .16));
-    opacity: calc(1 - var(--d) * .3); z-index: calc(10 - var(--d));
-    transition: transform var(--d-4) var(--ease-out), opacity var(--d-4) var(--ease-out);
+    /* The arc drawn flat: each place out a little closer in and smaller, as the scene's perspective draws it. */
+    transform: translateX(calc(var(--o) * max(min(30cqw, 160%), 95%) * (1.175 - var(--d) * .235))) scale(calc(1 - var(--d) * .26));
+    z-index: calc(10 - var(--d));
+    transition: transform var(--d-4) var(--ease-out);
+  }
+  /* Neighbours fade toward the page under a veil of its colour, not by opacity, so the wordmark never shows through. */
+  .showroom-slide::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: var(--bg); opacity: calc(var(--d) * .3); transition: opacity var(--d-4) var(--ease-out);
   }
   .showroom-slide[data-active="true"] { cursor: default; }
   .showroom-slide[data-far="true"] { visibility: hidden; }
@@ -1111,7 +1124,25 @@
   .showroom-canvas { z-index: 2; opacity: 0; cursor: grab; transition: opacity var(--d-4) var(--ease-out); }
   .showroom-stage[data-ready="true"] .showroom-canvas { opacity: 1; }
   .showroom-stage[data-dragging="true"] .showroom-canvas { cursor: grabbing; }
-  .showroom-bar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--s-4); margin-top: var(--s-5); }
+  /* Phones: the product first, then the count and the arrows. From 900 px: one row. */
+  .showroom-bar {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "placard placard" "status arrows";
+    align-items: center; gap: var(--s-4) var(--s-5);
+  }
+  .showroom-status { grid-area: status; display: grid; gap: var(--s-2); justify-items: start; }
+  .showroom-progress {
+    display: block; width: 72px; height: 2px;
+    background: linear-gradient(var(--fg), var(--fg)) 0 0 / calc(var(--p) * 100%) 100% no-repeat, var(--line);
+    transition: background-size var(--d-3) var(--ease-out);
+  }
+  .showroom-hint { transition: opacity var(--d-3) var(--ease-out); }
+  .showroom-hint[data-show="false"] { opacity: 0; }
+  .showroom-placard { grid-area: placard; display: grid; justify-items: center; gap: var(--s-1); text-align: center; }
+  .showroom-name { font-size: var(--t-lead); font-weight: 500; line-height: 1.3; }
+  .showroom-name:hover { text-decoration: underline; text-underline-offset: 5px; }
+  .showroom-details { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--s-1) var(--s-3); }
+  .showroom-tags { display: flex; gap: var(--s-2); }
+  .showroom-arrows { grid-area: arrows; display: flex; gap: var(--s-3); }
   .showroom-nav {
     width: 52px; height: 52px; display: grid; place-items: center; border-radius: 50%;
     border: 1px solid var(--line); font-size: 1.25rem;
@@ -1119,12 +1150,17 @@
   }
   .showroom-nav:hover:not(:disabled) { background: var(--fg); color: var(--bg); border-color: var(--fg); }
   .showroom-nav:disabled { opacity: .4; cursor: not-allowed; }
-  .showroom-placard { display: grid; justify-items: center; gap: 2px; text-align: center; }
-  .showroom-name { font-size: var(--t-lead); font-weight: 500; line-height: 1.3; }
-  .showroom-name:hover { text-decoration: underline; text-underline-offset: 5px; }
-  .showroom-tags { display: flex; gap: var(--s-2); min-height: 22px; margin-top: var(--s-1); }
-  .showroom-hint { text-align: center; margin-top: var(--s-3); transition: opacity var(--d-3) var(--ease-out); }
-  .showroom-hint[data-show="false"] { opacity: 0; }
+  @media (min-width: 56.25rem) {
+    .showroom-bar { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-areas: "status placard arrows"; }
+    .showroom-arrows { justify-self: end; }
+  }
+  @media (min-width: 56.25rem) and (min-aspect-ratio: 1 / 1) {
+    .showroom {
+      grid-template-rows: minmax(340px, 1fr) auto;
+      height: min(1000px, calc(100svh - var(--header-h) - var(--band-h) - 2 * clamp(var(--s-4), 4svh, var(--s-7))));
+    }
+    .showroom-stage { height: auto; }
+  }
 }
 
 /* The story wordmark drifts with the section's own scroll progress, where the browser can drive

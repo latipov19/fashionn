@@ -15,7 +15,7 @@ export default async function ShowroomPage({ searchParams }: { searchParams: Pro
 
   return (
     <WorldPage world={world} className="page-showroom">
-      {/* The showroom names itself with an h2; the page's own title is for assistive technology. */}
+      {/* The products are the page. Its title is for assistive technology only. */}
       <h1 className="sr-only">{copy.nav.pages.showroom}</h1>
       {items.length ? (
         <Showroom world={world} items={items} copy={{ ...copy.home.showroom, demoTag: copy.demoTag, wordmark: brand.name }} />
