@@ -261,6 +261,8 @@ export const customers = pgTable(
     /** Stored lower case. */
     email: text("email").notNull(),
     passwordHash: text("password_hash").notNull(),
+    /** The name given at registration. Null for accounts made before registration existed. */
+    name: text("name"),
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex("customers_email_key").on(t.email)],

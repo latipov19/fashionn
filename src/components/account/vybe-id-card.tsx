@@ -12,7 +12,7 @@ const pad = (value: number) => String(value).padStart(2, "0");
  * tokens), so it changes with the world but stays one object. Decorative: the world it names is
  * also stated in text beside it, so the whole artifact is hidden from assistive technology.
  */
-export function VybeIdCard({ world }: { world: World }) {
+export function VybeIdCard({ world, access }: { world: World; access?: string }) {
   const text = copy.account.login.card;
 
   return (
@@ -38,7 +38,7 @@ export function VybeIdCard({ world }: { world: World }) {
               <SunrayMark />
             </div>
             <div className="vybe-bottom">
-              <span className="vybe-micro">{text.access}</span>
+              <span className="vybe-micro">{access ?? text.access}</span>
               <span className="vybe-world">
                 <span className="t-slant">{world.name}</span>
               </span>

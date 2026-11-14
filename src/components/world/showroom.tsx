@@ -5,7 +5,7 @@ import type { CSSProperties, PointerEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { WorldSlug } from "@/content/types";
 import { wrapOffset } from "@/lib/showroom";
-import { setLiteMode, useLiteMode, useMediaQuery } from "@/lib/use-motion";
+import { useMediaQuery } from "@/lib/use-motion";
 import type { ShowroomInput, ShowroomSceneItem } from "@/scene/showroom-scene";
 import { hasWebGL, SceneBoundary } from "./scene-boundary";
 
@@ -38,9 +38,7 @@ export type ShowroomCopy = {
   resetView: string;
   /** Said of a chosen product with no GLB, so its picture is never taken for a model. */
   noModel: string;
-  /** Why the products show as pictures, when 3D is off. */
-  offLite: string;
-  turnOn3d: string;
+  /** Why the products show as pictures, when the browser cannot draw 3D. */
   offFailed: string;
   demoTag: string;
   wordmark: string;
@@ -57,8 +55,8 @@ const pad = (value: number) => String(value).padStart(2, "0");
 
 /**
  * The 3D Showroom. The poster below the canvas is a CSS carousel of the same products, so the
- * section works before the 3D loads, without WebGL, in light mode and in a world with no models.
- * Under reduced motion the 3D still loads, calm: nothing moves unless the visitor moves it.
+ * section works before the 3D loads, without WebGL and in a world with no models. Under reduced
+ * motion the 3D still loads, calm: nothing moves unless the visitor moves it.
  * Buttons and the placard are plain DOM and never depend on the scene.
  */
 export function Showroom({ world, items, copy }: { world: WorldSlug; items: ShowroomItem[]; copy: ShowroomCopy }) {
@@ -71,13 +69,12 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
   const active = count ? ((target % count) + count) % count : 0;
   const item = items[active];
 
-  // Light mode turns 3D off. A world whose products have no GLB never loads WebGL: its cards would
-  // only repeat the poster. Reduced motion keeps the 3D but calms it. Every gate reads false on the
-  // server, so the first paint is the poster and hydration matches.
-  const lite = useLiteMode();
+  // A world whose products have no GLB never loads WebGL: its cards would only repeat the poster.
+  // Reduced motion keeps the 3D but calms it. The 3D loads only after hydration, on idle, so the
+  // first paint is the poster.
   const calm = useMediaQuery("(prefers-reduced-motion: reduce)");
   const hasModels = items.some((entry) => entry.model);
-  const allow3d = !lite && hasModels;
+  const allow3d = hasModels;
 
   const [near, setNear] = useState(false);
   const [idle, setIdle] = useState(false);
@@ -125,7 +122,7 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
   const rotatable = showScene && Boolean(item?.model);
 
   // A showroom of pictures needs a reason on screen, or it reads as broken.
-  const off = !hasModels ? null : lite ? "lite" : failed ? "failed" : null;
+  const off = hasModels && failed;
 
   const step = useCallback((delta: number) => setSelection((state) => ({ world: state.world, target: state.target + delta })), []);
   const bindInvalidate = useCallback((fn: (() => void) | null) => {
@@ -253,14 +250,7 @@ export function Showroom({ world, items, copy }: { world: WorldSlug; items: Show
           </span>
           <span className="showroom-progress" style={{ "--p": (active + 1) / count } as CSSProperties} aria-hidden="true" />
           {off ? (
-            <p className="showroom-off t-small text-muted">
-              {off === "lite" ? copy.offLite : copy.offFailed}
-              {off === "lite" ? (
-                <button type="button" className="showroom-on" onClick={() => setLiteMode(false)}>
-                  {copy.turnOn3d}
-                </button>
-              ) : null}
-            </p>
+            <p className="showroom-off t-small text-muted">{copy.offFailed}</p>
           ) : item.model ? (
             <span className="showroom-hint t-small text-muted" data-show={rotatable} aria-hidden={!rotatable}>
               {copy.dragHint}

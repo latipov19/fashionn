@@ -64,6 +64,11 @@ export const loginAccountLimiter = createRateLimiter({ limit: 20, windowMs: FIFT
 /** The same two limits for shoppers, counted apart, so shopper traffic never locks the admin out. */
 export const customerLoginLimiter = createRateLimiter({ limit: 5, windowMs: FIFTEEN_MINUTES });
 export const customerLoginAccountLimiter = createRateLimiter({ limit: 20, windowMs: FIFTEEN_MINUTES });
+/**
+ * New shopper accounts per address. Counted before the password is hashed, so a flood cannot
+ * spend the server's CPU on scrypt. Loose enough for many shoppers behind one mobile carrier address.
+ */
+export const customerRegisterLimiter = createRateLimiter({ limit: 10, windowMs: FIFTEEN_MINUTES });
 export const checkoutLimiter = createRateLimiter({ limit: 10, windowMs: ONE_MINUTE });
 export const newsletterLimiter = createRateLimiter({ limit: 5, windowMs: ONE_MINUTE });
 

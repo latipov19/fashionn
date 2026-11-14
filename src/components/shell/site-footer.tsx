@@ -4,7 +4,6 @@ import { SunrayMark } from "@/components/ui/marks";
 import { brand, copy } from "@/content/copy";
 import { pages } from "@/content/pages";
 import { worldList } from "@/content/worlds";
-import { LiteToggle } from "./lite-toggle";
 
 export function SiteFooter() {
   return (
@@ -48,7 +47,6 @@ export function SiteFooter() {
           </nav>
         </div>
         <div className="footer-bottom">
-          <LiteToggle label={copy.footer.lightMode} hint={copy.footer.lightModeHint} on={copy.footer.lightModeOn} off={copy.footer.lightModeOff} />
           <p className="t-small text-muted max-w-[46ch]">
             © {new Date().getFullYear()} {brand.name}. {copy.footer.legal}
           </p>

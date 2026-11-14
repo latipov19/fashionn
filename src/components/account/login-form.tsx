@@ -1,12 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import type { FormEvent } from "react";
 import { useActionState, useId, useRef, useState } from "react";
 import { SubmitButton } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { PasswordField } from "@/components/ui/password-field";
+import type { WorldSlug } from "@/content/types";
 import type { CustomerLoginField, CustomerLoginState } from "@/lib/customer-login-state";
 import { initialCustomerLoginState } from "@/lib/customer-login-state";
+import { accountPagePath } from "@/lib/safe-redirect";
 import { customerLoginAction } from "@/server/actions/customer-auth";
 
 export type LoginFormCopy = {
@@ -20,7 +23,6 @@ export type LoginFormCopy = {
   forgotNote: string;
   noAccount: string;
   register: string;
-  soon: string;
   required: string;
   invalidEmail: string;
 };
@@ -34,7 +36,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * The shopper sign-in form. Fields are checked as the shopper leaves them and again on submit,
  * so most mistakes never reach the server; the server checks everything again regardless.
  */
-export function LoginForm({ copy, next, world }: { copy: LoginFormCopy; next: string | null; world: string }) {
+export function LoginForm({ copy, next, world }: { copy: LoginFormCopy; next: string | null; world: WorldSlug }) {
   const [state, formAction] = useActionState(customerLoginAction, initialCustomerLoginState);
   const [email, setEmail] = useState(state.email);
   const [errors, setErrors] = useState<Errors>(state.fieldErrors);
@@ -135,8 +137,9 @@ export function LoginForm({ copy, next, world }: { copy: LoginFormCopy; next: st
 
       <p className="login-register">
         <span className="text-muted">{copy.noAccount}</span>
-        <span className="login-register-name">{copy.register}</span>
-        <span className="soon-tag">{copy.soon}</span>
+        <Link href={accountPagePath("/register", world, next)} className="login-register-link">
+          {copy.register}
+        </Link>
       </p>
     </form>
   );

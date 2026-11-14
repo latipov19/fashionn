@@ -7,7 +7,7 @@ import { useMotionAllowed } from "@/lib/use-motion";
 /**
  * A heading whose words rise out of their own line boxes once, when it scrolls into view. The
  * heading is named by its full text, so assistive technology reads one sentence, not fragments.
- * Without scripts, under reduced motion and in light mode, the words simply stand.
+ * Without scripts and under reduced motion, the words simply stand.
  */
 export function RevealWords({ text, id, className, as: Heading = "h2" }: { text: string; id?: string; className?: string; as?: "h1" | "h2" }) {
   const heading = useRef<HTMLHeadingElement>(null);

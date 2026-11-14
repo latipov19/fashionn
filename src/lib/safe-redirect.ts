@@ -6,7 +6,7 @@ const BASE = "http://vybeverse.invalid";
 /**
  * A `?next=` value that is safe to redirect to after sign-in, or null. Only a same-site path is
  * accepted: no scheme, no host, no protocol-relative `//`, no backslashes (browsers read `/\` as
- * `//`), no control characters, and never the sign-in page itself or the admin area.
+ * `//`), no control characters, and never the sign-in or registration page or the admin area.
  */
 export function safeNextPath(value: unknown): string | null {
   if (typeof value !== "string" || value.length === 0 || value.length > 512) return null;
@@ -21,18 +21,26 @@ export function safeNextPath(value: unknown): string | null {
   }
   // `/.//evil.com` normalises to `//evil.com`, which a browser would read as another host.
   if (url.origin !== BASE || url.pathname.startsWith("//")) return null;
-  if (url.pathname === "/login" || url.pathname === "/admin" || url.pathname.startsWith("/admin/")) return null;
+  if (url.pathname === "/login" || url.pathname === "/register" || url.pathname === "/admin" || url.pathname.startsWith("/admin/")) return null;
   return `${url.pathname}${url.search}${url.hash}`;
+}
+
+/**
+ * A link to the sign-in or registration page that keeps the world and, when it is safe, the page
+ * to return to. Moving between the two pages carries both along.
+ */
+export function accountPagePath(page: "/login" | "/register", world: WorldSlug, next: string | null): string {
+  const params = new URLSearchParams();
+  if (world !== DEFAULT_WORLD) params.set("world", world);
+  const safe = safeNextPath(next);
+  if (safe && safe !== "/") params.set("next", safe);
+  const query = params.toString();
+  return query ? `${page}?${query}` : page;
 }
 
 /** The sign-in link from a page: keeps the world, and brings the shopper back to that page after. */
 export function loginPath(from: string, world: WorldSlug): string {
-  const params = new URLSearchParams();
-  if (world !== DEFAULT_WORLD) params.set("world", world);
-  const next = safeNextPath(from);
-  if (next && next !== "/") params.set("next", next);
-  const query = params.toString();
-  return query ? `/login?${query}` : "/login";
+  return accountPagePath("/login", world, from);
 }
 
 /**

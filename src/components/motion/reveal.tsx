@@ -14,7 +14,7 @@ type Props = Omit<HTMLAttributes<HTMLElement>, "children"> & {
 
 /**
  * Children rise in once, staggered, when the element scrolls into view. The hidden start state is
- * set by script, so without scripts, under reduced motion and in light mode nothing is hidden.
+ * set by script, so without scripts and under reduced motion nothing is hidden.
  */
 export function Reveal({ children, as: Tag = "ul", ...rest }: Props) {
   const box = useRef<HTMLElement>(null);

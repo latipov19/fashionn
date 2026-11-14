@@ -1,7 +1,6 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { LITE_KEY } from "./lite";
 
 /*
  * Motion gates shared by the portal, the headline swap and the scroll reveals. The server
@@ -10,38 +9,9 @@ import { LITE_KEY } from "./lite";
 
 const REDUCED = "(prefers-reduced-motion: reduce)";
 
-function subscribeMotion(onChange: () => void) {
-  const observer = new MutationObserver(onChange);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-lite"] });
-  const query = window.matchMedia(REDUCED);
-  query.addEventListener("change", onChange);
-  return () => {
-    observer.disconnect();
-    query.removeEventListener("change", onChange);
-  };
-}
-
-export const isLite = () => document.documentElement.dataset.lite === "on";
-const motionAllowed = () => !isLite() && !window.matchMedia(REDUCED).matches;
-
-/** False under prefers-reduced-motion, in light mode, and on the server. */
+/** False under prefers-reduced-motion, and on the server. */
 export function useMotionAllowed(): boolean {
-  return useSyncExternalStore(subscribeMotion, motionAllowed, () => false);
-}
-
-/** True when the site's light mode is on. */
-export function useLiteMode(): boolean {
-  return useSyncExternalStore(subscribeMotion, isLite, () => false);
-}
-
-export function setLiteMode(on: boolean) {
-  if (on) document.documentElement.dataset.lite = "on";
-  else delete document.documentElement.dataset.lite;
-  try {
-    window.localStorage.setItem(LITE_KEY, on ? "on" : "off");
-  } catch {
-    // Storage can be blocked. The setting then lasts for this page only.
-  }
+  return !useMediaQuery(REDUCED, true);
 }
 
 export function useMediaQuery(query: string, serverValue = false): boolean {

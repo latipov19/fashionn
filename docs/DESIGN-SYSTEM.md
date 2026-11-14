@@ -18,7 +18,7 @@ Around the portal the page reads as an obsidian glass atelier: the portal stands
 
 Semantic tokens, the same for every world: `--bg`, `--bg-raised`, `--bg-sunken`, `--fg`, `--fg-muted`, `--line`, `--accent`, `--accent-fg`, `--danger`, `--success`, `--glow`, plus the display voice below. `--glow` is a light colour for the stage, glass edges and the primary button's halo, never text. A world is one theme object, never a separate stylesheet.
 
-Glass is mixed from those tokens in `globals.css`, so it works on light and dark worlds alike. Three densities: `.glass-1` for the floating navigation and switcher, `.glass-2` for panels such as the look receipt, `.glass-3` for overlays (mobile menu, toast). Backdrop blur is used on at most a handful of elements at once, never on product cards, and light mode turns every glass surface solid.
+Glass is mixed from those tokens in `globals.css`, so it works on light and dark worlds alike. Three densities: `.glass-1` for the floating navigation and switcher, `.glass-2` for panels such as the look receipt, `.glass-3` for overlays (mobile menu, toast). Backdrop blur is used on at most a handful of elements at once, never on product cards.
 
 Spacing is an 8-point family: 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 160.
 Containers: `--shell` 1440 px with fluid gutters of at least 16 px, `--measure` 62ch. `--header-h` is 78 px: a 58 px capsule with 10 px above and below.
@@ -72,8 +72,9 @@ Home page components as built:
 | Build Your Look | The pieces beside a sticky glass receipt with each piece's category and price and the server-computed total. Pointing at a piece or its line lights both and dims the rest. Five-piece looks lay out two large and three small |
 | Story | A manifesto in `--t-mega` whose words rise once, real catalogue counts (worlds, products, products with a 3D model) and the wordmark drifting behind |
 | Trust | Three glass cards with line icons. Copy is unchanged and makes no new claims |
-| Sign in `/login` | The hero's composition, quieter: editorial headline and the current world on the left, a glass panel with the form on the right (stacked on phones, the panel capped at 560 px on tablets). In place of the portal stands the **VYBE ID** card: a portrait access pass (brand, emblem, world name in the world voice, world number) whose face is cut from the world portal-blade material, so it is black satin, matte paper, brushed chrome or hatched olive by world. It floats, leans toward a fine pointer, and a slow glint crosses it; a faded Sunray halo and orbit ring stand behind it. CSS plus one small pointer handler, no 3D. On phones it follows the form, so signing in never waits behind decoration. Reduced motion and light mode hold it still at its resting angle. Inputs take a glow focus ring in the world's `--glow`. Registration and password reset are marked «Tez orada» rather than linked |
-| Footer | Positioning line, link columns, light mode, and an oversized gradient wordmark cut by the page edge |
+| Sign in `/login` | The hero's composition, quieter: editorial headline and the current world on the left, a glass panel with the form on the right (stacked on phones, the panel capped at 560 px on tablets). In place of the portal stands the **VYBE ID** card: a portrait access pass (brand, emblem, world name in the world voice, world number) whose face is cut from the world portal-blade material, so it is black satin, matte paper, brushed chrome or hatched olive by world. It floats, leans toward a fine pointer, and a slow glint crosses it; a faded Sunray halo and orbit ring stand behind it. CSS plus one small pointer handler, no 3D. On phones it follows the form, so signing in never waits behind decoration. Reduced motion holds it still at its resting angle. Inputs take a glow focus ring in the world's `--glow`. Password reset explains that it is not ready yet rather than linking anywhere. Below the form, an underlined link leads to registration, keeping the world and `?next=` |
+| Register `/register` | The sign-in page's sibling, built from the same classes: the same composition and glass panel, the VYBE ID card reading «Create your VYBE ID», and a four-field form (name, email, password, confirmation) with a length hint under the password. The panel is taller, so on a short screen the page scrolls rather than squeezing the form. Below the form, the same underlined link leads back to sign in |
+| Footer | Positioning line, link columns, and an oversized gradient wordmark cut by the page edge |
 
 Focus is a 2 px `--fg` outline with a 3 px offset; it follows rounded corners.
 
@@ -92,7 +93,7 @@ Focus is a 2 px `--fg` outline with a 3 px offset; it follows rounded corners.
 | Pointer and touch | Blades near the pointer lift, like a hand across pleats. Touch scrolling is never blocked (`touch-action: pan-y`) |
 | World change | A wave travels around the ring in about 900 ms, and CSS colour tokens follow |
 | CTA timing | Both CTAs are in the server HTML and usable before any script runs |
-| Fallback | An SVG poster drawn from the same blade maths, in CSS tokens, so it also changes world. Used for no WebGL, context loss, reduced motion and light mode |
+| Fallback | An SVG poster drawn from the same blade maths, in CSS tokens, so it also changes world. Used for no WebGL, context loss and reduced motion |
 | Budget (targets) | One draw call for blades, DPR capped at 1.75, on-demand rendering, 3D chunk loaded on idle after first paint |
 
 ### Scene 2: The Current Drop
@@ -110,7 +111,7 @@ Real product cards for the chosen world, server rendered. Cards enter with a sho
 | Light | The world's key light (white), an ambient fill, a white rim from behind so a black garment keeps its outline on a dark page, and the same procedural environment as the portal |
 | Loading | The chunk loads when the stage comes within 200 px of the viewport, on idle, and only if one of the world's products has a model. Cards load together before the poster fades, so the arc never appears half empty. A GLB loads behind its card once its product stands within two places of the chosen one, and stays loaded after |
 | Budget (targets) | DPR capped at 1.75, on-demand rendering, frames only while the stage is on screen. GLBs at most 3 MB from `npm run assets:import` |
-| Fallback | A CSS carousel of the same images in the same order, sized by container units to match the scene. Used before the 3D loads, for no WebGL, context loss and light mode, and in a world with no models (no WebGL is loaded there). In light mode and after a WebGL failure the bar says why, and light mode offers to turn 3D back on. A model that fails to load shows its card |
+| Fallback | A CSS carousel of the same images in the same order, sized by container units to match the scene. Used before the 3D loads, for no WebGL and context loss, and in a world with no models (no WebGL is loaded there). After a WebGL failure the bar says why. A model that fails to load shows its card |
 | Reduced motion | The 3D stays, calm: the arc jumps to the chosen product, nothing turns on its own, a fling has no inertia and a reset lands at once. The visitor's own drag still turns the model |
 
 ### Scene 4: the look
@@ -119,13 +120,13 @@ One complete outfit per world, built from real products, with a real total. The 
 
 ## 7. Motion
 
-CSS handles microinteractions and colour transitions through registered custom properties. GSAP is used only for the hero headline swap and scroll reveals (`Reveal`, `RevealWords`). Under `prefers-reduced-motion` or light mode, nonessential movement stops and all content stays static and readable.
+CSS handles microinteractions and colour transitions through registered custom properties. GSAP is used only for the hero headline swap and scroll reveals (`Reveal`, `RevealWords`). Under `prefers-reduced-motion`, nonessential movement stops and all content stays static and readable.
 
 The rest of the motion language, all transform and opacity:
 
 - First paint: the hero kicker, headline, calls to action and switcher rise in with a short stagger. The animation only holds its start state during the delay, so the GSAP headline swap still owns those elements afterwards.
 - Hero stage: the orbit light turns every 16 s and the dial every 120 s, paused while the hero is off screen. With a fine pointer the glow, orbit and dial shift a few pixels against the pointer, one rAF write per frame.
-- Magnetic calls to action: the two hero buttons lean toward a fine pointer. Touch, reduced motion and light mode leave them still.
+- Magnetic calls to action: the two hero buttons lean toward a fine pointer. Touch and reduced motion leave them still.
 - Story wordmark: drifts with the section's own scroll progress where the browser supports `animation-timeline: view()`.
 - Never put a CSS transition on a property GSAP animates on the same element: they fight, and a reveal can stay hidden. Dim or lift an inner element instead.
 

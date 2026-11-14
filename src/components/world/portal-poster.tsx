@@ -6,7 +6,7 @@ const xy = (r: number, a: number) => `${(r * Math.cos(a)).toFixed(4)} ${(-r * Ma
 /**
  * The Sunray Portal drawn as SVG from the same blade maths as the 3D scene. Colours are CSS
  * tokens, so it changes world with the page. Shown before the 3D loads, and instead of it with
- * no WebGL, after context loss, under reduced motion and in light mode.
+ * no WebGL, after context loss and under reduced motion.
  */
 export function PortalPoster({ look, count = BLADES_DESKTOP, className }: { look: PortalLook; count?: number; className?: string }) {
   const blades = bladeLayout(count, look);

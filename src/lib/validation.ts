@@ -3,6 +3,7 @@ import { z } from "zod";
 import { commerce, regionIds } from "@/content/commerce";
 import { copy } from "@/content/copy";
 import { SLOTS, WORLD_SLUGS } from "@/content/types";
+import { isRepeatedCharacter, NAME_MAX, PASSWORD_MAX, PASSWORD_MIN } from "./password-rules";
 
 const required = (max: number) =>
   z
@@ -88,6 +89,38 @@ export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, copy.forms.required).max(512, copy.forms.tooLong),
 });
+
+const registerText = copy.account.register;
+
+const newPasswordSchema = z
+  .string({ error: copy.forms.required })
+  .min(1, copy.forms.required)
+  .min(PASSWORD_MIN, registerText.passwordShort(PASSWORD_MIN))
+  .max(PASSWORD_MAX, copy.forms.tooLong)
+  .refine((password) => !isRepeatedCharacter(password), registerText.passwordWeak);
+
+/**
+ * Registration. Only these four fields are read, so nothing else a client sends (a role, an id,
+ * a hash) can reach the database. The confirmation is compared here and then dropped: it is
+ * never stored.
+ */
+export const registerSchema = z
+  .object({
+    name: required(NAME_MAX)
+      .transform((name) => name.replace(/\s+/g, " "))
+      .refine((name) => !/[\u0000-\u001f\u007f]/.test(name), registerText.nameInvalid),
+    email: emailSchema,
+    password: newPasswordSchema,
+    confirm: z.string({ error: copy.forms.required }).min(1, copy.forms.required),
+  })
+  .superRefine((value, context) => {
+    if (value.password.toLowerCase() === value.email) context.addIssue({ code: "custom", path: ["password"], message: registerText.passwordWeak });
+    if (value.confirm !== value.password) context.addIssue({ code: "custom", path: ["confirm"], message: registerText.mismatch });
+  })
+  .transform(({ name, email, password }) => ({ name, email, password }));
+
+/** What the form sends: the four fields, confirmation included. */
+export type RegisterFields = z.input<typeof registerSchema>;
 
 export const newsletterSchema = z.object({ email: emailSchema });
 

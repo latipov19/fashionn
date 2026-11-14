@@ -6,8 +6,8 @@ import { useMediaQuery, useMotionAllowed } from "@/lib/use-motion";
 
 /**
  * Lets the VYBE ID card lean toward a fine pointer. Writes two CSS variables, --tx and --ty
- * (-1 to 1), once per frame; the card's transform and sheen read them. Touch, reduced motion and
- * light mode leave the card at its resting angle.
+ * (-1 to 1), once per frame; the card's transform and sheen read them. Touch and reduced motion
+ * leave the card at its resting angle.
  */
 export function VybeTilt({ children }: { children: ReactNode }) {
   const stage = useRef<HTMLDivElement>(null);

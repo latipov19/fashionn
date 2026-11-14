@@ -87,7 +87,6 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
               forgotNote: text.forgotNote,
               noAccount: text.noAccount,
               register: text.register,
-              soon: text.soon,
               required: copy.forms.required,
               invalidEmail: copy.forms.email,
             }}

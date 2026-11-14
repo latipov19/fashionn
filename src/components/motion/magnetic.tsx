@@ -6,7 +6,7 @@ import { useMediaQuery, useMotionAllowed } from "@/lib/use-motion";
 
 /**
  * Leans its child a little toward the pointer. Only with a fine pointer that can hover and when
- * motion is allowed; on touch, under reduced motion and in light mode the child stays put.
+ * motion is allowed; on touch and under reduced motion the child stays put.
  * One rAF write per frame, transform only.
  */
 export function Magnetic({ children, strength = 0.22 }: { children: ReactNode; strength?: number }) {

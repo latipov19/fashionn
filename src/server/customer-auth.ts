@@ -1,11 +1,13 @@
 import { eq, lt } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { loginSchema } from "@/lib/validation";
+import type { RegisterFields } from "@/lib/validation";
+import { loginSchema, registerSchema } from "@/lib/validation";
+import type { Db } from "./db/client";
 import { getDb } from "./db/client";
 import { customerSessions, customers } from "./db/schema";
-import { burnPasswordCheck, verifyPassword } from "./password";
-import { customerLoginAccountLimiter, customerLoginLimiter } from "./rate-limit";
+import { burnPasswordCheck, hashPassword, verifyPassword } from "./password";
+import { customerLoginAccountLimiter, customerLoginLimiter, customerRegisterLimiter } from "./rate-limit";
 import { hashSessionToken, newSessionToken, sessionCookieOptions, sessionTokenFormat } from "./session-token";
 
 /*
@@ -78,13 +80,44 @@ export async function loginCustomer(input: { email: string; password: string }, 
   customerLoginLimiter.clear(key);
   customerLoginAccountLimiter.clear(email);
 
+  await startCustomerSession(db, customer.id);
+  return { ok: true };
+}
+
+/** Stores the hash of a new token, sweeps expired sessions, and sets the cookie. */
+async function startCustomerSession(db: Db, customerId: string): Promise<void> {
   const token = newSessionToken();
   const expiresAt = new Date(Date.now() + SESSION_MS);
   await db.delete(customerSessions).where(lt(customerSessions.expiresAt, new Date()));
-  await db.insert(customerSessions).values({ customerId: customer.id, tokenHash: hashSessionToken(token), expiresAt });
+  await db.insert(customerSessions).values({ customerId, tokenHash: hashSessionToken(token), expiresAt });
 
   const store = await cookies();
   store.set(CUSTOMER_COOKIE, token, sessionCookieOptions(expiresAt));
+}
+
+export type CustomerRegisterResult = { ok: true } | { ok: false; code: "invalid" | "taken" | "rate_limited" };
+
+/**
+ * Opens a shopper account and signs it in. The insert relies on the unique email index rather
+ * than a lookup first, so two requests racing with one email make one account and one "taken".
+ * Only a shopper row is ever written: this module cannot create or touch an admin.
+ *
+ * There is no email verification yet, so the account is usable at once. Nothing here claims an
+ * email was sent.
+ */
+export async function registerCustomer(input: RegisterFields, ip: string): Promise<CustomerRegisterResult> {
+  const parsed = registerSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, code: "invalid" };
+  const { name, email, password } = parsed.data;
+
+  if (!customerRegisterLimiter.check(ip).allowed) return { ok: false, code: "rate_limited" };
+
+  const db = await getDb();
+  const passwordHash = await hashPassword(password);
+  const [created] = await db.insert(customers).values({ name, email, passwordHash }).onConflictDoNothing({ target: customers.email }).returning({ id: customers.id });
+  if (!created) return { ok: false, code: "taken" };
+
+  await startCustomerSession(db, created.id);
   return { ok: true };
 }
 
