@@ -16,6 +16,7 @@
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
     "db:seed": "tsx src/server/db/seed-cli.ts",
+    "admin:password": "tsx src/server/db/admin-password-cli.ts",
     "media:generate": "tsx tools/demo-media/render.ts",
     "assets:brief": "tsx tools/assets/brief.ts",
     "assets:import": "tsx tools/assets/import.ts",

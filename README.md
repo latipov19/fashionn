@@ -148,6 +148,8 @@ Serverni toʻxtatish uchun terminalda `Ctrl + C` bosing.
 
 `ADMIN_EMAIL` akkaunti panelning birinchi **egasi** boʻladi (faqat bunday akkaunt hali boʻlmasa yaratiladi). Qolgan xodimlarni ega `/admin/team` sahifasidan qoʻshadi. Ochiq roʻyxatdan oʻtish yoʻq, standart parol ham yoʻq.
 
+Akkaunt yaratilgandan keyin `.env.local`dagi `ADMIN_PASSWORD`ni oʻzgartirish bazadagi parolni oʻzgartirmaydi. Parol esdan chiqsa yoki `.env.local`ga yangisini yozgan boʻlsangiz: `npm run dev`ni toʻxtating, `npm run admin:password` buyrugʻini ishga tushiring (u `ADMIN_EMAIL` akkauntiga `.env.local`dagi parolni qoʻyadi, uni ega qiladi va eski sessiyalarni yopadi; parol kamida 12 belgi boʻlishi kerak), keyin `npm run dev`ni qayta yoqing. Buyruq faqat shu kompyuterdan ishlaydi, saytdan unga yoʻl yoʻq.
+
 ---
 
 ## Maʼlumotlar bazasi

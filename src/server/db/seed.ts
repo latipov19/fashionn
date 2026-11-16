@@ -2,7 +2,7 @@ import { eq, sql } from "drizzle-orm";
 import { demoCatalog, demoStock } from "../../content/catalog.demo";
 import { hashPassword } from "../password";
 import type { Db } from "./client";
-import { adminUsers, customers, productColors, products, productWorlds, variants } from "./schema";
+import { adminActivity, adminSessions, adminUsers, customers, productColors, products, productWorlds, variants } from "./schema";
 
 export function makeSku(productHandle: string, colorSlug: string, size: string): string {
   return `${productHandle}-${colorSlug}-${size}`.toUpperCase().replace(/[^A-Z0-9]+/g, "-");
@@ -60,6 +60,41 @@ export async function ensureAdminUser(db: Db): Promise<boolean> {
   const passwordHash = await hashPassword(password);
   await db.insert(adminUsers).values({ email, passwordHash }).onConflictDoNothing();
   return true;
+}
+
+/** Staff passwords open the whole store, so the console refuses short ones, as the panel does. */
+export const ADMIN_PASSWORD_MIN = 12;
+
+export type AdminRecovery = { result: "updated" | "created" | "missing_env" | "too_short"; email?: string; sessionsClosed?: number };
+
+/**
+ * Recovery for the owner, run from the server's console only (`npm run admin:password`): sets the
+ * ADMIN_EMAIL account's password to ADMIN_PASSWORD, makes it an owner, and closes its sessions;
+ * creates it when missing. Nothing in the web app can call this. The password is never printed or
+ * logged: the activity trail records only that the console changed it.
+ */
+export async function resetAdminFromEnv(db: Db): Promise<AdminRecovery> {
+  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.ADMIN_PASSWORD;
+  if (!email || !password) return { result: "missing_env" };
+  if (password.length < ADMIN_PASSWORD_MIN) return { result: "too_short", email };
+
+  const passwordHash = await hashPassword(password);
+  return db.transaction(async (tx) => {
+    const [existing] = await tx.select({ id: adminUsers.id }).from(adminUsers).where(eq(adminUsers.email, email)).limit(1);
+    let id: string;
+    let sessionsClosed = 0;
+    if (existing) {
+      id = existing.id;
+      await tx.update(adminUsers).set({ passwordHash, role: "owner" }).where(eq(adminUsers.id, id));
+      sessionsClosed = (await tx.delete(adminSessions).where(eq(adminSessions.adminUserId, id)).returning({ id: adminSessions.id })).length;
+    } else {
+      const [created] = await tx.insert(adminUsers).values({ email, passwordHash, role: "owner" }).returning({ id: adminUsers.id });
+      id = created!.id;
+    }
+    await tx.insert(adminActivity).values({ actorId: null, actorEmail: "server console", action: "admin.password", targetType: "admin", targetId: id, targetLabel: email, meta: { via: "npm run admin:password" } });
+    return { result: existing ? "updated" : "created", email, sessionsClosed };
+  });
 }
 
 /**

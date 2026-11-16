@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { and, eq } from "drizzle-orm";
-import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { copy } from "@/content/copy";
 import type { AdminRole } from "@/lib/admin-roles";
 import { can } from "@/lib/admin-roles";
@@ -25,6 +25,7 @@ import { ForbiddenError, getSession, login, UnauthorizedError } from "@/server/a
 import { listProducts } from "@/server/catalog";
 import { registerCustomer } from "@/server/customer-auth";
 import { closeDb, getDb } from "@/server/db/client";
+import { resetAdminFromEnv } from "@/server/db/seed";
 import { adminActivity, adminSessions, adminUsers, customerSessions, customers, inventoryAdjustments, products, promotions, variants } from "@/server/db/schema";
 import { placeOrder } from "@/server/orders";
 import { hashPassword } from "@/server/password";
@@ -335,6 +336,57 @@ describe("promotions", () => {
     expect(promotionState({ ...base, startsAt: new Date("2026-12-01") }, now)).toBe("scheduled");
     expect(promotionState({ ...base, endsAt: new Date("2026-11-01") }, now)).toBe("expired");
     expect(promotionState({ ...base, usageLimit: 5, usedCount: 5 }, now)).toBe("exhausted");
+  });
+});
+
+describe("console recovery of the owner", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("sets the env admin's password to the current ADMIN_PASSWORD, as owner, and closes its sessions", async () => {
+    const email = process.env.ADMIN_EMAIL!;
+    await signIn();
+    const db = await getDb();
+    const [admin] = await db.select().from(adminUsers).where(eq(adminUsers.email, email));
+    await db.update(adminUsers).set({ role: "manager" }).where(eq(adminUsers.id, admin!.id));
+
+    const original = process.env.ADMIN_PASSWORD!;
+    try {
+      vi.stubEnv("ADMIN_PASSWORD", "a freshly chosen owner passphrase");
+      const outcome = await resetAdminFromEnv(db);
+      expect(outcome).toMatchObject({ result: "updated", email });
+      expect(outcome.sessionsClosed).toBeGreaterThanOrEqual(1);
+      expect(await db.select().from(adminSessions).where(eq(adminSessions.adminUserId, admin!.id))).toHaveLength(0);
+
+      jar().clear();
+      resetRateLimits();
+      expect(await login({ email, password: original }, "5.5.5.5")).toMatchObject({ ok: false });
+      expect(await login({ email, password: "a freshly chosen owner passphrase" }, "5.5.5.5")).toEqual({ ok: true });
+      expect((await getSession())?.role).toBe("owner");
+      const [entry] = await db.select().from(adminActivity).where(and(eq(adminActivity.targetId, admin!.id), eq(adminActivity.actorEmail, "server console")));
+      expect(entry?.action).toBe("admin.password");
+      expect(JSON.stringify(entry)).not.toContain("freshly chosen");
+    } finally {
+      // Back to the suite's own password for the tests that follow, whatever happened above.
+      vi.stubEnv("ADMIN_PASSWORD", original);
+      await resetAdminFromEnv(db);
+    }
+  });
+
+  it("creates a missing owner, and refuses short or missing values without changing anything", async () => {
+    const db = await getDb();
+    const email = `new-owner-${unique()}@example.com`;
+    vi.stubEnv("ADMIN_EMAIL", email);
+    vi.stubEnv("ADMIN_PASSWORD", "short");
+    expect(await resetAdminFromEnv(db)).toEqual({ result: "too_short", email });
+    expect(await db.select().from(adminUsers).where(eq(adminUsers.email, email))).toHaveLength(0);
+
+    vi.stubEnv("ADMIN_PASSWORD", "another long owner passphrase");
+    expect(await resetAdminFromEnv(db)).toEqual({ result: "created", email, sessionsClosed: 0 });
+    const [row] = await db.select().from(adminUsers).where(eq(adminUsers.email, email));
+    expect(row?.role).toBe("owner");
+
+    vi.stubEnv("ADMIN_PASSWORD", "");
+    expect(await resetAdminFromEnv(db)).toEqual({ result: "missing_env" });
   });
 });
 
