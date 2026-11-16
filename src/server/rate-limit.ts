@@ -69,6 +69,8 @@ export const customerLoginAccountLimiter = createRateLimiter({ limit: 20, window
  * spend the server's CPU on scrypt. Loose enough for many shoppers behind one mobile carrier address.
  */
 export const customerRegisterLimiter = createRateLimiter({ limit: 10, windowMs: FIFTEEN_MINUTES });
+/** Staff changing their own password: a stolen session cannot guess the current one quickly. */
+export const passwordChangeLimiter = createRateLimiter({ limit: 5, windowMs: FIFTEEN_MINUTES });
 export const checkoutLimiter = createRateLimiter({ limit: 10, windowMs: ONE_MINUTE });
 export const newsletterLimiter = createRateLimiter({ limit: 5, windowMs: ONE_MINUTE });
 

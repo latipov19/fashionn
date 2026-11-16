@@ -265,14 +265,14 @@ export const variantStockLabel = (stock: number) => stockLabel(stock, commerce.l
 
 /** Every product, drafts included, with hidden media and removed colours. */
 export async function adminListProducts(): Promise<CatalogProduct[]> {
-  await requireAdmin();
+  await requireAdmin("catalog");
   const db = await getDb();
   const rows = await db.select().from(products).orderBy(asc(products.sortOrder));
   return hydrate(rows, db, true);
 }
 
 export async function adminGetProduct(id: string): Promise<CatalogProduct | null> {
-  await requireAdmin();
+  await requireAdmin("catalog");
   const db = await getDb();
   const rows = await db.select().from(products).where(eq(products.id, id)).limit(1);
   const [product] = await hydrate(rows, db, true);

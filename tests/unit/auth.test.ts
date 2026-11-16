@@ -147,6 +147,11 @@ describe("authorization without a session", () => {
       ["reorderMedia", () => adminActions.reorderMedia({ productId: product!.id, colorId: ID, orderedIds: [ID] })],
       ["revertToGenerated", () => adminActions.revertToGenerated({ productId: product!.id, colorId: ID })],
       ["updateOrderStatus", () => adminActions.updateOrderStatus({ orderId: ID, status: "packed" })],
+      ["bulkProducts", () => adminActions.bulkProducts({ ids: [product!.id], op: "unpublish" })],
+      ["archiveProduct", () => adminActions.archiveProduct({ id: product!.id })],
+      ["restoreProduct", () => adminActions.restoreProduct({ id: product!.id })],
+      ["deleteProduct", () => adminActions.deleteProduct({ id: product!.id, confirm: "quiet-uzun-palto" })],
+      ["adjustStock", () => adminActions.adjustStock({ variantId: variant.id, stock: 999, reason: "count" })],
     ];
 
     for (const [name, call] of calls) {
@@ -161,10 +166,15 @@ describe("authorization without a session", () => {
   it("the action list above covers every exported action", () => {
     expect(Object.keys(adminActions).sort()).toEqual(
       [
+        "adjustStock",
+        "archiveProduct",
+        "bulkProducts",
         "createProduct",
+        "deleteProduct",
         "hideMedia",
         "reorderMedia",
         "reorderProducts",
+        "restoreProduct",
         "revertToGenerated",
         "setProductPublished",
         "setStock",

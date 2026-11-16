@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { PublicChrome } from "@/components/shell/public-chrome";
 import { SiteFooter } from "@/components/shell/site-footer";
 import { SiteHeader } from "@/components/shell/site-header";
 import { ToastProvider } from "@/components/ui/toast";
@@ -31,11 +32,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {copy.nav.skipToContent}
         </a>
         <ToastProvider>
-          <SiteHeader />
+          <PublicChrome>
+            <SiteHeader />
+          </PublicChrome>
           <main id="content" tabIndex={-1}>
             {children}
           </main>
-          <SiteFooter />
+          <PublicChrome>
+            <SiteFooter />
+          </PublicChrome>
         </ToastProvider>
       </body>
     </html>

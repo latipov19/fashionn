@@ -66,13 +66,14 @@ Loyiha avval **Lierne** nomli boshqa doʻkon edi. Hozir u VYBEVERSE'ga koʻchiri
 | Demo rasmlar | 20 ta mahsulotning har bir rangi uchun kod orqali chizilgan kiyim eskizi (37 ta rasm, 3 oʻlchamda). Rasm burchagida DEMO yozuvi bor. |
 | AI materiallar zanjiri | Haqiqiy kiyim yoʻqligi sababli suratlar va 3D modellar AI orqali yaratiladi. Har bir fayl uchun prompt: [docs/AI-PROMPTS.md](docs/AI-PROMPTS.md), yoʻriqnoma: [docs/AI-ASSETS.md](docs/AI-ASSETS.md). Import qilingan AI surati eskizdan oldinga chiqadi. |
 | Maʼlumotlar bazasi | Birinchi soʻrovda oʻzi yaratiladi, migratsiya qilinadi va demo katalog bilan toʻldiriladi. |
-| Savdo mantigʻi (server) | Savat, buyurtma berish, qoldiqni kamaytirish, buyurtma holatlari, admin kirishi, rasm yuklash va soʻrovlarni cheklash. Bu kod `src/server/` ichida tayyor, lekin uni ishlatadigan sahifalar hali yoʻq. |
+| Savdo mantigʻi (server) | Savat, buyurtma berish, qoldiqni kamaytirish, buyurtma holatlari, admin kirishi, rasm yuklash va soʻrovlarni cheklash. Bu kod `src/server/` ichida tayyor. Savat va checkout sahifalari hali yoʻq. |
+| Boshqaruv paneli `/admin` | Xodimlar uchun alohida dizayndagi panel (doʻkon header'i va footer'isiz): yigʻiladigan sidebar, breadcrumb, telefonda drawer menyu. **Bosh panel**: bazadan haqiqiy sonlar, demo katalog alohida aytiladi. **Mahsulotlar**: qidiruv (nom, handle, SKU), holat, olam, kategoriya va tur boʻyicha filtr, tartiblash, sahifalash, ommaviy sotuvga chiqarish/olish/arxivlash; yaratish va tahrirlash boʻlimlarga ajratilgan, doʻkondagi kartochka koʻrinishi, zaxira, rasm yuklash (server qayta kodlaydi), 3D model holati, arxivlash va faqat buyurtma qilinmagan mahsulotni handle yozib oʻchirish. **Kategoriyalar** (nomini oʻzgartirish va birlashtirish), **Zaxira** (sabab bilan oʻzgartirish va tarix), **Media va 3D**, **Buyurtmalar** (qidiruv, holat oqimi), **Mijozlar** (parolsiz profil, sessiyalarni yopish), **Promokodlar** (saqlanadi, checkout yoʻqligi uchun hali qoʻllanmaydi), **Tahlil** (faqat haqiqiy buyurtmalardan), **Jamoa** (rollar: ega, menejer, muharrir), **Faoliyat jurnali**, **Sozlamalar** (doʻkon sozlamalari koʻrinadi, oʻz parolini oʻzgartirish). Har bir sahifa va amal rolni serverda tekshiradi va jurnalga yozadi. Paneldagi oʻzgarish doʻkonga darhol yetadi. |
 | `/uploads/<fayl>` | Admin yuklagan rasmlarni beradi. |
 
 ### ❌ Hali yoʻq
 
 - `/shop`, `/worlds`, mahsulot sahifasi, `/cart`, `/checkout` — hali yozilmagan, 404 sahifani ochadi.
-- Admin panel. `/admin` manzili `/admin/login`ga yoʻnaltiradi, u yerda esa sahifa yoʻq (404).
+- Panel orqali GLB yuklash (3D modellar hali terminaldagi `assets:*` zanjiri orqali qoʻshiladi), kategoriya rasmi/tavsifi/tartibi uchun alohida jadval, doʻkon sozlamalarini paneldan tahrirlash, bildirishnomalar.
 - Email tasdiqlash, parolni tiklash, mijoz kabineti va chiqish tugmasi. Kirish sahifasida parolni tiklash hali ishlamasligi yozilgan, soxta havola yoʻq.
 - Haqiqiy mahsulot fotolari (hozir kod orqali chizilgan demo eskizlar) va onlayn toʻlov.
 - Mahsulot kartalari, qidiruv va savat tugmalari hozircha 404 sahifaga olib boradi, chunki bu sahifalar keyingi qadamlarda quriladi.
@@ -145,7 +146,7 @@ Serverni toʻxtatish uchun terminalda `Ctrl + C` bosing.
 | `NEXT_PUBLIC_SITE_URL` | Yoʻq | Saytning toʻliq manzili, metadata va havolalar uchun. Lokalda: `http://localhost:3100`. |
 | `HF_TOKEN` | Yoʻq | Hugging Face tokeni (read). `npm run assets:shape` uchun bepul GPU limitini oshiradi. Boʻlmasa, anonim limit ishlatiladi. |
 
-Admin panel hali yozilmagan, lekin akkaunt bazada yaratib qoʻyiladi.
+`ADMIN_EMAIL` akkaunti panelning birinchi **egasi** boʻladi (faqat bunday akkaunt hali boʻlmasa yaratiladi). Qolgan xodimlarni ega `/admin/team` sahifasidan qoʻshadi. Ochiq roʻyxatdan oʻtish yoʻq, standart parol ham yoʻq.
 
 ---
 

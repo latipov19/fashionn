@@ -47,8 +47,14 @@ products 1-n product_colors 1-n variants (size, stock, sku)
 products 1-n product_worlds (world slug, position)
 products 1-n product_media, media_overrides
 orders   1-n order_items --> variants
-admin_users 1-n admin_sessions
+admin_users (role) 1-n admin_sessions
+admin_users 1-n admin_activity, inventory_adjustments  (actor, set null on removal; email copied)
+variants 1-n inventory_adjustments (set null on delete; product, colour, size, SKU copied)
+customers 1-n customer_sessions
+promotions (code unique, stored only: no checkout applies them yet)
 ```
+
+`products.archived_at` marks an archived product: unpublished, out of the panel's working lists, kept for its orders.
 
 Worlds are code (`src/content/worlds.ts`), because they are art direction. Membership is data (`product_worlds`), because it is merchandising.
 
@@ -79,6 +85,8 @@ Admin access is checked on the server in every read and action. `proxy.ts` is on
 Shopper accounts (`/login`) are a separate boundary from admin: `customers` and `customer_sessions` tables, the `vv_customer` cookie, `src/server/customer-auth.ts` and their own rate limits, so a shopper session can never pass `requireAdmin` and shopper traffic cannot lock the admin out. Both kinds of session share `src/server/session-token.ts`: 32 random bytes in the cookie, only the SHA-256 stored. An unknown email and a wrong password take the same time and give the same answer. A `?next=` destination passes `safeNextPath` (same-site paths only, never `/login`, `/register` or `/admin`) on the page and again in the action.
 
 Registration (`/register`, `registerCustomer`) writes only a `customers` row (name, lower-cased email, scrypt hash) and then opens the same session a sign-in would. `registerSchema` reads exactly name, email, password and confirmation, so no client field can set a role, an id or a hash; the confirmation is compared and dropped. Passwords are judged by length (10 to 256) and two weak forms only, never by composition rules. The insert uses `ON CONFLICT DO NOTHING` on the unique email index instead of a lookup first, so racing requests make one account. A taken email is reported as taken: without email verification there is no way to hide it that does not lie to the shopper, so the per-address limit (`customerRegisterLimiter`, 10 per 15 minutes, checked before hashing) is what slows enumeration. Accounts are usable at once; there is no verification step and nothing claims a message was sent. Server Actions carry Next's same-origin check, and the cookie is SameSite=Lax. `customers.name` arrived in migration `0002` and is null for older accounts. `DEMO_CUSTOMER_EMAIL` and `DEMO_CUSTOMER_PASSWORD` create one shopper account at boot for local testing; they are ignored in production.
+
+The admin panel (`src/app/admin`) has its own frame: `PublicChrome` leaves the shop's header and footer out of `/admin/*`, and `app/admin/admin.css` loads only there. Roles live in `admin_users.role` (`owner`, `manager`, `editor`, migration `0003`; existing rows became `owner`) and map to permissions in `src/lib/admin-roles.ts`. `requireAdmin(permission)` reads the role from the session's database row, never from the request, and throws `ForbiddenError`; every read in `src/server/admin/queries.ts` and every action in `src/server/actions/admin*.ts` calls it, so hiding a menu item is never the only guard, and the panel layout cannot be relied on because it does not run for server actions. Actions go through `guarded()` (`src/server/admin/guard.ts`), which turns refusals into results and logs failures without input. Each change writes an `admin_activity` row in the same transaction: flat metadata only, no passwords, tokens or shopper contact details, and no code path updates or deletes it. Stock changes lock the variant row (`FOR UPDATE`) and write `inventory_adjustments` with the old and new count and the reason. A product is deleted only when no order line points at it and its handle is typed back; otherwise it is archived. The owner adds staff with a temporary password (12+ characters); an owner cannot change or remove themselves, and the last owner cannot be demoted (owners are locked in the transaction). Correlated subqueries in a select list are written with explicit aliases, because Drizzle leaves column references unqualified in a single-table select.
 
 `.env*` is ignored except `.env.example`, which has blank values.
 

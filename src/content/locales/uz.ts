@@ -3,6 +3,8 @@
  * belgisi. Everything here is draft copy until the owner confirms it. Delivery and policy
  * lines stay marked as not yet confirmed.
  */
+import { uzAdmin } from "./uz-admin";
+
 export const brand = {
   name: "VYBEVERSE",
   descriptor: "The Living Fashion Store",
@@ -334,33 +336,7 @@ export const uz = {
     },
   },
 
-  admin: {
-    title: "Boshqaruv",
-    login: {
-      heading: "Kirish",
-      email: "Email manzil",
-      password: "Parol",
-      submit: "Kirish",
-      signingIn: "Kirilmoqda",
-      failed: "Email yoki parol notoʻgʻri.",
-      tooMany: "Urinishlar juda koʻp. 15 daqiqa kutib, qayta urinib koʻring.",
-      logout: "Chiqish",
-    },
-    errors: {
-      unauthorized: "Buning uchun tizimga kiring.",
-      notFound: "Bu yozuv endi mavjud emas.",
-      validation: "Belgilangan maydonlarni tekshiring.",
-      handleTaken: "Bunday handle bilan mahsulot allaqachon bor.",
-      generic: "Saqlanmadi. Qayta urinib koʻring.",
-      fileRequired: "Rasm tanlang.",
-      fileTooLarge: "Rasm 10 MB dan katta.",
-      fileNotImage: "Bu fayl oʻqiladigan rasm emas. JPEG, PNG, WebP, AVIF yoki TIFF ishlating.",
-      fileTooSmall: "Rasm juda kichik. Kamida 480 x 600 piksel kerak.",
-      invalidStatus: (from: string, to: string) => `Buyurtmani «${from}» holatidan «${to}» holatiga oʻtkazib boʻlmaydi.`,
-      compareAtTooLow: "Eski narx joriy narxdan yuqori boʻlishi kerak.",
-    },
-    empty: { orders: "Hali buyurtma yoʻq." },
-  },
+  admin: uzAdmin,
 };
 
 export type Messages = typeof uz;

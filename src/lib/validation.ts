@@ -3,6 +3,9 @@ import { z } from "zod";
 import { commerce, regionIds } from "@/content/commerce";
 import { copy } from "@/content/copy";
 import { SLOTS, WORLD_SLUGS } from "@/content/types";
+import type { StockReason } from "./admin-constants";
+import { MAX_UPLOAD_BYTES, STOCK_REASONS } from "./admin-constants";
+import { ADMIN_ROLES } from "./admin-roles";
 import { isRepeatedCharacter, NAME_MAX, PASSWORD_MAX, PASSWORD_MIN } from "./password-rules";
 
 const required = (max: number) =>
@@ -235,7 +238,7 @@ export const setStockSchema = z.object({ variantId: idSchema, stock: z.number().
 
 /* Admin: media */
 
-export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+export { MAX_UPLOAD_BYTES };
 
 export const uploadMediaSchema = z.object({
   productId: idSchema,
@@ -267,6 +270,95 @@ export const revertMediaSchema = z.object({ productId: idSchema, colorId: idSche
 
 export const orderStatusSchema = z.enum(["pending", "confirmed", "packed", "shipped", "delivered", "canceled", "returned"]);
 export const setOrderStatusSchema = z.object({ orderId: idSchema, status: orderStatusSchema });
+
+/* Admin: control center */
+
+const adminText = copy.admin;
+
+/** Products touched by one bulk action. Kept small so one click never rewrites the whole catalogue. */
+export const bulkProductsSchema = z.object({
+  ids: z.array(idSchema).min(1, adminText.products.bulk.none).max(100),
+  op: z.enum(["publish", "unpublish", "archive"]),
+});
+
+export const productIdSchema = z.object({ id: idSchema });
+export const deleteProductSchema = z.object({ id: idSchema, confirm: z.string().max(80) });
+
+export { STOCK_REASONS };
+export type { StockReason };
+
+export const adjustStockSchema = z.object({
+  variantId: idSchema,
+  stock: z.number({ error: copy.forms.required }).int().min(0).max(100_000),
+  reason: z.enum(STOCK_REASONS, { error: copy.forms.invalidChoice }),
+  note: optional(200),
+});
+
+export const renameCategorySchema = z
+  .object({ from: required(60), to: required(60).transform((name) => name.replace(/\s+/g, " ")) })
+  .refine((value) => value.from !== value.to, { error: adminText.errors.sameCategory, path: ["to"] });
+
+export const customerIdSchema = z.object({ customerId: idSchema });
+
+const dateInput = z
+  .string()
+  .trim()
+  .max(40)
+  .optional()
+  .transform((value, context) => {
+    if (!value) return null;
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      context.addIssue({ code: "custom", message: copy.forms.invalidChoice });
+      return z.NEVER;
+    }
+    return date;
+  });
+
+/** Promo codes. The discount is stored here and, once checkout exists, computed from this row only. */
+export const promotionSchema = z
+  .object({
+    id: idSchema.optional(),
+    code: z
+      .string({ error: copy.forms.required })
+      .trim()
+      .toUpperCase()
+      .regex(/^[A-Z0-9]{3,24}$/, adminText.promotions.fields.codeHint),
+    kind: z.enum(["percent", "fixed"], { error: copy.forms.invalidChoice }),
+    value: z.number({ error: copy.forms.required }).int().min(1).max(100_000_000),
+    minOrderUzs: z.number().int().min(0).max(100_000_000).default(0),
+    startsAt: dateInput,
+    endsAt: dateInput,
+    usageLimit: z.number().int().min(1).max(1_000_000).nullable().default(null),
+    active: z.boolean().default(true),
+    note: optional(200),
+  })
+  .superRefine((value, context) => {
+    if (value.kind === "percent" && value.value > 90) context.addIssue({ code: "custom", path: ["value"], message: adminText.promotions.fields.valueHint });
+    if (value.startsAt && value.endsAt && value.endsAt <= value.startsAt) context.addIssue({ code: "custom", path: ["endsAt"], message: copy.forms.invalidChoice });
+  });
+export type PromotionInput = z.input<typeof promotionSchema>;
+
+export const promotionIdSchema = z.object({ id: idSchema });
+
+/** Staff passwords are longer than shoppers': they open the whole store. */
+export const STAFF_PASSWORD_MIN = 12;
+const staffPassword = z
+  .string({ error: copy.forms.required })
+  .min(STAFF_PASSWORD_MIN, adminText.settings.passwordShort)
+  .max(256, copy.forms.tooLong);
+
+export const createAdminUserSchema = z.object({
+  email: emailSchema,
+  role: z.enum(ADMIN_ROLES, { error: copy.forms.invalidChoice }),
+  password: staffPassword,
+});
+export const setAdminRoleSchema = z.object({ id: idSchema, role: z.enum(ADMIN_ROLES, { error: copy.forms.invalidChoice }) });
+export const adminUserIdSchema = z.object({ id: idSchema });
+
+export const changePasswordSchema = z
+  .object({ current: z.string().min(1, copy.forms.required).max(512), next: staffPassword, confirm: z.string().min(1, copy.forms.required) })
+  .refine((value) => value.next === value.confirm, { error: adminText.settings.mismatch, path: ["confirm"] });
 
 /** Field errors keyed by dotted path, for `Field` error props. */
 export function fieldErrors(error: z.ZodError): Record<string, string> {

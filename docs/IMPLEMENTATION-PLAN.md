@@ -40,7 +40,8 @@ References: a "Try the Look" lineup of full-body looks with an "in this look" pa
 - [ ] Registration, password reset, account page and sign-out
 - [ ] Guest `/checkout` and order page
 - [ ] Delivery zones editable in admin
-- [ ] Admin UI: products, stock, media, orders
+- [x] Admin UI `/admin`: dashboard, products (list, bulk, editor, preview, archive, safe delete), categories (rename and merge), stock with history, media and 3D status, orders, customers, promotions (stored only), analytics from real rows, team with roles, activity trail, settings and own password
+- [ ] Admin: GLB upload through the panel, a categories table (image, description, order), editable store settings, notifications
 - [ ] Policy pages marked for owner review
 - [ ] Click and Payme adapters: blocked on merchant accounts
 

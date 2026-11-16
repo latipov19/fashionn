@@ -1,6 +1,8 @@
 import { eq, lt } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import type { AdminPermission, AdminRole } from "@/lib/admin-roles";
+import { can } from "@/lib/admin-roles";
 import { loginSchema } from "@/lib/validation";
 import { getDb } from "./db/client";
 import { adminSessions, adminUsers } from "./db/schema";
@@ -13,13 +15,21 @@ export const LOGIN_PATH = "/admin/login";
 const SESSION_DAYS = 7;
 const SESSION_MS = SESSION_DAYS * 24 * 60 * 60 * 1000;
 
-export type AdminSession = { sessionId: string; adminUserId: string; email: string; expiresAt: Date };
+export type AdminSession = { sessionId: string; adminUserId: string; email: string; role: AdminRole; expiresAt: Date };
 
 /** Thrown by requireAdmin. Actions turn it into a refused result. */
 export class UnauthorizedError extends Error {
   constructor() {
     super("Unauthorized");
     this.name = "UnauthorizedError";
+  }
+}
+
+/** Thrown by requireAdmin when the signed-in role may not do this. */
+export class ForbiddenError extends Error {
+  constructor(readonly permission: AdminPermission) {
+    super("Forbidden");
+    this.name = "ForbiddenError";
   }
 }
 
@@ -35,6 +45,7 @@ export async function getSession(): Promise<AdminSession | null> {
       sessionId: adminSessions.id,
       adminUserId: adminSessions.adminUserId,
       email: adminUsers.email,
+      role: adminUsers.role,
       expiresAt: adminSessions.expiresAt,
     })
     .from(adminSessions)
@@ -46,14 +57,19 @@ export async function getSession(): Promise<AdminSession | null> {
   return row;
 }
 
-/** Use this in actions and route handlers. Refuses with UnauthorizedError. */
-export async function requireAdmin(): Promise<AdminSession> {
+/**
+ * Use this in actions, reads and route handlers. Refuses with UnauthorizedError without a
+ * session, and with ForbiddenError when the role lacks `permission`. The role comes from the
+ * database row behind the session, never from the request.
+ */
+export async function requireAdmin(permission?: AdminPermission): Promise<AdminSession> {
   const session = await getSession();
   if (!session) throw new UnauthorizedError();
+  if (permission && !can(session.role, permission)) throw new ForbiddenError(permission);
   return session;
 }
 
-/** Use this in admin pages. Sends the visitor to sign in. */
+/** Use this in admin pages. Sends the visitor to sign in; the page checks a permission itself. */
 export async function requireAdminPage(): Promise<AdminSession> {
   const session = await getSession();
   if (!session) redirect(LOGIN_PATH);

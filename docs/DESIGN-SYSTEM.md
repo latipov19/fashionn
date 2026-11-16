@@ -141,8 +141,21 @@ Demo assets never imply fit or fabric behaviour, show no real person's likeness 
 
 ## 9. Adding a real product
 
-1. In admin, create the product with fabric, fit, care, size chart, price, optional sale price, sizes, colours and worlds.
+1. In admin, create the product with fabric, fit, care, price, optional sale price, sizes, colours and worlds. The size chart is not editable in the panel yet; it comes from the seed or the database.
 2. Photograph each colour on a plain ground: front, back, detail and on-body. Export JPEG or PNG with the long edge at least 2000 px.
 3. Upload per colour with descriptive alt text. The server crops to 4:5 around a focal point, strips metadata and writes three WebP widths. The photo takes the lead position automatically.
 4. Set stock per variant, turn off the demo flag and publish.
 5. Optional GLB, per colour: owner-provided, licensed, or AI-generated and tagged DEMO. The import centres it, compresses geometry with Meshopt and textures to WebP, and keeps it under 3 MB. KTX2 textures need the `toktx` tool and can replace WebP later.
+
+## 10. Admin panel
+
+The store's back office at `/admin`, in the DARK MODE world's tokens whatever world the shop shows, with its own frame and stylesheet (`src/app/admin/admin.css`, loaded only there). It shares the shop's DNA without its spectacle: graphite surfaces, hairline glass edges, the world's display voice for page titles, the shop's buttons and fields, and no 3D.
+
+| | |
+|---|---|
+| Frame | A sidebar grouped Umumiy, Katalog, Savdo, Tizim, showing only what the role may use; it collapses to icons on desktop (kept per browser) and becomes a modal drawer below 1024 px. A sticky top bar holds the breadcrumbs, a link to the shop and the account menu |
+| Pages | A kicker, a display title and one lead line, then the work. Filters are one GET form above the content they scope, so a filtered view is a shareable link. Tables scroll sideways inside their own frame, never the page |
+| States | Every list has an empty state that says why it is empty, a skeleton while the server reads, and an error view with a retry. With no orders, sales figures and charts say so instead of drawing invented numbers; the demo catalogue is called out as demo |
+| Feedback | Every action answers in a toast; field errors from the server sit under their fields. Destructive actions confirm in a modal dialog whose default button is Cancel; deleting a product also asks for its handle typed out |
+| Charts | Plain HTML and CSS. One series per chart in one blue (`#3987e5`, validated against `--bg-raised`), 24 px columns with 4 px rounded data ends and 2 px gaps, values in text ink, a hover and focus tooltip on every column, and a table view under each chart. Stock health is a tall segmented bar in the reserved status colours, always with its legend |
+| Dates | Tashkent time, written as 16.11.2026, formatted by hand so the server and the browser print the same |

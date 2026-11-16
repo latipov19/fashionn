@@ -5,6 +5,7 @@ export type ActionFailureCode =
   | "not_found"
   | "conflict"
   | "invalid_transition"
+  | "forbidden"
   | "error";
 
 export type ActionFailure = {

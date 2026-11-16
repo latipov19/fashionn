@@ -14,6 +14,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import type { MediaRole, MediaSrc, SizeChart, Slot, WorldSlug } from "../../content/types";
+import type { AdminRole } from "../../lib/admin-roles";
 
 export const ORDER_STATUSES = ["pending", "confirmed", "packed", "shipped", "delivered", "canceled", "returned"] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
@@ -53,6 +54,8 @@ export const products = pgTable(
     isDemo: boolean("is_demo").notNull().default(false),
     published: boolean("published").notNull().default(true),
     sortOrder: integer("sort_order").notNull().default(0),
+    /** Set when the owner archives the product: off the shop, out of the working lists, kept for past orders. */
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -230,9 +233,11 @@ export const adminUsers = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     email: text("email").notNull(),
     passwordHash: text("password_hash").notNull(),
+    /** Set only by server code: the environment's first admin is the owner, the owner adds the rest. */
+    role: text("role").$type<AdminRole>().notNull().default("owner"),
     createdAt: createdAt(),
   },
-  (t) => [uniqueIndex("admin_users_email_key").on(t.email)],
+  (t) => [uniqueIndex("admin_users_email_key").on(t.email), check("admin_users_role_valid", sql`${t.role} in ('owner', 'manager', 'editor')`)],
 );
 
 export const adminSessions = pgTable(
@@ -281,6 +286,93 @@ export const customerSessions = pgTable(
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex("customer_sessions_token_hash_key").on(t.tokenHash), index("customer_sessions_expires_idx").on(t.expiresAt)],
+);
+
+/** Flat values only, never a password, token or a shopper's contact details. */
+export type ActivityMeta = Record<string, string | number | boolean | null>;
+
+/**
+ * What staff did in the panel. Written by server actions only and never edited: the panel has no
+ * way to change or delete an entry. The actor's email is copied, so the trail survives their removal.
+ */
+export const adminActivity = pgTable(
+  "admin_activity",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    actorId: uuid("actor_id").references(() => adminUsers.id, { onDelete: "set null" }),
+    actorEmail: text("actor_email").notNull(),
+    action: text("action").notNull(),
+    targetType: text("target_type").notNull(),
+    targetId: text("target_id"),
+    targetLabel: text("target_label"),
+    meta: jsonb("meta").$type<ActivityMeta>().notNull().default({}),
+    createdAt: createdAt(),
+  },
+  (t) => [index("admin_activity_created_idx").on(t.createdAt), index("admin_activity_target_idx").on(t.targetType, t.targetId)],
+);
+
+/**
+ * Every stock change made by staff, with the reason. Product, colour, size and SKU are copied,
+ * so the history still reads after a product is deleted.
+ */
+export const inventoryAdjustments = pgTable(
+  "inventory_adjustments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    variantId: uuid("variant_id").references(() => variants.id, { onDelete: "set null" }),
+    productName: text("product_name").notNull(),
+    colorName: text("color_name").notNull(),
+    size: text("size").notNull(),
+    sku: text("sku").notNull(),
+    previousStock: integer("previous_stock").notNull(),
+    newStock: integer("new_stock").notNull(),
+    reason: text("reason").notNull(),
+    note: text("note"),
+    actorId: uuid("actor_id").references(() => adminUsers.id, { onDelete: "set null" }),
+    actorEmail: text("actor_email").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("inventory_adjustments_created_idx").on(t.createdAt),
+    index("inventory_adjustments_variant_idx").on(t.variantId),
+    check("inventory_adjustments_stock_nonnegative", sql`${t.newStock} >= 0 and ${t.previousStock} >= 0`),
+  ],
+);
+
+export const PROMOTION_KINDS = ["percent", "fixed"] as const;
+export type PromotionKind = (typeof PROMOTION_KINDS)[number];
+
+/**
+ * Promo codes. Managed here; there is no checkout page yet, so nothing applies them to a
+ * purchase. When checkout arrives, the server works the discount out from this row, never from
+ * an amount the browser sends.
+ */
+export const promotions = pgTable(
+  "promotions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** Stored upper case. */
+    code: text("code").notNull(),
+    kind: text("kind").$type<PromotionKind>().notNull(),
+    /** Percent (1 to 90) or whole soʻm off. */
+    value: integer("value").notNull(),
+    minOrderUzs: integer("min_order_uzs").notNull().default(0),
+    startsAt: timestamp("starts_at", { withTimezone: true }),
+    endsAt: timestamp("ends_at", { withTimezone: true }),
+    usageLimit: integer("usage_limit"),
+    usedCount: integer("used_count").notNull().default(0),
+    active: boolean("active").notNull().default(true),
+    note: text("note"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex("promotions_code_key").on(t.code),
+    check("promotions_kind_valid", sql`${t.kind} in ('percent', 'fixed')`),
+    check("promotions_value_valid", sql`(${t.kind} = 'percent' and ${t.value} between 1 and 90) or (${t.kind} = 'fixed' and ${t.value} > 0)`),
+    check("promotions_dates_ordered", sql`${t.startsAt} is null or ${t.endsAt} is null or ${t.endsAt} > ${t.startsAt}`),
+    check("promotions_limits_valid", sql`${t.minOrderUzs} >= 0 and ${t.usedCount} >= 0 and (${t.usageLimit} is null or ${t.usageLimit} > 0)`),
+  ],
 );
 
 export const newsletterSignups = pgTable(

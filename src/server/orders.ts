@@ -271,7 +271,7 @@ export async function getOrderByToken(token: string): Promise<Order | null> {
 
 /** Newest first. */
 export async function adminListOrders(filter: { status?: OrderStatus; limit?: number } = {}): Promise<OrderSummary[]> {
-  await requireAdmin();
+  await requireAdmin("orders");
   const db = await getDb();
   const rows = await db
     .select()
@@ -306,7 +306,7 @@ export async function adminListOrders(filter: { status?: OrderStatus; limit?: nu
 }
 
 export async function adminGetOrder(id: string): Promise<Order | null> {
-  await requireAdmin();
+  await requireAdmin("orders");
   const db = await getDb();
   const [row] = await db.select().from(orders).where(eq(orders.id, id)).limit(1);
   return row ? hydrateOrder(row, db) : null;
@@ -378,7 +378,7 @@ async function restoreStockOnce(tx: Tx, orderId: string): Promise<void> {
 
 /** Moves an order on. Cancelling and returning always bring the stock back. */
 export async function setOrderStatus(orderId: string, status: OrderStatus): Promise<StatusChangeResult> {
-  await requireAdmin();
+  await requireAdmin("orders");
   if (status === "canceled") return cancelOrder(orderId);
   if (status === "returned") return transition(orderId, "returned", (tx) => restoreStockOnce(tx, orderId));
   return transition(orderId, status);
@@ -386,6 +386,6 @@ export async function setOrderStatus(orderId: string, status: OrderStatus): Prom
 
 /** Cancels and restores stock. */
 export async function cancelOrder(orderId: string): Promise<StatusChangeResult> {
-  await requireAdmin();
+  await requireAdmin("orders");
   return transition(orderId, "canceled", (tx) => restoreStockOnce(tx, orderId));
 }
