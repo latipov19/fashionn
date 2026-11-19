@@ -8,6 +8,7 @@ export const pages = [
   { key: "home", href: "/", label: copy.nav.pages.home },
   { key: "drop", href: "/drop", label: copy.nav.pages.drop },
   { key: "showroom", href: "/showroom", label: copy.nav.pages.showroom },
+  { key: "tryon", href: "/try-on", label: copy.nav.pages.tryOn },
   { key: "look", href: "/look", label: copy.nav.pages.look },
   { key: "about", href: "/about", label: copy.nav.pages.about },
 ] as const;

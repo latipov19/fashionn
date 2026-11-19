@@ -130,8 +130,10 @@ describe("worlds", () => {
 
 describe("pages", () => {
   it("visits every page once and wraps back to the hero", () => {
-    expect(pages.map((page) => page.href)).toEqual(["/", "/drop", "/showroom", "/look", "/about"]);
+    expect(pages.map((page) => page.href)).toEqual(["/", "/drop", "/showroom", "/try-on", "/look", "/about"]);
     expect(nextPage("home").href).toBe("/drop");
+    expect(nextPage("showroom").href).toBe("/try-on");
+    expect(nextPage("tryon").href).toBe("/look");
     expect(nextPage("about").href).toBe("/");
   });
 });

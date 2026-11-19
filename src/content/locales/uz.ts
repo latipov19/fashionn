@@ -35,6 +35,7 @@ export const uz = {
       home: "Bosh sahifa",
       drop: "Drop",
       showroom: "3D Showroom",
+      tryOn: "Kiyib koʻrish",
       look: "Obraz",
       about: "Biz haqimizda",
     },

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { TryOnStudio } from "@/components/try-on/try-on-studio";
-import { WorldPage } from "@/components/world/world-page";
+import { NextPageLink, WorldPage } from "@/components/world/world-page";
 import { copy } from "@/content/copy";
 import { withWorld, worldOr } from "@/content/worlds";
 import { listTryOnProducts } from "@/server/try-on/catalog";
@@ -35,6 +35,9 @@ export default async function TryOnPage({ searchParams }: { searchParams: Search
           <p className="t-lead text-muted measure">{text.lead}</p>
         </header>
         <TryOnStudio products={products} initial={{ handle: first(params.product), color: first(params.color) }} ai={tryOnAvailability()} exitHref={withWorld("/showroom", world)} />
+      </div>
+      <div className="shell page-next">
+        <NextPageLink page="tryon" world={world} />
       </div>
     </WorldPage>
   );
