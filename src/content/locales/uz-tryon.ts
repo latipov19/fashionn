@@ -39,7 +39,7 @@ export const uzTryOn = {
   },
   ar: {
     badge: "AR koʻrinish · taxminiy",
-    note: "Bu jonli AR: mahsulot surati tanangizga joylanadi. Matoning burmalari va qoʻllar ortida qolishi hisoblanmaydi.",
+    note: "Bu jonli AR: kiyim yelka, bel va qoʻllaringizga qarab egiladi, yuz, soch va qoʻllar uning oldida koʻrinadi. Bu taxminiy koʻrinish: mato burmalari va orqa tomoni hisoblanmaydi.",
     noOverlay: "Bu mahsulotning fonsiz surati yoʻq, shuning uchun AR koʻrinish ishlamaydi. AI natijani sinab koʻring.",
   },
   catalog: {

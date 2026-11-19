@@ -4,27 +4,41 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { copy } from "@/content/copy";
+import { bodyFromLandmarks, LandmarkSmoother } from "@/lib/try-on/body";
 import type { GarmentProfile, TrackingState } from "@/lib/try-on/geometry";
-import { DEFAULT_PLACEMENT, garmentProfile, OneEuroFilter, placeGarment } from "@/lib/try-on/geometry";
+import { DEFAULT_PLACEMENT, garmentProfile, placeGarment } from "@/lib/try-on/geometry";
+import type { GarmentRig } from "@/lib/try-on/rig";
+import { rigForCategory } from "@/lib/try-on/rig";
+import { fitGarment } from "@/lib/try-on/warp";
 import type { TryOnResult } from "@/server/actions/try-on";
 import { tryOnAction } from "@/server/actions/try-on";
 import type { TryOnProduct } from "@/server/try-on/catalog";
+import type { BodyMasker } from "./body-masker";
+import type { PreparedGarment } from "./garment-renderer";
+import { drawGarment, prepareGarment } from "./garment-renderer";
 import type { PoseTracker } from "./pose-tracker";
 import { useCamera } from "./use-camera";
 
 const text = copy.tryOn;
 
 type Tracking = "off" | "loading" | "failed" | TrackingState;
-type Garment = { image: HTMLImageElement; profile: GarmentProfile } | null;
+type Garment = { profile: GarmentProfile; prepared: PreparedGarment } | null;
 type Selection = { handle: string; color: string };
+/**
+ * How often the hair, face and skin mask is refreshed, in frames, from what a frame costs on this
+ * device: every other frame when it keeps up, down to every fourth when it doesn't. The mask costs
+ * about as much GPU time as the pose; on a slow device refreshing it less keeps the garment moving
+ * at the camera's pace, and the cut-out still uses the current frame's pixels.
+ */
+const maskInterval = (frameMs: number) => (frameMs > 40 ? 4 : frameMs > 28 ? 3 : 2);
 
 /** The first colour with a cut-out, else the first colour. */
 function defaultColor(product: TryOnProduct): string {
   return (product.colors.find((color) => color.overlay) ?? product.colors[0])?.slug ?? "";
 }
 
-/** Decodes the packshot and reads where the garment sits in it. Null when it has no transparent background. */
-async function loadGarment(url: string): Promise<Garment> {
+/** Decodes the packshot, reads where the garment sits in it and splits off the sleeves. Null without a transparent background. */
+async function loadGarment(url: string, rig: GarmentRig): Promise<Garment> {
   const image = new Image();
   image.decoding = "async";
   image.src = url;
@@ -36,7 +50,7 @@ async function loadGarment(url: string): Promise<Garment> {
   if (!context) return null;
   context.drawImage(image, 0, 0);
   const profile = garmentProfile(context.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
-  return profile ? { image, profile } : null;
+  return profile ? { profile, prepared: prepareGarment(image, profile, rig) } : null;
 }
 
 /**
@@ -50,8 +64,9 @@ export function TryOnStudio({ products, initial, ai, exitHref }: { products: Try
   const { video, state: cameraState, facing, cameras, start, stop, switchCamera } = useCamera();
   const canvas = useRef<HTMLCanvasElement>(null);
   const tracker = useRef<PoseTracker | null>(null);
+  const masker = useRef<BodyMasker | null>(null);
   const garment = useRef<Garment>(null);
-  const filters = useRef({ x: new OneEuroFilter(), y: new OneEuroFilter(), scale: new OneEuroFilter(0.8), angle: new OneEuroFilter(), yaw: new OneEuroFilter(0.8) });
+  const smoother = useRef(new LandmarkSmoother());
   const shown = useRef<{ state: Tracking; confidence: number }>({ state: "off", confidence: 0 });
 
   const [tracking, setTracking] = useState<{ state: Tracking; confidence: number }>({ state: "off", confidence: 0 });
@@ -77,16 +92,17 @@ export function TryOnStudio({ products, initial, ai, exitHref }: { products: Try
     setTracking({ state, confidence: rounded });
   }, []);
 
-  const resetFilters = useCallback(() => Object.values(filters.current).forEach((filter) => filter.reset()), []);
+  const resetFilters = useCallback(() => smoother.current.reset(), []);
+  const category = product?.category ?? "";
 
-  // The garment for the selected colour, decoded once per selection.
+  // The garment for the selected colour, decoded and rigged once per selection.
   useEffect(() => {
     let current = true;
     const url = color?.overlay;
     garment.current = null;
     resetFilters();
     if (!url) return;
-    loadGarment(url)
+    loadGarment(url, rigForCategory(category))
       .then((loaded) => {
         if (!current) return;
         garment.current = loaded;
@@ -96,24 +112,40 @@ export function TryOnStudio({ products, initial, ai, exitHref }: { products: Try
     return () => {
       current = false;
     };
-  }, [color?.overlay, resetFilters]);
+  }, [color?.overlay, category, resetFilters]);
 
   // Pose tracking: loaded the first time the camera goes live, kept while the page is open.
   useEffect(() => {
-    if (!live || tracker.current) return;
+    if (!live || (tracker.current && masker.current)) return;
     let cancelled = false;
-    report("loading");
-    import("./pose-tracker")
-      .then(({ createPoseTracker }) => createPoseTracker())
-      .then((created) => {
-        if (cancelled) return created.close();
-        tracker.current = created;
-        report("no_person");
-      })
-      .catch((error: unknown) => {
-        console.error("pose tracking failed to load", error);
-        if (!cancelled) report("failed");
-      });
+    // The hair, face and skin mask comes second, once the pose runs (both fetch the same runtime).
+    // Without it the garment still fits; it just covers the hands and face.
+    const loadMasker = () => {
+      if (masker.current) return;
+      import("./body-masker")
+        .then(({ createBodyMasker }) => createBodyMasker())
+        .then((created) => {
+          if (cancelled) return created.close();
+          masker.current = created;
+        })
+        .catch((error: unknown) => console.warn("body mask unavailable, drawing without it", error));
+    };
+    if (tracker.current) loadMasker();
+    else {
+      report("loading");
+      import("./pose-tracker")
+        .then(({ createPoseTracker }) => createPoseTracker())
+        .then((created) => {
+          if (cancelled) return created.close();
+          tracker.current = created;
+          report("no_person");
+          loadMasker();
+        })
+        .catch((error: unknown) => {
+          console.error("pose tracking failed to load", error);
+          if (!cancelled) report("failed");
+        });
+    }
     return () => {
       cancelled = true;
     };
@@ -123,6 +155,8 @@ export function TryOnStudio({ products, initial, ai, exitHref }: { products: Try
     () => () => {
       tracker.current?.close();
       tracker.current = null;
+      masker.current?.close();
+      masker.current = null;
     },
     [],
   );
@@ -136,6 +170,9 @@ export function TryOnStudio({ products, initial, ai, exitHref }: { products: Try
       return;
     }
     let frame = 0;
+    let count = 0;
+    /** Average cost of a fitted frame, ms. */
+    let frameMs = 0;
     let lastVideoTime = -1;
     const draw = () => {
       frame = requestAnimationFrame(draw);
@@ -144,6 +181,7 @@ export function TryOnStudio({ products, initial, ai, exitHref }: { products: Try
       const pose = tracker.current;
       if (!element || !surface || !pose || element.readyState < 2 || element.currentTime === lastVideoTime) return;
       lastVideoTime = element.currentTime;
+      const started = performance.now();
       const width = element.videoWidth;
       const height = element.videoHeight;
       if (surface.width !== width || surface.height !== height) {
@@ -173,19 +211,24 @@ export function TryOnStudio({ products, initial, ai, exitHref }: { products: Try
         resetFilters();
         return;
       }
-      if (!current) return;
-      const t = performance.now() / 1000;
-      const f = filters.current;
-      const x = f.x.filter(placement.x, t);
-      const y = f.y.filter(placement.y, t);
-      const scale = f.scale.filter(placement.scale, t);
-      const angle = f.angle.filter(placement.angle, t);
-      const yaw = f.yaw.filter(placement.yaw, t);
-      context.translate(x, y);
-      context.rotate(angle);
-      // Foreshortened as the body turns, so the garment narrows with the shoulders.
-      context.scale(scale * Math.max(Math.cos(yaw), 0.4), scale);
-      context.drawImage(current.image, -current.profile.centerX, -current.profile.shoulderY);
+      if (!current || !landmarks) return;
+      const mask = masker.current;
+      if (mask && count++ % maskInterval(frameMs) === 0) {
+        try {
+          mask.update(element, performance.now());
+        } catch (error) {
+          console.warn("body mask failed, drawing without it", error);
+          masker.current = null;
+          mask.close();
+        }
+      }
+      // Bend the garment onto the smoothed body: torso to shoulders and hips, sleeves along the arms.
+      const body = bodyFromLandmarks(smoother.current.smooth(landmarks, performance.now() / 1000), { width, height });
+      // The masks may be a few frames old; the pixels cut out with them are always this frame's.
+      const masks = masker.current?.masks;
+      drawGarment(context, current.prepared, fitGarment(body, current.prepared.rig), masks ? { video: element, ...masks } : null);
+      const spent = performance.now() - started;
+      frameMs = frameMs ? frameMs * 0.9 + spent * 0.1 : spent;
     };
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
