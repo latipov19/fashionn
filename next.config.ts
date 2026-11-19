@@ -18,7 +18,12 @@ const config: NextConfig = {
     proxyClientMaxBodySize: "11mb",
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // The try-on page is the one place the camera may run, and only for this site itself. The
+      // later rule wins for the same header key.
+      { source: "/try-on", headers: [{ key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" }] },
+    ];
   },
 };
 

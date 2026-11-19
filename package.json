@@ -25,6 +25,8 @@
   },
   "dependencies": {
     "@electric-sql/pglite": "0.5.15",
+    "@gradio/client": "1.19.1",
+    "@mediapipe/tasks-vision": "1.2.2",
     "@react-three/drei": "10.7.9",
     "@react-three/fiber": "9.8.2",
     "drizzle-orm": "0.45.4",
@@ -41,7 +43,6 @@
     "@gltf-transform/core": "4.5.1",
     "@gltf-transform/extensions": "4.5.1",
     "@gltf-transform/functions": "4.5.1",
-    "@gradio/client": "1.19.1",
     "@playwright/test": "1.65.0",
     "@tailwindcss/postcss": "4.3.4",
     "@types/node": "26.6.6",

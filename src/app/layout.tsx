@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { AdminShortcut } from "@/components/shell/admin-shortcut";
 import { PublicChrome } from "@/components/shell/public-chrome";
 import { SiteFooter } from "@/components/shell/site-footer";
 import { SiteHeader } from "@/components/shell/site-header";
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <PublicChrome>
             <SiteFooter />
           </PublicChrome>
+          <AdminShortcut />
         </ToastProvider>
       </body>
     </html>

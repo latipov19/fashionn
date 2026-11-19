@@ -72,6 +72,8 @@ export const customerRegisterLimiter = createRateLimiter({ limit: 10, windowMs: 
 /** Staff changing their own password: a stolen session cannot guess the current one quickly. */
 export const passwordChangeLimiter = createRateLimiter({ limit: 5, windowMs: FIFTEEN_MINUTES });
 export const checkoutLimiter = createRateLimiter({ limit: 10, windowMs: ONE_MINUTE });
+/** AI try-on costs money per image and minutes of GPU: a few per address, counted before any image is decoded. */
+export const tryOnLimiter = createRateLimiter({ limit: 5, windowMs: 10 * ONE_MINUTE });
 export const newsletterLimiter = createRateLimiter({ limit: 5, windowMs: ONE_MINUTE });
 
 export function resetRateLimits(): void {

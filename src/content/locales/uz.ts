@@ -4,6 +4,7 @@
  * lines stay marked as not yet confirmed.
  */
 import { uzAdmin } from "./uz-admin";
+import { uzTryOn } from "./uz-tryon";
 
 export const brand = {
   name: "VYBEVERSE",
@@ -336,6 +337,7 @@ export const uz = {
     },
   },
 
+  tryOn: uzTryOn,
   admin: uzAdmin,
 };
 

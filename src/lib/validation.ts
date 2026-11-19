@@ -360,6 +360,18 @@ export const changePasswordSchema = z
   .object({ current: z.string().min(1, copy.forms.required).max(512), next: staffPassword, confirm: z.string().min(1, copy.forms.required) })
   .refine((value) => value.next === value.confirm, { error: adminText.settings.mismatch, path: ["confirm"] });
 
+/* Try-on */
+
+/** One photo for AI try-on. Phone photos stay well under this after the page downscales them. */
+export const TRY_ON_MAX_BYTES = 8 * 1024 * 1024;
+
+/** The fields besides the photo. Consent must be given explicitly for every photo sent. */
+export const tryOnRequestSchema = z.object({
+  product: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(80),
+  color: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(80),
+  consent: z.literal("yes"),
+});
+
 /** Field errors keyed by dotted path, for `Field` error props. */
 export function fieldErrors(error: z.ZodError): Record<string, string> {
   const errors: Record<string, string> = {};
