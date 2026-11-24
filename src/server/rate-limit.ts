@@ -26,8 +26,16 @@ export function createRateLimiter(options: { limit: number; windowMs: number; no
     for (const [key, window] of windows) {
       if (window.resetAt <= time) windows.delete(key);
     }
-    // A flood of distinct keys must not grow memory without bound.
-    if (windows.size >= MAX_TRACKED_KEYS) windows.clear();
+    // A flood of distinct keys must not grow memory without bound. Drop only the oldest tenth
+    // (Map keeps insertion order): clearing everything would let a flood reset every counter,
+    // including the login limits, and hand an attacker fresh guesses.
+    if (windows.size >= MAX_TRACKED_KEYS) {
+      let excess = Math.ceil(MAX_TRACKED_KEYS / 10);
+      for (const key of windows.keys()) {
+        if (excess-- <= 0) break;
+        windows.delete(key);
+      }
+    }
   }
 
   const limiter: RateLimiter = {
