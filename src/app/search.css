@@ -1,0 +1,183 @@
+/*
+ * The header's search overlay, the product card's additions from the shop (a hover view, the
+ * "new" badge, a quieter sold-out image), skeletons and the store's error screen. Global: search
+ * opens from every page and cards appear on several. Built only from the world tokens, so it
+ * retints with the world like everything else.
+ */
+
+@layer components {
+  /* A modal open behind it stops the page from scrolling underneath. */
+  html:has(.search-dialog[open]), html:has(.shop-drawer[open]) { overflow: hidden; }
+
+  /* Search overlay: the dialog is the whole viewport, the panel sits inside it. */
+  .search-dialog {
+    position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none;
+    margin: 0; padding: 0; border: 0; background: transparent; color: var(--fg); overflow: hidden;
+  }
+  .search-dialog[open] { display: grid; align-items: stretch; }
+  .search-dialog::backdrop {
+    background: rgb(0 0 0 / .5);
+    background: color-mix(in oklab, var(--bg, #000) 62%, transparent);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  }
+  .search-panel {
+    display: grid; grid-template-rows: auto minmax(0, 1fr) auto; min-height: 0; width: 100%;
+    background-color: var(--glass-3); background-image: var(--glass-sheen);
+    -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .search-dialog[open] .search-panel { animation: vv-menu-in var(--d-3) var(--ease-out); }
+    .search-dialog[open]::backdrop { animation: vv-fade var(--d-3) var(--ease-out); }
+  }
+  /* From 640 px a floating panel where the header capsule is, the page dimmed behind it. */
+  @media (min-width: 40rem) {
+    .search-dialog[open] { align-items: start; padding: 10px var(--gutter); }
+    .search-panel {
+      width: min(880px, 100%); max-height: min(720px, calc(100svh - 20px)); margin-inline: auto;
+      border: 1px solid var(--glass-edge); border-radius: var(--r-lg); overflow: hidden;
+      box-shadow: var(--glass-inner), var(--shadow-lift);
+    }
+  }
+
+  .search-bar {
+    display: flex; align-items: center; gap: var(--s-2);
+    padding: max(var(--s-3), env(safe-area-inset-top)) var(--s-3) var(--s-3) var(--s-4);
+    border-bottom: 1px solid var(--glass-edge);
+    transition: border-color var(--d-2) var(--ease-out);
+  }
+  .search-bar:focus-within { border-bottom-color: color-mix(in oklab, var(--fg) 40%, transparent); }
+  .search-bar-icon { display: grid; place-items: center; color: var(--fg-muted); }
+  .search-bar-icon svg { width: 22px; height: 22px; }
+  .search-input {
+    flex: 1; min-width: 0; height: 52px; padding: 0; border: 0; background: transparent; color: var(--fg);
+    font-size: clamp(1.25rem, 2.4vw, 1.625rem); font-weight: 300; letter-spacing: -.01em;
+  }
+  /* The bar's underline brightens instead, so the field still shows focus. */
+  .search-input:focus-visible { outline: none; }
+  .search-input::placeholder { color: var(--fg-muted); opacity: .85; }
+  .search-input::-webkit-search-cancel-button, .shop-search-input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+
+  .search-clear {
+    flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--r-pill);
+    color: var(--fg-muted); transition: background-color var(--d-2) var(--ease-out), color var(--d-2) var(--ease-out);
+  }
+  .search-clear:hover { background: var(--tint); color: var(--fg); }
+  .search-clear svg { width: 18px; height: 18px; }
+  .search-close {
+    flex: none; display: inline-flex; align-items: center; gap: var(--s-2); min-height: 44px; padding: 0 var(--s-3);
+    border-radius: var(--r-pill); color: var(--fg-muted); font-size: var(--t-small); font-weight: 500;
+    transition: background-color var(--d-2) var(--ease-out), color var(--d-2) var(--ease-out);
+  }
+  .search-close:hover { background: var(--tint); color: var(--fg); }
+  .search-close kbd {
+    display: none; padding: 1px 6px; border: 1px solid var(--glass-edge-strong); border-radius: 6px;
+    font-family: inherit; font-size: 11px; font-weight: 600; letter-spacing: .04em;
+  }
+  @media (min-width: 40rem) and (hover: hover) { .search-close kbd { display: inline-block; } }
+
+  .search-body {
+    display: grid; align-content: start; gap: var(--s-6); min-height: 0;
+    overflow-y: auto; overscroll-behavior: contain; padding: var(--s-5) var(--s-4) var(--s-6);
+  }
+  @media (min-width: 40rem) { .search-body { padding-inline: var(--s-5); } }
+  .search-idle { display: grid; gap: var(--s-6); }
+  .search-group { display: grid; gap: var(--s-3); }
+  .search-group-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+  .search-chips { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .search-chip {
+    display: inline-flex; align-items: center; gap: var(--s-2); min-height: 40px; padding: 0 var(--s-4);
+    border: 1px solid var(--glass-edge); border-radius: var(--r-pill); background: var(--tint);
+    font-size: var(--t-small); font-weight: 500;
+    transition: background-color var(--d-2) var(--ease-out), border-color var(--d-2) var(--ease-out), transform var(--d-2) var(--ease-out);
+  }
+  .search-chip:hover { border-color: var(--glass-edge-strong); background: color-mix(in oklab, var(--fg) 12%, transparent); }
+  .search-chip:active { transform: scale(.97); }
+  .search-chip svg { width: 16px; height: 16px; color: var(--fg-muted); }
+  .search-chip-count { font-size: 11px; font-weight: 500; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+  .search-text-btn {
+    min-height: 36px; font-size: var(--t-small); color: var(--fg-muted);
+    text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--glass-edge-strong);
+    transition: color var(--d-2) var(--ease-out);
+  }
+  .search-text-btn:hover { color: var(--fg); }
+
+  .search-results { display: grid; gap: var(--s-5); }
+  .search-results .search-group { gap: var(--s-1); }
+  .search-results .search-group > p { padding: 0 var(--s-3) var(--s-2); }
+  .search-suggestion, .search-product, .search-all {
+    display: grid; align-items: center; gap: var(--s-4); padding: var(--s-2) var(--s-3); border-radius: var(--r-md);
+    transition: background-color var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out);
+  }
+  .search-suggestion[aria-selected="true"], .search-product[aria-selected="true"], .search-all[aria-selected="true"] {
+    background: var(--tint); box-shadow: inset 0 0 0 1px var(--glass-edge);
+  }
+  .search-suggestion { grid-template-columns: auto minmax(0, 1fr) auto auto; min-height: 48px; }
+  .search-suggestion-icon { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--tint); color: var(--fg-muted); }
+  .search-suggestion-icon svg { width: 15px; height: 15px; }
+  .search-suggestion-label { font-weight: 500; }
+  .search-arrow { color: var(--fg-muted); transition: translate var(--d-3) var(--ease-out), color var(--d-2) var(--ease-out); }
+  [aria-selected="true"] > .search-arrow { translate: 4px 0; color: var(--fg); }
+
+  .search-product { grid-template-columns: 56px minmax(0, 1fr) auto; min-height: 80px; }
+  .search-thumb {
+    display: block; width: 56px; aspect-ratio: 4 / 5; overflow: hidden; border-radius: var(--r-xs);
+    background: var(--bg-sunken) center / cover;
+  }
+  .search-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .search-product-text { display: grid; gap: 2px; min-width: 0; }
+  .search-product-name, .search-product-meta { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .search-product-name { font-weight: 500; }
+  .search-product-meta { font-size: var(--t-small); color: var(--fg-muted); }
+  .search-product-price { display: grid; justify-items: end; font-size: var(--t-small); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .search-product-price s { color: var(--fg-muted); font-size: var(--t-micro); font-weight: 400; }
+  .search-mark {
+    background: none; color: inherit; font-weight: 700;
+    box-shadow: inset 0 -.32em 0 color-mix(in oklab, var(--glow) 38%, transparent);
+  }
+  .search-all {
+    grid-template-columns: minmax(0, 1fr) auto; min-height: 52px; margin-top: var(--s-2);
+    border: 1px solid var(--glass-edge); border-radius: var(--r-pill); padding-inline: var(--s-5);
+    font-size: var(--t-small); font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  }
+
+  .search-empty { display: grid; justify-items: start; gap: var(--s-3); padding-block: var(--s-2); }
+  .search-empty-title { font-size: var(--t-lead); font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
+  .search-empty .search-chips { margin-top: var(--s-2); }
+  .search-skeleton { display: grid; gap: var(--s-2); }
+  .search-skeleton-row {
+    height: 80px; border-radius: var(--r-md);
+    background: linear-gradient(100deg, var(--tint) 30%, color-mix(in oklab, var(--fg) 11%, transparent) 50%, var(--tint) 70%) 100% 0 / 300% 100%;
+    animation: vv-shimmer 1.4s linear infinite; animation-delay: calc(var(--i, 0) * 120ms);
+  }
+  .search-foot { display: none; padding: var(--s-3) var(--s-5); border-top: 1px solid var(--glass-edge); letter-spacing: .1em; }
+  @media (min-width: 40rem) and (hover: hover) { .search-foot { display: block; } }
+
+  /* Product card additions. The hover view fades over the lead image; touch screens never see it. */
+  .card-alt { position: absolute; inset: 0; opacity: 0; transition: opacity var(--d-4) var(--ease-out), transform var(--d-5) var(--ease-out); }
+  @media (hover: hover) { .card:hover .card-alt { opacity: 1; } }
+  .card-tags .card-new { background: var(--accent); color: var(--accent-fg); border-color: transparent; }
+  .card[data-sold-out] .card-media > img:first-child { opacity: .62; filter: saturate(.4); }
+
+  /* Skeletons: one shimmer for every placeholder shape. */
+  .skeleton {
+    display: block; border-radius: var(--r-md);
+    background: linear-gradient(100deg, var(--tint) 30%, color-mix(in oklab, var(--fg) 10%, transparent) 50%, var(--tint) 70%) 100% 0 / 300% 100%;
+    animation: vv-shimmer 1.4s linear infinite;
+  }
+  .skeleton-line { height: 14px; border-radius: var(--r-pill); }
+  .skeleton-title { height: clamp(2.5rem, 6vw, 5.5rem); width: min(32rem, 80%); }
+  .skeleton-bar { height: 52px; border-radius: var(--r-pill); }
+  .skeleton-block { height: 420px; }
+  .skeleton-card { aspect-ratio: 4 / 5.9; border-radius: var(--r-lg); }
+
+  /* A store page that failed to load. */
+  .route-error { display: grid; justify-items: start; gap: var(--s-5); padding-block: clamp(var(--s-8), 10vw, var(--s-10)); }
+}
+
+@keyframes vv-shimmer {
+  to { background-position: 0 0; }
+}
+
+@keyframes vv-fade {
+  from { opacity: 0; }
+}

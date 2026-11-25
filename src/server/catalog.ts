@@ -4,6 +4,7 @@ import { stockLabel } from "@/content/copy";
 import type { MediaRecord, ModelEntry, SizeChart, Slot, WorldSlug } from "@/content/types";
 import { worlds as worldContent, worldList } from "@/content/worlds";
 import { matchesQuery } from "@/lib/search";
+import { sortItems } from "@/lib/shop";
 import type { CatalogFilters, ParsedCatalogFilters } from "@/lib/validation";
 import { catalogFiltersSchema } from "@/lib/validation";
 import { requireAdmin } from "./auth";
@@ -90,20 +91,7 @@ export function filterProducts<T extends CatalogProduct>(items: readonly T[], fi
     return true;
   });
 
-  const featured = (a: T, b: T) => a.sortOrder - b.sortOrder || a.handle.localeCompare(b.handle);
-  const sorted = [...matches];
-  switch (filters.sort) {
-    case "name":
-      return sorted.sort((a, b) => a.name.localeCompare(b.name));
-    case "price-asc":
-      return sorted.sort((a, b) => a.priceUzs - b.priceUzs || featured(a, b));
-    case "price-desc":
-      return sorted.sort((a, b) => b.priceUzs - a.priceUzs || featured(a, b));
-    case "newest":
-      return sorted.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || featured(a, b));
-    case "featured":
-      return sorted.sort(featured);
-  }
+  return sortItems(matches, filters.sort === "name" ? "name-asc" : filters.sort);
 }
 
 type ProductRow = typeof products.$inferSelect;

@@ -32,7 +32,7 @@ src/
   content/        locales/, worlds.ts, catalog.demo.ts, commerce.ts, types.ts, media.generated.json
   server/         catalog, cart, orders, auth, media, rate-limit, payment/, storage/, actions/, db/
   lib/            money, search, validation, action-result, checkout-state
-  components/     ui/, shell/, product/, shop/, cart/, world/
+  components/     ui/, shell/, product/, shop/, search/, world/
   scene/          everything that imports three
 tools/demo-media/ demo garment renderer, not deployed
 public/media/demo/
@@ -77,6 +77,10 @@ Money is integer whole soʻm. Columns are named `*_uzs`.
 **Payment.** `PaymentProvider` is the seam. Only pay on delivery exists. Click and Payme need merchant credentials and sandbox accounts, and must add signed callback handling that is idempotent and checks amount and currency on the server.
 
 **Delivery.** Regions map to zones in `src/content/commerce.ts`. The server looks up the price. Admin editing arrives in Stage 2.
+
+**Shop and search.** `src/lib/shop.ts` is the one place search, filters, sort and facet counts live. It is pure and has no server imports, so `/shop` renders the filtered view on the server and the browser re-runs the same code on every change, with no request. `src/server/shop.ts` turns published products into lean `ShopItem` records: a folded search text (name, category, lines, colours, description, fabric), card images, `isNew` (the `commerce.newArrivalCount` most recently created) and `salesRank` (units from orders that are not cancelled or returned; only the rank leaves the server). Worlds are the store's lines, so "brand" filtering and search use them. The URL is the state (`q`, `category`, `line`, `min`, `max`, `stock`, `new`, `sort`); `world` is left alone because it retints the site. `ShopBrowser` answers clicks from local state and writes the URL with `history.pushState` or `replaceState` (choices push, typing replaces); a URL change it did not write (back, a link, the overlay) replaces that state. The header's search icon is still a link to `/shop` without scripts; with them it opens a modal `<dialog>` (Ctrl/⌘ + K or `/` too) that loads `/api/catalog` once a minute at most and searches it in the browser. The catalogue goes to the browser whole, which is right for hundreds of products; past that, run `applyShopQuery` on the server and page the results. Name sorting compares folded names by code unit, so server and browser always agree and hydration never differs.
+
+**Product page.** `/products/[handle]` takes the world it was opened from when the product belongs to it, otherwise the product's first world. Colour and size choice, the gallery and add-to-cart (`addToCartAction`) are one client component; the description and accordions are server-rendered children. It has no `loading.tsx` on purpose: with one, Next starts streaming before `notFound()` and an unknown product would answer 200 instead of 404. The cart, checkout and order pages are not built yet, so the header's bag still leads to the 404 page.
 
 ## 6. Security
 

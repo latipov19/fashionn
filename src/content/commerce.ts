@@ -8,6 +8,8 @@ export const commerce = {
   maxLineQuantity: 10,
   /** Variants at or under this count show the remaining number. */
   lowStockAt: 2,
+  /** The most recently added products carry the "new" badge and pass the new-arrivals filter. */
+  newArrivalCount: 6,
   deliveryZones: [
     { id: "tashkent", label: "Toshkent shahri", priceUzs: 30_000 },
     { id: "regions", label: "Viloyatlar", priceUzs: 50_000 },

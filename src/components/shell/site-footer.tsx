@@ -25,6 +25,9 @@ export function SiteFooter() {
                 </li>
               ))}
               <li>
+                <Link href="/shop">{copy.shop.title}</Link>
+              </li>
+              <li>
                 <Link href="/cart">{copy.nav.cart}</Link>
               </li>
             </ul>

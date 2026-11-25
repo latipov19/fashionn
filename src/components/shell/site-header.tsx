@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { unstable_rethrow } from "next/navigation";
 import { Suspense } from "react";
+import { SearchLauncher } from "@/components/search/search-launcher";
 import { Wordmark } from "@/components/ui/marks";
 import { copy } from "@/content/copy";
 import { pages } from "@/content/pages";
@@ -21,15 +22,6 @@ async function cartCount(): Promise<number> {
     console.error("cart count failed", error);
     return 0;
   }
-}
-
-function SearchIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <circle cx="10.5" cy="10.5" r="6.5" />
-      <path d="m15.5 15.5 5 5" />
-    </svg>
-  );
 }
 
 function BagIcon() {
@@ -67,10 +59,7 @@ export async function SiteHeader() {
               <NavLinks items={navItems} label={copy.nav.main} />
             </Suspense>
             <div className="header-actions">
-              <Link href="/shop" className="icon-link search-link">
-                <SearchIcon />
-                <span className="search-label">{copy.nav.search}</span>
-              </Link>
+              <SearchLauncher label={copy.nav.search} />
               <Suspense fallback={<AccountLinkFallback label={copy.nav.signInLabel} />}>
                 <AccountLink label={copy.nav.signInLabel} />
               </Suspense>

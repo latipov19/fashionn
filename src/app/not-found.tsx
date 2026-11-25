@@ -7,7 +7,7 @@ import { DEFAULT_WORLD } from "@/content/worlds";
 export const metadata: Metadata = { title: copy.notFound.title };
 
 /**
- * Every unknown address, and every link to a page that is not built yet (product, cart, shop),
+ * Every unknown address, an unpublished product, and every link to a page that is not built yet (cart),
  * lands here in the store's own voice, with a way back into the world pages.
  */
 export default function NotFound() {

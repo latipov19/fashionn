@@ -9,6 +9,7 @@ import { copy } from "@/content/copy";
 import { themeCss } from "@/content/worlds";
 import { cormorant, geologica, sofiaCondensed } from "./fonts";
 import "./globals.css";
+import "./search.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3100"),
